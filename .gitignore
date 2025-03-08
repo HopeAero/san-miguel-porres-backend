@@ -2,11 +2,18 @@
 /dist
 /node_modules
 /build
+/documentation
+/pnpm-lock.yaml
+/src/migrations
+/uploads
+/mongo
+/src/config/
 
 # Logs
 logs
 *.log
 npm-debug.log*
+package-lock.json
 pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
@@ -54,3 +61,9 @@ pids
 
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Extras
+postgres-data
+redis*
+package-lock.json
+src/config/database.config.ts
