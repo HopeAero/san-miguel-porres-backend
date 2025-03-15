@@ -3,10 +3,14 @@ import { CreatePersonaDto } from './dto/create-persona.dto';
 import { UpdatePersonaDto } from './dto/update-persona.dto';
 import { Repository } from 'typeorm';
 import { Persona } from './entities/persona.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class PersonasService {
-  constructor(private readonly personasRepository: Repository<Persona>) {}
+  constructor(
+    @InjectRepository(Persona)
+    private readonly personasRepository: Repository<Persona>,
+  ) {}
 
   async create(createPersonaDto: CreatePersonaDto) {
     return await this.personasRepository.save(createPersonaDto);
