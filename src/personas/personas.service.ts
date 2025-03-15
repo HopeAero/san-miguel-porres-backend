@@ -1,26 +1,53 @@
 import { Injectable } from '@nestjs/common';
 import { CreatePersonaDto } from './dto/create-persona.dto';
 import { UpdatePersonaDto } from './dto/update-persona.dto';
+import { Repository } from 'typeorm';
+import { Persona } from './entities/persona.entity';
 
 @Injectable()
 export class PersonasService {
-  create(createPersonaDto: CreatePersonaDto) {
-    return 'This action adds a new persona';
+  constructor(private readonly personasRepository: Repository<Persona>) {}
+
+  async create(createPersonaDto: CreatePersonaDto) {
+    return await this.personasRepository.save(createPersonaDto);
   }
 
-  findAll() {
-    return `This action returns all personas`;
+  async findAll() {
+    return await this.personasRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} persona`;
+  async findOne(id: number) {
+    const persona = await this.personasRepository.findOne({
+      where: { id },
+    });
+
+    return persona;
   }
 
-  update(id: number, updatePersonaDto: UpdatePersonaDto) {
-    return `This action updates a #${id} persona`;
+  async update(id: number, updatePersonaDto: UpdatePersonaDto) {
+    const persona = await this.personasRepository.findOne({
+      where: { id },
+    });
+
+    if (!persona) {
+      throw new Error('Esta persona no existe');
+    }
+
+    return await this.personasRepository.save({
+      ...persona,
+      ...updatePersonaDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} persona`;
+  async remove(id: number) {
+    const persona = await this.personasRepository.findOne({
+      where: { id },
+    });
+
+    if (!persona) {
+      throw new Error('Esta persona no existe');
+    }
+
+    return await this.personasRepository.softDelete(persona);
   }
 }
