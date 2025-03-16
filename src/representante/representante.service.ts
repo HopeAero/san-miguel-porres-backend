@@ -14,7 +14,7 @@ import { PersonasService } from '@/personas/personas.service';
 import { WrapperType } from '@/wrapper.type';
 import { UpdatePersonaDto } from '@/personas/dto/update-persona.dto';
 import { plainToClass } from 'class-transformer';
-import { EstudiantePersonaDto } from '@/estudiante/dto/EstudiantePersona.dto';
+import { RepresentantePersonaDto } from './dto/RepresentantePersona.dto';
 
 @Injectable()
 export class RepresentanteService {
@@ -51,13 +51,17 @@ export class RepresentanteService {
   }
 
   // Find a single Representante by ID
-  async findOne(id: number): Promise<EstudiantePersonaDto> {
+  async findOne(id: number): Promise<RepresentantePersonaDto> {
     const representante = await this.representanteRepository.findOne({
       where: { id },
-      relations: ['persona'],
+      relations: ['persona', 'estudiantes'],
     });
 
-    const representanteDto = plainToClass(EstudiantePersonaDto, representante);
+    const representanteDto = plainToClass(RepresentantePersonaDto, {
+      id: representante.id,
+      alumnos: representante.estudiantes,
+      ...representante.persona,
+    });
 
     return representanteDto;
   }

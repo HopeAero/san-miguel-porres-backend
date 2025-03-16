@@ -16,7 +16,7 @@ import { UpdatePersonaDto } from '@/personas/dto/update-persona.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { CreatePersonaDto } from '@/personas/dto/create-persona.dto';
 
-@ApiTags('representante')
+@ApiTags('Representante')
 @Controller('representante')
 export class RepresentanteController {
   constructor(private readonly representanteService: RepresentanteService) {}
