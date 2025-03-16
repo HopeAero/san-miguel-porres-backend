@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, FindOptionsWhere } from 'typeorm';
 import { Estudiante } from './entities/estudiante.entity';
-import { CreateEstudianteDto } from './dto/create-estudiante.dto';
 import { UpdateEstudianteDto } from './dto/update-estudiante.dto';
 import { PaginationEstudianteDto } from './dto/pagination-estudiante.dto';
 
@@ -13,14 +12,11 @@ export class EstudianteService {
     private estudianteRepository: Repository<Estudiante>,
   ) {}
 
-  // Create a new Estudiante
-  async create(createEstudianteDto: CreateEstudianteDto): Promise<Estudiante> {
-    const estudiante = this.estudianteRepository.create(createEstudianteDto); // Create a new instance
-    return this.estudianteRepository.save(estudiante); // Save to the database
-  }
-
   // Update an existing Estudiante
-  async update(id: number, updateEstudianteDto: UpdateEstudianteDto): Promise<Estudiante> {
+  async update(
+    id: number,
+    updateEstudianteDto: UpdateEstudianteDto,
+  ): Promise<Estudiante> {
     const estudiante = await this.estudianteRepository.preload({
       id,
       ...updateEstudianteDto, // Merge existing data with new data
@@ -33,7 +29,9 @@ export class EstudianteService {
 
   // Find a single Estudiante by ID
   async findOne(id: number): Promise<Estudiante> {
-    const estudiante = await this.estudianteRepository.findOne({ where: { id } }); // Find by ID
+    const estudiante = await this.estudianteRepository.findOne({
+      where: { id },
+    }); // Find by ID
     if (!estudiante) {
       throw new NotFoundException(`Estudiante with ID ${id} not found`); // Throw error if not found
     }
@@ -41,13 +39,15 @@ export class EstudianteService {
   }
 
   // Find all Estudiantes with pagination, search, and filtering
-  async findAll(paginationDto: PaginationEstudianteDto): Promise<{ data: Estudiante[]; total: number }> {
+  async findAll(
+    paginationDto: PaginationEstudianteDto,
+  ): Promise<{ data: Estudiante[]; total: number }> {
     const { page, limit, search, filter } = paginationDto;
     const where: FindOptionsWhere<Estudiante> = {};
 
     // Add search condition if provided
     if (search) {
-      where.persona = { Nombre: Like(`%${search}%`) }; // Search by Nombre in related Persona
+      where.persona = { nombre: Like(`%${search}%`) }; // Search by Nombre in related Persona
     }
 
     // Add additional filters if provided
