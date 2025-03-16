@@ -7,41 +7,45 @@ import {
   Delete,
   Query,
   ParseIntPipe,
+  Post,
 } from '@nestjs/common';
 import { RepresentanteService } from './representante.service';
 //import { CreateRepresentanteDto } from './dto/create-representante.dto';
 import { PaginationRepresentanteDto } from './dto/pagination-representate.dto';
 import { UpdatePersonaDto } from '@/personas/dto/update-persona.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { CreatePersonaDto } from '@/personas/dto/create-persona.dto';
 
+@ApiTags('representante')
 @Controller('representante')
 export class RepresentanteController {
   constructor(private readonly representanteService: RepresentanteService) {}
 
-  // @Post() // POST /representante
-  // create(@Body() createRepresentanteDto: CreateRepresentanteDto) {
-  //   return this.representanteService.create(createRepresentanteDto); // Call service to create
-  // }
+  @Post() // POST /representante
+  async create(@Body() createRepresentanteDto: CreatePersonaDto) {
+    return await this.representanteService.create(createRepresentanteDto);
+  }
 
   @Put(':id')
-  update(
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateRepresentanteDto: UpdatePersonaDto,
   ) {
-    return this.representanteService.update(id, updateRepresentanteDto);
+    return await this.representanteService.update(id, updateRepresentanteDto);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.representanteService.findOne(id);
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.representanteService.findOne(id);
   }
 
   @Get()
-  findAll(@Query() paginationDto: PaginationRepresentanteDto) {
-    return this.representanteService.findAll(paginationDto);
+  async findAll(@Query() paginationDto: PaginationRepresentanteDto) {
+    return await this.representanteService.findAll(paginationDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: number) {
-    return this.representanteService.remove(id);
+  async remove(@Param('id') id: number) {
+    return await this.representanteService.remove(id);
   }
 }

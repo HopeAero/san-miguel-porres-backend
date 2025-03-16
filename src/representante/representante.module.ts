@@ -12,5 +12,6 @@ import { PersonasModule } from '@/personas/personas.module';
   ],
   controllers: [RepresentanteController],
   providers: [RepresentanteService],
+  exports: [RepresentanteService],
 })
 export class RepresentanteModule {}

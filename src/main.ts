@@ -40,6 +40,7 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('Persona')
     .addTag('Estudiante')
+    .addTag('Representante')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
