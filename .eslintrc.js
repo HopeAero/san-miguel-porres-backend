@@ -5,10 +5,11 @@ module.exports = {
     tsconfigRootDir: __dirname,
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint/eslint-plugin'],
+  plugins: ['@typescript-eslint/eslint-plugin', 'import'],
   extends: [
     'plugin:@typescript-eslint/recommended',
     'plugin:prettier/recommended',
+    'plugin:import/typescript',
   ],
   root: true,
   env: {
@@ -27,5 +28,6 @@ module.exports = {
         endOfLine: 'auto',
       },
     ],
+    'import/no-cycle': 2,
   },
 };
