@@ -8,6 +8,7 @@ import {
   StorageDriver,
 } from 'typeorm-transactional';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
@@ -20,6 +21,13 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
 
   app.enableCors(CORS);
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: false,
+      transform: true,
+    }),
+  );
 
   const config = new DocumentBuilder()
     .setTitle('API Sistema de Gestion Escolar')
@@ -34,7 +42,7 @@ async function bootstrap() {
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('doc', app, documentFactory);
+  SwaggerModule.setup('docs', app, documentFactory);
 
   await app.listen(PORT);
 

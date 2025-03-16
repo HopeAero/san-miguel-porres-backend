@@ -4,6 +4,8 @@ import { UpdatePersonaDto } from './dto/update-persona.dto';
 import { Repository } from 'typeorm';
 import { Persona } from './entities/persona.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PageOptionsDto } from '@/common/dto/page.option.dto';
+import { PageDto } from '@/common/dto/page.dto';
 
 @Injectable()
 export class PersonasService {
@@ -14,6 +16,18 @@ export class PersonasService {
 
   async create(createPersonaDto: CreatePersonaDto) {
     return await this.personasRepository.save(createPersonaDto);
+  }
+
+  async findAllPaginated(pageOptionsDto: PageOptionsDto) {
+    const [result, total] = await this.personasRepository.findAndCount({
+      order: {
+        createdAt: pageOptionsDto.order,
+      },
+      take: pageOptionsDto.perPage,
+      skip: pageOptionsDto.skip,
+    });
+
+    return new PageDto(result, total, pageOptionsDto);
   }
 
   async findAll() {
