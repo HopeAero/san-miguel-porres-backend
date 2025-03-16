@@ -1,20 +1,31 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Body,
+  Param,
+  Put,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { RepresentanteService } from './representante.service';
-import { CreateRepresentanteDto } from './dto/create-representante.dto';
+//import { CreateRepresentanteDto } from './dto/create-representante.dto';
 import { UpdateRepresentanteDto } from './dto/update-representante.dto';
-import { PaginationRepresentanteDto } from './dto/pagination-representante.dto';
+import { PaginationRepresentanteDto } from './dto/pagination-representate.dto';
 
 @Controller('representante') // Base route for all endpoints
 export class RepresentanteController {
   constructor(private readonly representanteService: RepresentanteService) {}
 
-  @Post() // POST /representante
-  create(@Body() createRepresentanteDto: CreateRepresentanteDto) {
-    return this.representanteService.create(createRepresentanteDto); // Call service to create
-  }
+  // @Post() // POST /representante
+  // create(@Body() createRepresentanteDto: CreateRepresentanteDto) {
+  //   return this.representanteService.create(createRepresentanteDto); // Call service to create
+  // }
 
   @Put(':id') // PUT /representante/:id
-  update(@Param('id') id: number, @Body() updateRepresentanteDto: UpdateRepresentanteDto) {
+  update(
+    @Param('id') id: number,
+    @Body() updateRepresentanteDto: UpdateRepresentanteDto,
+  ) {
     return this.representanteService.update(id, updateRepresentanteDto); // Call service to update
   }
 

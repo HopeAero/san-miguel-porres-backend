@@ -1,3 +1,4 @@
+import { Estudiante } from '@/estudiante/entities/estudiante.entity';
 import { Representante } from '@/representante/entities/representante.entity';
 import {
   Column,
@@ -6,6 +7,7 @@ import {
   Entity,
   OneToOne,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -39,16 +41,16 @@ export class Persona {
   fechaNacimiento: Date;
 
   @OneToOne(() => Representante, (representante) => representante.persona, {
-    cascade: true,
+    onDelete: 'CASCADE',
     nullable: true,
   })
-  representante: Representante;
+  representante: Relation<Representante>;
 
-  @OneToOne(() => Representante, (representante) => representante.persona, {
-    cascade: true,
+  @OneToOne(() => Estudiante, (estudiante) => estudiante.persona, {
+    onDelete: 'CASCADE',
     nullable: true,
   })
-  estudiante: Representante;
+  estudiante: Relation<Estudiante>;
 
   @CreateDateColumn()
   createdAt: Date;

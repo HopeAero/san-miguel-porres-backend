@@ -7,6 +7,7 @@ import {
   DeleteDateColumn,
   PrimaryColumn,
   OneToMany,
+  Relation,
 } from 'typeorm';
 
 @Entity()
@@ -16,10 +17,10 @@ export class Representante {
 
   @OneToOne(() => Persona, { cascade: true })
   @JoinColumn({ name: 'id', referencedColumnName: 'id' })
-  persona: Persona;
+  persona: Relation<Persona>;
 
   @OneToMany(() => Estudiante, (estudiante) => estudiante.representante)
-  estudiantes: Estudiante[];
+  estudiantes: Relation<Estudiante[]>;
 
   @DeleteDateColumn()
   deletedAt: Date;

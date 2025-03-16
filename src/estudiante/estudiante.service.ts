@@ -12,6 +12,9 @@ import { PersonasService } from '@/personas/personas.service';
 import { CreatePersonaDto } from '@/personas/dto/create-persona.dto';
 import { Transactional } from 'typeorm-transactional';
 import { UpdatePersonaDto } from '@/personas/dto/update-persona.dto';
+import { WrapperType } from '@/wrapper.type';
+import { plainToClass } from 'class-transformer';
+import { EstudiantePersonaDto } from './dto/EstudiantePersona.dto';
 
 @Injectable()
 export class EstudianteService {
@@ -19,7 +22,7 @@ export class EstudianteService {
     @InjectRepository(Estudiante)
     private estudianteRepository: Repository<Estudiante>,
     @Inject(forwardRef(() => PersonasService))
-    private personasService: PersonasService,
+    private personasService: WrapperType<PersonasService>,
   ) {}
 
   @Transactional()
@@ -45,15 +48,23 @@ export class EstudianteService {
   }
 
   // Find a single Estudiante by ID
-  async findOne(id: number): Promise<Estudiante> {
+  async findOne(id: number): Promise<EstudiantePersonaDto> {
     const estudiante = await this.estudianteRepository.findOne({
       where: { id },
+      relations: ['persona', 'representante'],
     });
 
     if (!estudiante) {
-      throw new NotFoundException(`Estudiante with ID ${id} not found`); // Throw error if not found
+      throw new NotFoundException(`Estudiante with ID ${id} not found`);
     }
-    return estudiante;
+
+    const estudiantePersonaDto = plainToClass(EstudiantePersonaDto, {
+      id: estudiante.id,
+      representante: estudiante.representante,
+      ...estudiante.persona,
+    });
+
+    return estudiantePersonaDto;
   }
 
   async findPaginated(

@@ -24,7 +24,8 @@
 
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Repositorio del Servidor del Sistema de Gestion del Colegio **Nombre** hecho en [Nest](https://github.com/nestjs/nest) un Framework de TypeScript.
+
 
 ## Project setup
 
@@ -36,13 +37,25 @@ $ yarn install
 
 ```bash
 # development
+$ yarn migration:generate
+$ yarn migration:run
 $ yarn run start
 
 # watch mode
+$ yarn migration:generate
+$ yarn migration:run
 $ yarn run start:dev
 
 # production mode
+$ yarn migration:generate
+$ yarn migration:run
 $ yarn run start:prod
+
+# SWC development
+$ yarn start:swc
+
+# SWC watch mode
+$ yarn dev:swc
 ```
 
 ## Run tests
