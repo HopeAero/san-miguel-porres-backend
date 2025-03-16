@@ -1,19 +1,42 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, FindOptionsWhere } from 'typeorm';
-import { UpdateRepresentanteDto } from './dto/update-representante.dto';
 import { Representante } from './entities/representante.entity';
 import { PaginationRepresentanteDto } from './dto/pagination-representate.dto';
+import { Transactional } from 'typeorm-transactional';
+import { CreatePersonaDto } from '@/personas/dto/create-persona.dto';
+import { PersonasService } from '@/personas/personas.service';
+import { WrapperType } from '@/wrapper.type';
+import { UpdatePersonaDto } from '@/personas/dto/update-persona.dto';
 
 @Injectable()
 export class RepresentanteService {
   constructor(
     @InjectRepository(Representante)
     private representanteRepository: Repository<Representante>,
+    @Inject(forwardRef(() => PersonasService))
+    private personasService: WrapperType<PersonasService>,
   ) {}
+
+  @Transactional()
+  async create(
+    createRepresentanteDto: CreatePersonaDto,
+  ): Promise<Representante> {
+    const persona = await this.personasService.create(createRepresentanteDto);
+    const representante = await this.representanteRepository.create({
+      persona,
+    });
+    return this.representanteRepository.save(representante);
+  }
+
   async update(
     id: number,
-    updateRepresentanteDto: UpdateRepresentanteDto,
+    updateRepresentanteDto: UpdatePersonaDto,
   ): Promise<Representante> {
     const representante = await this.representanteRepository.preload({
       id,
@@ -29,6 +52,7 @@ export class RepresentanteService {
   async findOne(id: number): Promise<Representante> {
     const representante = await this.representanteRepository.findOne({
       where: { id },
+      relations: ['persona'],
     }); // Find by ID
     if (!representante) {
       throw new NotFoundException(`Representante with ID ${id} not found`);
@@ -62,7 +86,7 @@ export class RepresentanteService {
 
   // Soft-delete a Representante
   async remove(id: number): Promise<void> {
-    const result = await this.representanteRepository.softDelete(id);
+    const result = await this.personasService.remove(id);
     if (result.affected === 0) {
       throw new NotFoundException(`Representante with ID ${id} not found`);
     }

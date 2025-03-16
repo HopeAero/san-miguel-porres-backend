@@ -6,13 +6,14 @@ import {
   Put,
   Delete,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { RepresentanteService } from './representante.service';
 //import { CreateRepresentanteDto } from './dto/create-representante.dto';
-import { UpdateRepresentanteDto } from './dto/update-representante.dto';
 import { PaginationRepresentanteDto } from './dto/pagination-representate.dto';
+import { UpdatePersonaDto } from '@/personas/dto/update-persona.dto';
 
-@Controller('representante') // Base route for all endpoints
+@Controller('representante')
 export class RepresentanteController {
   constructor(private readonly representanteService: RepresentanteService) {}
 
@@ -21,26 +22,26 @@ export class RepresentanteController {
   //   return this.representanteService.create(createRepresentanteDto); // Call service to create
   // }
 
-  @Put(':id') // PUT /representante/:id
+  @Put(':id')
   update(
-    @Param('id') id: number,
-    @Body() updateRepresentanteDto: UpdateRepresentanteDto,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateRepresentanteDto: UpdatePersonaDto,
   ) {
-    return this.representanteService.update(id, updateRepresentanteDto); // Call service to update
+    return this.representanteService.update(id, updateRepresentanteDto);
   }
 
-  @Get(':id') // GET /representante/:id
-  findOne(@Param('id') id: number) {
-    return this.representanteService.findOne(id); // Call service to find one
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.representanteService.findOne(id);
   }
 
-  @Get() // GET /representante
+  @Get()
   findAll(@Query() paginationDto: PaginationRepresentanteDto) {
-    return this.representanteService.findAll(paginationDto); // Call service to find all with pagination
+    return this.representanteService.findAll(paginationDto);
   }
 
-  @Delete(':id') // DELETE /representante/:id
+  @Delete(':id')
   remove(@Param('id') id: number) {
-    return this.representanteService.remove(id); // Call service to soft-delete
+    return this.representanteService.remove(id);
   }
 }
