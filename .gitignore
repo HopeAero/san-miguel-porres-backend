@@ -67,3 +67,4 @@ postgres-data
 redis*
 package-lock.json
 src/config/database.config.ts
+.qodo
