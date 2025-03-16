@@ -7,41 +7,44 @@ import {
   Put,
   Delete,
   Query,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { EstudianteService } from './estudiante.service';
-import { CreateEstudianteDto } from './dto/create-estudiante.dto';
-import { UpdateEstudianteDto } from './dto/update-estudiante.dto';
 import { PaginationEstudianteDto } from './dto/pagination-estudiante.dto';
+import { CreatePersonaDto } from '@/personas/dto/create-persona.dto';
+import { UpdatePersonaDto } from '@/personas/dto/update-persona.dto';
+import { ApiTags } from '@nestjs/swagger';
 
-@Controller('estudiante') // Base route for all endpoints
+@ApiTags('Estudiante')
+@Controller('estudiante')
 export class EstudianteController {
   constructor(private readonly estudianteService: EstudianteService) {}
 
-  @Post() // POST /estudiante
-  create(@Body() createEstudianteDto: CreateEstudianteDto) {
-    return this.estudianteService.create(createEstudianteDto); // Call service to create
+  @Post()
+  async create(@Body() createEstudianteDto: CreatePersonaDto) {
+    return await this.estudianteService.create(createEstudianteDto);
   }
 
-  @Put(':id') // PUT /estudiante/:id
-  update(
-    @Param('id') id: number,
-    @Body() updateEstudianteDto: UpdateEstudianteDto,
+  @Get('paginated')
+  async findPaginated(@Query() paginationDto: PaginationEstudianteDto) {
+    return await this.estudianteService.findPaginated(paginationDto);
+  }
+
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.estudianteService.findOne(id);
+  }
+
+  @Put(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateEstudianteDto: UpdatePersonaDto,
   ) {
-    return this.estudianteService.update(id, updateEstudianteDto); // Call service to update
+    return await this.estudianteService.update(id, updateEstudianteDto);
   }
 
-  @Get(':id') // GET /estudiante/:id
-  findOne(@Param('id') id: number) {
-    return this.estudianteService.findOne(id); // Call service to find one
-  }
-
-  @Get() // GET /estudiante
-  findAll(@Query() paginationDto: PaginationEstudianteDto) {
-    return this.estudianteService.findAll(paginationDto); // Call service to find all with pagination
-  }
-
-  @Delete(':id') // DELETE /estudiante/:id
-  remove(@Param('id') id: number) {
-    return this.estudianteService.remove(id); // Call service to soft-delete
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    return await this.estudianteService.remove(id);
   }
 }

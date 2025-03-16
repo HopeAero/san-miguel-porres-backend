@@ -5,8 +5,8 @@ import { EstudianteService } from './estudiante.service';
 import { EstudianteController } from './estudiante.controller';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Estudiante])], // Register the Estudiante entity
-  controllers: [EstudianteController], // Register the controller
-  providers: [EstudianteService], // Register the service
+  imports: [TypeOrmModule.forFeature([Estudiante])],
+  controllers: [EstudianteController],
+  providers: [EstudianteService],
 })
 export class EstudianteModule {}

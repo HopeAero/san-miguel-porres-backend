@@ -1,74 +1,89 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, FindOptionsWhere } from 'typeorm';
 import { Estudiante } from './entities/estudiante.entity';
-import { UpdateEstudianteDto } from './dto/update-estudiante.dto';
 import { PaginationEstudianteDto } from './dto/pagination-estudiante.dto';
+import { PersonasService } from '@/personas/personas.service';
+import { CreatePersonaDto } from '@/personas/dto/create-persona.dto';
+import { Transactional } from 'typeorm-transactional';
+import { UpdatePersonaDto } from '@/personas/dto/update-persona.dto';
 
 @Injectable()
 export class EstudianteService {
   constructor(
-    @InjectRepository(Estudiante) // Inject the Estudiante repository
+    @InjectRepository(Estudiante)
     private estudianteRepository: Repository<Estudiante>,
+    @Inject(forwardRef(() => PersonasService))
+    private personasService: PersonasService,
   ) {}
 
-  // Update an existing Estudiante
+  @Transactional()
+  async create(createEstudianteDto: CreatePersonaDto): Promise<Estudiante> {
+    const persona = await this.personasService.create(createEstudianteDto);
+    const estudiante = await this.estudianteRepository.create({ persona });
+    return this.estudianteRepository.save(estudiante);
+  }
   async update(
     id: number,
-    updateEstudianteDto: UpdateEstudianteDto,
+    updateEstudianteDto: UpdatePersonaDto,
   ): Promise<Estudiante> {
     const estudiante = await this.estudianteRepository.preload({
       id,
-      ...updateEstudianteDto, // Merge existing data with new data
+      ...updateEstudianteDto,
     });
+
     if (!estudiante) {
-      throw new NotFoundException(`Estudiante with ID ${id} not found`); // Throw error if not found
+      throw new NotFoundException(`Estudiante with ID ${id} not found`);
     }
-    return this.estudianteRepository.save(estudiante); // Save updated data
+
+    return this.estudianteRepository.save(estudiante);
   }
 
   // Find a single Estudiante by ID
   async findOne(id: number): Promise<Estudiante> {
     const estudiante = await this.estudianteRepository.findOne({
       where: { id },
-    }); // Find by ID
+    });
+
     if (!estudiante) {
       throw new NotFoundException(`Estudiante with ID ${id} not found`); // Throw error if not found
     }
     return estudiante;
   }
 
-  // Find all Estudiantes with pagination, search, and filtering
-  async findAll(
+  async findPaginated(
     paginationDto: PaginationEstudianteDto,
   ): Promise<{ data: Estudiante[]; total: number }> {
     const { page, limit, search, filter } = paginationDto;
     const where: FindOptionsWhere<Estudiante> = {};
 
-    // Add search condition if provided
     if (search) {
-      where.persona = { nombre: Like(`%${search}%`) }; // Search by Nombre in related Persona
+      where.persona = { nombre: Like(`%${search}%`) };
     }
-
-    // Add additional filters if provided
     if (filter) {
-      Object.assign(where, filter); // Merge filters into the where clause
+      Object.assign(where, filter);
     }
 
     // Fetch paginated data and total count
     const [data, total] = await this.estudianteRepository.findAndCount({
       where,
-      skip: (page - 1) * limit, // Calculate offset for pagination
-      take: limit, // Limit the number of results
-      relations: ['persona', 'representante'], // Include related Persona and Representante data
+      skip: (page - 1) * limit,
+      take: limit,
+      relations: ['persona', 'representante'],
     });
 
-    return { data, total }; // Return data and total count
+    return { data, total };
   }
 
   // Soft-delete an Estudiante
   async remove(id: number): Promise<void> {
-    const result = await this.estudianteRepository.softDelete(id); // Perform soft-delete
+    const result = await this.personasService.remove(id);
+
     if (result.affected === 0) {
       throw new NotFoundException(`Estudiante with ID ${id} not found`); // Throw error if not found
     }
