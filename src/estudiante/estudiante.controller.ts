@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { EstudianteService } from './estudiante.service';
 import { CreateEstudianteDto } from './dto/create-estudiante.dto';
 import { UpdateEstudianteDto } from './dto/update-estudiante.dto';
@@ -14,7 +23,10 @@ export class EstudianteController {
   }
 
   @Put(':id') // PUT /estudiante/:id
-  update(@Param('id') id: number, @Body() updateEstudianteDto: UpdateEstudianteDto) {
+  update(
+    @Param('id') id: number,
+    @Body() updateEstudianteDto: UpdateEstudianteDto,
+  ) {
     return this.estudianteService.update(id, updateEstudianteDto); // Call service to update
   }
 

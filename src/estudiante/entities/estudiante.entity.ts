@@ -1,18 +1,26 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, DeleteDateColumn } from 'typeorm';
-import { Persona } from '../persona/entities/persona.entity';
-import { Representante } from '../representante/entities/representante.entity';
+import { Persona } from '@/personas/entities/persona.entity';
+import { Representante } from '@/representante/entities/representante.entity';
+import {
+  Entity,
+  ManyToOne,
+  DeleteDateColumn,
+  JoinColumn,
+  OneToOne,
+  PrimaryColumn,
+} from 'typeorm';
 
 @Entity()
 export class Estudiante {
-  @PrimaryGeneratedColumn() // Auto-incremented primary key
+  @PrimaryColumn()
   id: number;
 
-  @ManyToOne(() => Persona, (persona) => persona.estudiantes) // Many-to-one relationship with Persona
+  @OneToOne(() => Persona, { cascade: true })
+  @JoinColumn({ name: 'id', referencedColumnName: 'id' })
   persona: Persona;
 
-  @ManyToOne(() => Representante, (representante) => representante.estudiantes) // Many-to-one relationship with Representante
+  @ManyToOne(() => Representante, (representante) => representante.estudiantes)
   representante: Representante;
 
-  @DeleteDateColumn() // Column for soft-delete (stores the deletion timestamp)
+  @DeleteDateColumn()
   deletedAt: Date;
 }

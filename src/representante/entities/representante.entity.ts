@@ -1,15 +1,26 @@
-import { Entity, PrimaryGeneratedColumn, OneToOne, JoinColumn, DeleteDateColumn } from 'typeorm';
-import { Persona } from './persona.entity'; // I have to create this
+import { Estudiante } from '@/estudiante/entities/estudiante.entity';
+import { Persona } from '@/personas/entities/persona.entity';
+import {
+  Entity,
+  OneToOne,
+  JoinColumn,
+  DeleteDateColumn,
+  PrimaryColumn,
+  OneToMany,
+} from 'typeorm';
 
 @Entity()
 export class Representante {
-  @PrimaryGeneratedColumn() // Auto-incremented primary key
+  @PrimaryColumn()
   id: number;
 
-  @OneToOne(() => Persona, { cascade: true }) // One-to-one relationship with Persona
-  @JoinColumn() // Join column to specify the foreign key
+  @OneToOne(() => Persona, { cascade: true })
+  @JoinColumn({ name: 'id', referencedColumnName: 'id' })
   persona: Persona;
 
-  @DeleteDateColumn() // Column for soft-delete (stores the deletion timestamp)
+  @OneToMany(() => Estudiante, (estudiante) => estudiante.representante)
+  estudiantes: Estudiante[];
+
+  @DeleteDateColumn()
   deletedAt: Date;
 }
