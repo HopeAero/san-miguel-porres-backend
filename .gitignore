@@ -7,7 +7,6 @@
 /src/migrations
 /uploads
 /mongo
-/src/config/
 
 # Logs
 logs
