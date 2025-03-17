@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -7,6 +7,9 @@ import { typeOrmAsyncConfig } from './config/typeorm.config';
 import { PersonasModule } from './personas/personas.module';
 import { EstudianteModule } from './estudiante/estudiante.module';
 import { RepresentanteModule } from './representante/representante.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { AuthMiddleware } from './middleware/auth.middleware';
 
 @Module({
   imports: [
@@ -18,8 +21,14 @@ import { RepresentanteModule } from './representante/representante.module';
     PersonasModule,
     EstudianteModule,
     RepresentanteModule,
+    AuthModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware);
+  }
+}
