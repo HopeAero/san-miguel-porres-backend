@@ -74,6 +74,7 @@ export class RepresentanteService {
       },
       take: pageOptionsDto.perPage,
       skip: pageOptionsDto.skip,
+      relations: ['persona', 'estudiantes'],
     });
 
     return new PageDto(result, total, pageOptionsDto);

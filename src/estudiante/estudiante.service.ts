@@ -75,6 +75,7 @@ export class EstudianteService {
       },
       take: paginationDto.perPage,
       skip: paginationDto.skip,
+      relations: ['persona', 'representante'],
     });
 
     return new PageDto(result, total, paginationDto);
