@@ -10,11 +10,12 @@ import {
   Post,
 } from '@nestjs/common';
 import { RepresentanteService } from './representante.service';
-//import { CreateRepresentanteDto } from './dto/create-representante.dto';
-import { PaginationRepresentanteDto } from './dto/pagination-representate.dto';
 import { UpdatePersonaDto } from '@/personas/dto/update-persona.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { CreatePersonaDto } from '@/personas/dto/create-persona.dto';
+import { PageOptionsDto } from '@/common/dto/page.option.dto';
+import { Representante } from './entities/representante.entity';
+import { PageDto } from '@/common/dto/page.dto';
 
 @ApiTags('Representante')
 @Controller('representante')
@@ -40,7 +41,9 @@ export class RepresentanteController {
   }
 
   @Get()
-  async findAll(@Query() paginationDto: PaginationRepresentanteDto) {
+  async findAll(
+    @Query() paginationDto: PageOptionsDto,
+  ): Promise<PageDto<Representante>> {
     return await this.representanteService.findAll(paginationDto);
   }
 
