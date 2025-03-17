@@ -11,6 +11,8 @@ const envConfig = {
   DB_USERNAME: process.env.DB_USERNAME,
   DB_PASSWORD: process.env.DB_PASSWORD,
   DB_NAME: process.env.DB_NAME,
+  JWT_SECRET: process.env.JWT_SECRET,
+  JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN,
 };
 
 const envVarsSchema = Joi.object({
@@ -28,6 +30,8 @@ const envVarsSchema = Joi.object({
       Environments.PROD,
     )
     .required(),
+  JWT_SECRET: Joi.string().required(),
+  JWT_EXPIRES_IN: Joi.string().required(),
 });
 
 const { error } = envVarsSchema.validate(envConfig);

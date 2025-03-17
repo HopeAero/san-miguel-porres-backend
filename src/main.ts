@@ -38,6 +38,7 @@ async function bootstrap() {
       'davidsalcedo388@gmail.com',
     )
     .setVersion('1.0')
+    .addBearerAuth()
     .addTag('Persona')
     .addTag('Estudiante')
     .addTag('Representante')
