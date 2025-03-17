@@ -5,9 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like, FindOptionsWhere } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Representante } from './entities/representante.entity';
-import { PaginationRepresentanteDto } from './dto/pagination-representate.dto';
 import { Transactional } from 'typeorm-transactional';
 import { CreatePersonaDto } from '@/personas/dto/create-persona.dto';
 import { PersonasService } from '@/personas/personas.service';
@@ -15,6 +14,8 @@ import { WrapperType } from '@/wrapper.type';
 import { UpdatePersonaDto } from '@/personas/dto/update-persona.dto';
 import { plainToClass } from 'class-transformer';
 import { RepresentantePersonaDto } from './dto/RepresentantePersona.dto';
+import { PageOptionsDto } from '@/common/dto/page.option.dto';
+import { PageDto } from '@/common/dto/page.dto';
 
 @Injectable()
 export class RepresentanteService {
@@ -66,28 +67,16 @@ export class RepresentanteService {
     return representanteDto;
   }
 
-  async findAll(
-    paginationDto: PaginationRepresentanteDto,
-  ): Promise<{ data: Representante[]; total: number }> {
-    const { page, limit, search, filter } = paginationDto;
-    const where: FindOptionsWhere<Representante> = {};
-
-    if (search) {
-      where.persona = { nombre: Like(`%${search}%`) };
-    }
-
-    if (filter) {
-      Object.assign(where, filter);
-    }
-
-    const [data, total] = await this.representanteRepository.findAndCount({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      relations: ['persona'],
+  async findAll(pageOptionsDto: PageOptionsDto) {
+    const [result, total] = await this.representanteRepository.findAndCount({
+      order: {
+        id: pageOptionsDto.order,
+      },
+      take: pageOptionsDto.perPage,
+      skip: pageOptionsDto.skip,
     });
 
-    return { data, total };
+    return new PageDto(result, total, pageOptionsDto);
   }
 
   // Soft-delete a Representante

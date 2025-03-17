@@ -10,10 +10,12 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { EstudianteService } from './estudiante.service';
-import { PaginationEstudianteDto } from './dto/pagination-estudiante.dto';
 import { CreatePersonaDto } from '@/personas/dto/create-persona.dto';
 import { UpdatePersonaDto } from '@/personas/dto/update-persona.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { PageDto } from '@/common/dto/page.dto';
+import { Estudiante } from './entities/estudiante.entity';
+import { PageOptionsDto } from '@/common/dto/page.option.dto';
 
 @ApiTags('Estudiante')
 @Controller('estudiante')
@@ -26,7 +28,9 @@ export class EstudianteController {
   }
 
   @Get('paginated')
-  async findPaginated(@Query() paginationDto: PaginationEstudianteDto) {
+  async findPaginated(
+    @Query() paginationDto: PageOptionsDto,
+  ): Promise<PageDto<Estudiante>> {
     return await this.estudianteService.findPaginated(paginationDto);
   }
 

@@ -5,9 +5,8 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like, FindOptionsWhere } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Estudiante } from './entities/estudiante.entity';
-import { PaginationEstudianteDto } from './dto/pagination-estudiante.dto';
 import { PersonasService } from '@/personas/personas.service';
 import { CreatePersonaDto } from '@/personas/dto/create-persona.dto';
 import { Transactional } from 'typeorm-transactional';
@@ -15,6 +14,8 @@ import { UpdatePersonaDto } from '@/personas/dto/update-persona.dto';
 import { WrapperType } from '@/wrapper.type';
 import { plainToClass } from 'class-transformer';
 import { EstudiantePersonaDto } from './dto/EstudiantePersona.dto';
+import { PageOptionsDto } from '@/common/dto/page.option.dto';
+import { PageDto } from '@/common/dto/page.dto';
 
 @Injectable()
 export class EstudianteService {
@@ -67,28 +68,16 @@ export class EstudianteService {
     return estudiantePersonaDto;
   }
 
-  async findPaginated(
-    paginationDto: PaginationEstudianteDto,
-  ): Promise<{ data: Estudiante[]; total: number }> {
-    const { page, limit, search, filter } = paginationDto;
-    const where: FindOptionsWhere<Estudiante> = {};
-
-    if (search) {
-      where.persona = { nombre: Like(`%${search}%`) };
-    }
-    if (filter) {
-      Object.assign(where, filter);
-    }
-
-    // Fetch paginated data and total count
-    const [data, total] = await this.estudianteRepository.findAndCount({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      relations: ['persona', 'representante'],
+  async findPaginated(paginationDto: PageOptionsDto) {
+    const [result, total] = await this.estudianteRepository.findAndCount({
+      order: {
+        id: paginationDto.order,
+      },
+      take: paginationDto.perPage,
+      skip: paginationDto.skip,
     });
 
-    return { data, total };
+    return new PageDto(result, total, paginationDto);
   }
 
   // Soft-delete an Estudiante
