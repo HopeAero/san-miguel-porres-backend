@@ -7,30 +7,25 @@ export class PageDto<T> {
   readonly items: T[];
 
   @ApiProperty()
-  readonly page: number;
-
-  @ApiProperty()
-  readonly perPage: number;
-
-  @ApiProperty()
-  readonly totalItems: number;
-
-  @ApiProperty()
-  readonly totalPages: number;
-
-  @ApiProperty()
-  readonly hasPreviousPage: boolean;
-
-  @ApiProperty()
-  readonly hasNextPage: boolean;
+  readonly paginate: {
+    page: number;
+    perPage: number;
+    totalItems: number;
+    totalPages: number;
+    hasPreviousPage: boolean;
+    hasNextPage: boolean;
+  };
 
   constructor(items: T[], itemCount, pageOptionsDto) {
     this.items = items;
-    this.page = pageOptionsDto.page;
-    this.perPage = pageOptionsDto.perPage;
-    this.totalItems = itemCount;
-    this.totalPages = Math.ceil(this.totalItems / this.perPage);
-    this.hasPreviousPage = this.page > 1;
-    this.hasNextPage = this.page < this.totalPages;
+    this.paginate = {
+      page: pageOptionsDto.page,
+      perPage: pageOptionsDto.perPage,
+      totalItems: itemCount,
+      totalPages: Math.ceil(itemCount / pageOptionsDto.perPage),
+      hasPreviousPage: pageOptionsDto.page > 1,
+      hasNextPage:
+        pageOptionsDto.page < Math.ceil(itemCount / pageOptionsDto.perPage),
+    };
   }
 }
