@@ -1,17 +1,17 @@
+import { JwtGuard } from '@/auth/guards/jwt.guard';
+import { RoleGuard } from '@/auth/guards/roles.guard';
+import { Roles } from '@/common/decorators/roles.decorator';
+import { Role } from '@/common/enum/role';
 import {
   Controller,
+  Delete,
   Get,
   Param,
-  Delete,
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
-import { UsersService } from './users.service';
 import { ApiBearerAuth } from '@nestjs/swagger';
-import { Role } from '@/common/enum/role';
-import { Roles } from '@/common/decorators/roles.decorator';
-import { RoleGuard } from '@/auth/guards/roles.guard';
-import { JwtGuard } from '@/auth/guards/jwt.guard';
+import { UsersService } from './users.service';
 
 @Controller('users')
 @Roles(Role.ADMIN)

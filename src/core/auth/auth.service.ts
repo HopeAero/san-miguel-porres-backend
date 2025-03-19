@@ -1,3 +1,4 @@
+import { Role } from '@/common/enum/role';
 import { User } from '@/users/entities/user.entity';
 import { UsersService } from '@/users/users.service';
 import { WrapperType } from '@/wrapper.type';
@@ -9,10 +10,9 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
+import { LoginCredentials } from './dto/login.dto';
 import { RegistrationCredentials } from './dto/register.dto';
 import { AccessToken } from './types/AccessToken';
-import { Role } from '@/common/enum/role';
-import { LoginCredentials } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
