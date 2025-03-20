@@ -16,8 +16,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CreatePersonaDto } from '../people/dto/create-person.dto';
-import { UpdatePersonaDto } from '../people/dto/update-person.dto';
+import { CreatePersonDto } from '../people/dto/create-person.dto';
+import { UpdatePersonDto } from '../people/dto/update-person.dto';
 import { StudentService } from './student.service';
 import { StudentPersonDto } from './dto/StudentPerson.dto';
 
@@ -30,15 +30,15 @@ export class StudentController {
   constructor(private readonly studentService: StudentService) {}
 
   @Post()
-  async create(@Body() createStudentDto: CreatePersonaDto) {
+  async create(@Body() createStudentDto: CreatePersonDto) {
     return await this.studentService.create(createStudentDto);
   }
 
-  @Get('paginated')
-  async findPaginated(
+  @Get('paginate')
+  async paginate(
     @Query() paginationDto: PageOptionsDto,
   ): Promise<PageDto<StudentPersonDto>> {
-    return await this.studentService.findPaginated(paginationDto);
+    return await this.studentService.paginate(paginationDto);
   }
 
   @Get(':id')
@@ -49,7 +49,7 @@ export class StudentController {
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateStudentDto: UpdatePersonaDto,
+    @Body() updateStudentDto: UpdatePersonDto,
   ) {
     return await this.studentService.update(id, updateStudentDto);
   }

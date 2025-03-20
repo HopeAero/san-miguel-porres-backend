@@ -11,9 +11,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
-import { CreatePersonaDto } from '../people/dto/create-person.dto';
-import { UpdatePersonaDto } from '../people/dto/update-person.dto';
-import { PersonasService } from '../people/personas.service';
+import { CreatePersonDto } from '../people/dto/create-person.dto';
+import { UpdatePersonDto } from '../people/dto/update-person.dto';
+import { PeopleService } from '../people/people.service';
 import { StudentPersonDto } from './dto/StudentPerson.dto';
 import { Student } from './entities/student.entity';
 
@@ -22,19 +22,19 @@ export class StudentService {
   constructor(
     @InjectRepository(Student)
     private estudianteRepository: Repository<Student>,
-    @Inject(forwardRef(() => PersonasService))
-    private personasService: WrapperType<PersonasService>,
+    @Inject(forwardRef(() => PeopleService))
+    private personasService: WrapperType<PeopleService>,
   ) {}
 
   @Transactional()
-  async create(createStudentDto: CreatePersonaDto): Promise<Student> {
+  async create(createStudentDto: CreatePersonDto): Promise<Student> {
     const person = await this.personasService.create(createStudentDto);
-    const student = await this.estudianteRepository.create(person);
-    return this.estudianteRepository.save(student);
+    const student = this.estudianteRepository.create(person);
+    return await this.estudianteRepository.save(student);
   }
   async update(
     id: number,
-    updateEstudianteDto: UpdatePersonaDto,
+    updateEstudianteDto: UpdatePersonDto,
   ): Promise<Student> {
     const estudiante = await this.estudianteRepository.preload({
       id,
@@ -52,7 +52,10 @@ export class StudentService {
   async findOne(id: number): Promise<StudentPersonDto> {
     const estudiante = await this.estudianteRepository.findOne({
       where: { id },
-      relations: ['persona', 'representante'],
+      relations: {
+        person: true,
+        representative: true,
+      },
     });
 
     if (!estudiante) {
@@ -61,28 +64,28 @@ export class StudentService {
 
     const studentPersonDto = plainToClass(StudentPersonDto, {
       id: estudiante.id,
-      representante: estudiante.representante,
-      ...estudiante.persona,
+      representante: estudiante.representative,
+      ...estudiante.person,
     });
 
     return studentPersonDto;
   }
 
-  async findPaginated(paginationDto: PageOptionsDto) {
+  async paginate(paginationDto: PageOptionsDto) {
     const [result, total] = await this.estudianteRepository.findAndCount({
       order: {
         id: paginationDto.order,
       },
       take: paginationDto.perPage,
       skip: paginationDto.skip,
-      relations: ['persona', 'representante'],
+      relations: ['person', 'representative'],
     });
 
     const resultDto = result.map((estudiante) =>
       plainToClass(StudentPersonDto, {
         id: estudiante.id,
-        representante: estudiante.representante,
-        ...estudiante.persona,
+        representante: estudiante.representative,
+        ...estudiante.person,
       }),
     );
 

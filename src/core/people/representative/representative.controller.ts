@@ -16,21 +16,21 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CreatePersonaDto } from '../people/dto/create-person.dto';
-import { UpdatePersonaDto } from '../people/dto/update-person.dto';
-import { RepresentanteService } from './representante.service';
-import { RepresentantePersona } from './dto/RepresentantePersona.dto';
+import { CreatePersonDto } from '../people/dto/create-person.dto';
+import { UpdatePersonDto } from '../people/dto/update-person.dto';
+import { RepresentanteService } from './representative.service';
+import { RepresentativeDto } from './dto/representative.dto';
 
-@ApiTags('Representante')
-@Controller('representante')
+@ApiTags('Representative')
+@Controller('representative')
 @UseGuards(JwtGuard)
 @ApiBearerAuth()
-export class RepresentanteController {
+export class RepresentativeController {
   constructor(private readonly representanteService: RepresentanteService) {}
 
   @Roles(Role.MODERATOR, Role.ADMIN)
-  @Post() // POST /representante
-  async create(@Body() createRepresentanteDto: CreatePersonaDto) {
+  @Post() // POST /representative
+  async create(@Body() createRepresentanteDto: CreatePersonDto) {
     return await this.representanteService.create(createRepresentanteDto);
   }
 
@@ -38,7 +38,7 @@ export class RepresentanteController {
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateRepresentanteDto: UpdatePersonaDto,
+    @Body() updateRepresentanteDto: UpdatePersonDto,
   ) {
     return await this.representanteService.update(id, updateRepresentanteDto);
   }
@@ -51,11 +51,12 @@ export class RepresentanteController {
 
   @Roles(Role.MODERATOR, Role.ADMIN)
   @Get()
-  async findAll(
+  async paginate(
     @Query() paginationDto: PageOptionsDto,
-  ): Promise<PageDto<RepresentantePersona>> {
-    return await this.representanteService.findAll(paginationDto);
+  ): Promise<PageDto<RepresentativeDto>> {
+    return await this.representanteService.paginate(paginationDto);
   }
+
   @Roles(Role.MODERATOR, Role.ADMIN)
   @Delete(':id')
   async remove(@Param('id') id: number) {

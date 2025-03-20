@@ -1,5 +1,5 @@
 import { AuthModule } from '@/auth/auth.module';
-import { PersonasModule } from '@/core/people/people/personas.module';
+import { PersonasModule } from '@/core/people/people/people.module';
 import { UsersModule } from '@/users/users.module';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -9,7 +9,7 @@ import { AppService } from './app.service';
 import { typeOrmAsyncConfig } from './config/typeorm.config';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import { CoursesModule } from '@/core/courses/courses.module';
-import { RepresentanteModule } from '@/core/people/representante/representante.module';
+import { RepresentanteModule } from '@/core/people/representative/representative.module';
 import { StudentModule } from '@/core/people/student/student.module';
 
 @Module({

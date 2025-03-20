@@ -1,5 +1,5 @@
-import { Representante } from '@/peopleModule/representante/entities/representante.entity';
-import { Student } from '@/peopleModule/student/entities/student.entity';
+import { Representative } from '@/core/people/representative/entities/representative.entity';
+import { Student } from '@/people/student/entities/student.entity';
 import {
   Column,
   CreateDateColumn,
@@ -11,42 +11,44 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity()
-export class Persona {
+@Entity({
+  name: 'people',
+})
+export class Person {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({
     nullable: true,
   })
-  ci: string;
+  dni: string;
 
   @Column()
-  nombre: string;
+  name: string;
 
   @Column()
-  apellido: string;
+  lastName: string;
 
   @Column({
     nullable: true,
   })
-  telefono: string;
+  phone: string;
 
   @Column()
-  direccion: string;
+  direction: string;
 
   @Column({
     type: 'date',
   })
-  fechaNacimiento: Date;
+  birthDate: Date;
 
-  @OneToOne(() => Representante, (representante) => representante.persona, {
+  @OneToOne(() => Representative, (representative) => representative.person, {
     onDelete: 'CASCADE',
     nullable: true,
   })
-  representante: Relation<Representante>;
+  representative: Relation<Representative>;
 
-  @OneToOne(() => Student, (student) => student.persona, {
+  @OneToOne(() => Student, (student) => student.person, {
     onDelete: 'CASCADE',
     nullable: true,
   })

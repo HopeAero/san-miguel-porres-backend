@@ -9,12 +9,12 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { PersonasService } from './personas.service';
-import { UpdatePersonaDto } from './dto/update-person.dto';
+import { PeopleService } from './people.service';
+import { UpdatePersonDto } from './dto/update-person.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { PageDto } from '@/common/dto/page.dto';
-import { Persona } from './entities/person.entity';
+import { Person } from './entities/person.entity';
 import { Role } from '@/common/enum/role';
 import { Roles } from '@/common/decorators/roles.decorator';
 import { JwtGuard } from '@/auth/guards/jwt.guard';
@@ -22,27 +22,27 @@ import { JwtGuard } from '@/auth/guards/jwt.guard';
 @ApiTags('Persona')
 @UseGuards(JwtGuard)
 @ApiBearerAuth()
-@Controller('personas')
+@Controller('people')
 export class PersonasController {
-  constructor(private readonly personasService: PersonasService) {}
+  constructor(private readonly personasService: PeopleService) {}
 
   @Roles(Role.MODERATOR, Role.ADMIN)
   @Get()
-  async findAll(): Promise<Persona[]> {
+  async findAll(): Promise<Person[]> {
     return await this.personasService.findAll();
   }
 
   @Roles(Role.MODERATOR, Role.ADMIN)
   @Get('paginated')
-  async findAllPaginated(
+  async paginate(
     @Query() pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<Persona>> {
-    return await this.personasService.findAllPaginated(pageOptionsDto);
+  ): Promise<PageDto<Person>> {
+    return await this.personasService.paginate(pageOptionsDto);
   }
 
   @Roles(Role.MODERATOR, Role.ADMIN)
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Persona> {
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Person> {
     return await this.personasService.findOne(id);
   }
 
@@ -50,7 +50,7 @@ export class PersonasController {
   @Patch(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updatePersonaDto: UpdatePersonaDto,
+    @Body() updatePersonaDto: UpdatePersonDto,
   ) {
     return await this.personasService.update(id, updatePersonaDto);
   }

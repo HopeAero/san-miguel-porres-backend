@@ -1,28 +1,28 @@
 import { Person } from '@/people/people/entities/person.entity';
-import { Representative } from '@/core/people/representative/entities/representative.entity';
+import { Student } from '@/people/student/entities/student.entity';
 import {
   DeleteDateColumn,
   Entity,
   JoinColumn,
-  ManyToOne,
+  OneToMany,
   OneToOne,
   PrimaryColumn,
   Relation,
 } from 'typeorm';
 
 @Entity({
-  name: 'students',
+  name: 'representatives',
 })
-export class Student {
+export class Representative {
   @PrimaryColumn()
   id: number;
 
-  @OneToOne(() => Person, { onDelete: 'CASCADE' })
+  @OneToOne(() => Person, { cascade: true })
   @JoinColumn({ name: 'id', referencedColumnName: 'id' })
   person: Relation<Person>;
 
-  @ManyToOne(() => Representative, (representative) => representative.students)
-  representative: Relation<Representative>;
+  @OneToMany(() => Student, (student) => student.representative)
+  students: Relation<Student[]>;
 
   @DeleteDateColumn()
   deletedAt: Date;

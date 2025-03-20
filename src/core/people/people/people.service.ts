@@ -1,24 +1,24 @@
 import { Injectable } from '@nestjs/common';
-import { CreatePersonaDto } from './dto/create-person.dto';
-import { UpdatePersonaDto } from './dto/update-person.dto';
+import { CreatePersonDto } from './dto/create-person.dto';
+import { UpdatePersonDto } from './dto/update-person.dto';
 import { Repository } from 'typeorm';
-import { Persona } from './entities/person.entity';
+import { Person } from './entities/person.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { PageDto } from '@/common/dto/page.dto';
 
 @Injectable()
-export class PersonasService {
+export class PeopleService {
   constructor(
-    @InjectRepository(Persona)
-    private readonly personasRepository: Repository<Persona>,
+    @InjectRepository(Person)
+    private readonly personasRepository: Repository<Person>,
   ) {}
 
-  async create(createPersonaDto: CreatePersonaDto) {
+  async create(createPersonaDto: CreatePersonDto) {
     return await this.personasRepository.save(createPersonaDto);
   }
 
-  async findAllPaginated(pageOptionsDto: PageOptionsDto) {
+  async paginate(pageOptionsDto: PageOptionsDto) {
     const [result, total] = await this.personasRepository.findAndCount({
       order: {
         createdAt: pageOptionsDto.order,
@@ -42,7 +42,7 @@ export class PersonasService {
     return persona;
   }
 
-  async update(id: number, updatePersonaDto: UpdatePersonaDto) {
+  async update(id: number, updatePersonaDto: UpdatePersonDto) {
     const persona = await this.personasRepository.findOne({
       where: { id },
     });
