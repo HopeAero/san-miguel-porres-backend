@@ -1,4 +1,4 @@
-import { Representante } from '@/representante/entities/representante.entity';
+import { Representante } from '@/core/representante/entities/representante.entity';
 
 export class EstudiantePersonaDto {
   id: number;

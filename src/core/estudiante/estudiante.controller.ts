@@ -11,8 +11,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { EstudianteService } from './estudiante.service';
-import { CreatePersonaDto } from '@/personas/dto/create-persona.dto';
-import { UpdatePersonaDto } from '@/personas/dto/update-persona.dto';
+import { CreatePersonaDto } from '@/core/personas/dto/create-persona.dto';
+import { UpdatePersonaDto } from '@/core/personas/dto/update-persona.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PageDto } from '@/common/dto/page.dto';
 import { Estudiante } from './entities/estudiante.entity';

@@ -1,5 +1,5 @@
-import { Persona } from '@/personas/entities/persona.entity';
-import { Representante } from '@/representante/entities/representante.entity';
+import { Persona } from '@/core/personas/entities/persona.entity';
+import { Representante } from '@/core/representante/entities/representante.entity';
 import {
   Entity,
   ManyToOne,

@@ -1,5 +1,5 @@
-import { Estudiante } from '@/estudiante/entities/estudiante.entity';
-import { Representante } from '@/representante/entities/representante.entity';
+import { Estudiante } from '@/core/estudiante/entities/estudiante.entity';
+import { Representante } from '@/core/representante/entities/representante.entity';
 import {
   Column,
   CreateDateColumn,

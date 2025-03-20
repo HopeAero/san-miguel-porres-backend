@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Representante } from './entities/representante.entity';
 import { RepresentanteService } from './representante.service';
 import { RepresentanteController } from './representante.controller';
-import { PersonasModule } from '@/personas/personas.module';
+import { PersonasModule } from '@/core/personas/personas.module';
 
 @Module({
   imports: [

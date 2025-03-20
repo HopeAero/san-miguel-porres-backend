@@ -11,9 +11,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { RepresentanteService } from './representante.service';
-import { UpdatePersonaDto } from '@/personas/dto/update-persona.dto';
+import { UpdatePersonaDto } from '@/core/personas/dto/update-persona.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CreatePersonaDto } from '@/personas/dto/create-persona.dto';
+import { CreatePersonaDto } from '@/core/personas/dto/create-persona.dto';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { Representante } from './entities/representante.entity';
 import { PageDto } from '@/common/dto/page.dto';

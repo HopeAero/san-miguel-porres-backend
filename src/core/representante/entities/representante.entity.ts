@@ -1,5 +1,5 @@
-import { Estudiante } from '@/estudiante/entities/estudiante.entity';
-import { Persona } from '@/personas/entities/persona.entity';
+import { Estudiante } from '@/core/estudiante/entities/estudiante.entity';
+import { Persona } from '@/core/personas/entities/persona.entity';
 import {
   Entity,
   OneToOne,
