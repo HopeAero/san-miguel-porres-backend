@@ -19,5 +19,5 @@ export interface RepresentantePersona {
   telefono: string;
   direccion: string;
   fechaNacimiento: Date;
-  alumnos: Estudiante[];
+  alumnos: Student[];
 }

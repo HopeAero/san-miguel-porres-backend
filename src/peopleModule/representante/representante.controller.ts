@@ -18,8 +18,8 @@ import {
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreatePersonaDto } from '../personas/dto/create-persona.dto';
 import { UpdatePersonaDto } from '../personas/dto/update-persona.dto';
-import { Representante } from './entities/representante.entity';
 import { RepresentanteService } from './representante.service';
+import { RepresentantePersona } from './dto/RepresentantePersona.dto';
 
 @ApiTags('Representante')
 @Controller('representante')
@@ -53,7 +53,7 @@ export class RepresentanteController {
   @Get()
   async findAll(
     @Query() paginationDto: PageOptionsDto,
-  ): Promise<PageDto<Representante>> {
+  ): Promise<PageDto<RepresentantePersona>> {
     return await this.representanteService.findAll(paginationDto);
   }
   @Roles(Role.MODERATOR, Role.ADMIN)
