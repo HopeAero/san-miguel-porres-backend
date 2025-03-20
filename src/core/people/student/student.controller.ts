@@ -19,7 +19,7 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreatePersonDto } from '../people/dto/create-person.dto';
 import { UpdatePersonDto } from '../people/dto/update-person.dto';
 import { StudentService } from './student.service';
-import { StudentPersonDto } from './dto/StudentPerson.dto';
+import { StudentDto } from './dto/student';
 
 @ApiTags('Student')
 @Roles(Role.MODERATOR, Role.ADMIN)
@@ -37,7 +37,7 @@ export class StudentController {
   @Get('paginate')
   async paginate(
     @Query() paginationDto: PageOptionsDto,
-  ): Promise<PageDto<StudentPersonDto>> {
+  ): Promise<PageDto<StudentDto>> {
     return await this.studentService.paginate(paginationDto);
   }
 

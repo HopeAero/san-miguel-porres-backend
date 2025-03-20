@@ -14,7 +14,7 @@ import { Transactional } from 'typeorm-transactional';
 import { CreatePersonDto } from '../people/dto/create-person.dto';
 import { UpdatePersonDto } from '../people/dto/update-person.dto';
 import { PeopleService } from '../people/people.service';
-import { StudentPersonDto } from './dto/StudentPerson.dto';
+import { StudentDto } from './dto/student';
 import { Student } from './entities/student.entity';
 
 @Injectable()
@@ -49,7 +49,7 @@ export class StudentService {
   }
 
   // Find a single Estudiante by ID
-  async findOne(id: number): Promise<StudentPersonDto> {
+  async findOne(id: number): Promise<StudentDto> {
     const estudiante = await this.estudianteRepository.findOne({
       where: { id },
       relations: {
@@ -62,30 +62,33 @@ export class StudentService {
       throw new NotFoundException(`Estudiante with ID ${id} not found`);
     }
 
-    const studentPersonDto = plainToClass(StudentPersonDto, {
-      id: estudiante.id,
-      representante: estudiante.representative,
+    const studentPersonDto = plainToClass(StudentDto, {
       ...estudiante.person,
+      id: estudiante.id,
+      representative: estudiante.representative,
     });
 
     return studentPersonDto;
   }
 
-  async paginate(paginationDto: PageOptionsDto) {
+  async paginate(paginationDto: PageOptionsDto): Promise<PageDto<StudentDto>> {
     const [result, total] = await this.estudianteRepository.findAndCount({
       order: {
         id: paginationDto.order,
       },
       take: paginationDto.perPage,
       skip: paginationDto.skip,
-      relations: ['person', 'representative'],
+      relations: {
+        person: true,
+        representative: true,
+      },
     });
 
     const resultDto = result.map((estudiante) =>
-      plainToClass(StudentPersonDto, {
-        id: estudiante.id,
-        representante: estudiante.representative,
+      plainToClass(StudentDto, {
         ...estudiante.person,
+        id: estudiante.id,
+        representative: estudiante.representative,
       }),
     );
 
