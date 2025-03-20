@@ -14,7 +14,7 @@ export class Course {
   name: string;
 
   @Column() // Grade level associated with the subject
-  grade: string;
+  grade: number;
 
   @DeleteDateColumn() // Column for soft-delete (stores the deletion timestamp)
   deletedAt: Date;
