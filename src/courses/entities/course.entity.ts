@@ -1,15 +1,20 @@
-import { Entity, PrimaryGeneratedColumn, Column, DeleteDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  DeleteDateColumn,
+} from 'typeorm';
 
 @Entity()
-export class Asignatura {
+export class Course {
   @PrimaryGeneratedColumn() // Auto-incremented primary key
   id: number;
 
   @Column() // Name of the subject
-  Nombre: string;
+  name: string;
 
   @Column() // Grade level associated with the subject
-  grado: string;
+  grade: string;
 
   @DeleteDateColumn() // Column for soft-delete (stores the deletion timestamp)
   deletedAt: Date;
