@@ -1,6 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PersonasModule } from '../personas/personas.module';
+import { PersonasModule } from '../people/personas.module';
 import { Student } from './entities/student.entity';
 import { StudentController } from './student.controller';
 import { StudentService } from './student.service';

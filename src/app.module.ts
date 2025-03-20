@@ -1,5 +1,5 @@
 import { AuthModule } from '@/auth/auth.module';
-import { PersonasModule } from '@/core/people/personas/personas.module';
+import { PersonasModule } from '@/core/people/people/personas.module';
 import { UsersModule } from '@/users/users.module';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';

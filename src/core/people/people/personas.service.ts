@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { CreatePersonaDto } from './dto/create-persona.dto';
-import { UpdatePersonaDto } from './dto/update-persona.dto';
+import { CreatePersonaDto } from './dto/create-person.dto';
+import { UpdatePersonaDto } from './dto/update-person.dto';
 import { Repository } from 'typeorm';
-import { Persona } from './entities/persona.entity';
+import { Persona } from './entities/person.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { PageDto } from '@/common/dto/page.dto';

@@ -11,9 +11,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
-import { CreatePersonaDto } from '../personas/dto/create-persona.dto';
-import { UpdatePersonaDto } from '../personas/dto/update-persona.dto';
-import { PersonasService } from '../personas/personas.service';
+import { CreatePersonaDto } from '../people/dto/create-person.dto';
+import { UpdatePersonaDto } from '../people/dto/update-person.dto';
+import { PersonasService } from '../people/personas.service';
 import { StudentPersonDto } from './dto/StudentPerson.dto';
 import { Student } from './entities/student.entity';
 

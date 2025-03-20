@@ -10,11 +10,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { PersonasService } from './personas.service';
-import { UpdatePersonaDto } from './dto/update-persona.dto';
+import { UpdatePersonaDto } from './dto/update-person.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { PageDto } from '@/common/dto/page.dto';
-import { Persona } from './entities/persona.entity';
+import { Persona } from './entities/person.entity';
 import { Role } from '@/common/enum/role';
 import { Roles } from '@/common/decorators/roles.decorator';
 import { JwtGuard } from '@/auth/guards/jwt.guard';

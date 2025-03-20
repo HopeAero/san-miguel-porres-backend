@@ -16,8 +16,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CreatePersonaDto } from '../personas/dto/create-persona.dto';
-import { UpdatePersonaDto } from '../personas/dto/update-persona.dto';
+import { CreatePersonaDto } from '../people/dto/create-person.dto';
+import { UpdatePersonaDto } from '../people/dto/update-person.dto';
 import { StudentService } from './student.service';
 import { StudentPersonDto } from './dto/StudentPerson.dto';
 
