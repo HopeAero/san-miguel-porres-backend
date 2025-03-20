@@ -79,7 +79,7 @@ export class StudentService {
     });
 
     const resultDto = result.map((estudiante) =>
-      plainToClass(EstudiantePersonaDto, {
+      plainToClass(StudentPersonDto, {
         id: estudiante.id,
         representante: estudiante.representante,
         ...estudiante.persona,
