@@ -13,7 +13,10 @@ import { PersonasService } from '@/core/personas/personas.service';
 import { WrapperType } from '@/wrapper.type';
 import { UpdatePersonaDto } from '@/core/personas/dto/update-persona.dto';
 import { plainToClass } from 'class-transformer';
-import { RepresentantePersonaDto } from './dto/RepresentantePersona.dto';
+import {
+  RepresentantePersona,
+  RepresentantePersonaDto,
+} from './dto/RepresentantePersona.dto';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { PageDto } from '@/common/dto/page.dto';
 
@@ -77,7 +80,19 @@ export class RepresentanteService {
       relations: ['persona', 'estudiantes'],
     });
 
-    return new PageDto(result, total, pageOptionsDto);
+    const representantes: RepresentantePersona[] = result.map(
+      (representante) => {
+        const representanteDto = plainToClass(RepresentantePersonaDto, {
+          id: representante.id,
+          alumnos: representante.estudiantes,
+          ...representante.persona,
+        });
+
+        return representanteDto;
+      },
+    );
+
+    return new PageDto(representantes, total, pageOptionsDto);
   }
 
   // Soft-delete a Representante

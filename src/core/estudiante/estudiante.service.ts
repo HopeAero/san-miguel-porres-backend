@@ -78,7 +78,15 @@ export class EstudianteService {
       relations: ['persona', 'representante'],
     });
 
-    return new PageDto(result, total, paginationDto);
+    const resultDto = result.map((estudiante) =>
+      plainToClass(EstudiantePersonaDto, {
+        id: estudiante.id,
+        representante: estudiante.representante,
+        ...estudiante.persona,
+      }),
+    );
+
+    return new PageDto(resultDto, total, paginationDto);
   }
 
   // Soft-delete an Estudiante
