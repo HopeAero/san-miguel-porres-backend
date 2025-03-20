@@ -10,6 +10,7 @@ import { EstudianteModule } from './estudiante/estudiante.module';
 import { AuthMiddleware } from './middleware/auth.middleware';
 import { PersonasModule } from './personas/personas.module';
 import { RepresentanteModule } from './representante/representante.module';
+import { CoursesModule } from './courses/courses.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { RepresentanteModule } from './representante/representante.module';
     RepresentanteModule,
     AuthModule,
     UsersModule,
+    CoursesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
