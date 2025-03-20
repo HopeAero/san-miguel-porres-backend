@@ -1,9 +1,9 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { PersonasModule } from '../personas/personas.module';
 import { Representante } from './entities/representante.entity';
-import { RepresentanteService } from './representante.service';
 import { RepresentanteController } from './representante.controller';
-import { PersonasModule } from '@/core/personas/personas.module';
+import { RepresentanteService } from './representante.service';
 
 @Module({
   imports: [

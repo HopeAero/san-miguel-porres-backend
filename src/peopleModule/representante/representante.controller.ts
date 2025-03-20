@@ -1,25 +1,25 @@
+import { Roles } from '@/common/decorators/roles.decorator';
+import { PageDto } from '@/common/dto/page.dto';
+import { PageOptionsDto } from '@/common/dto/page.option.dto';
+import { Role } from '@/common/enum/role';
+import { JwtGuard } from '@/core/auth/guards/jwt.guard';
 import {
-  Controller,
-  Get,
   Body,
-  Param,
-  Put,
+  Controller,
   Delete,
-  Query,
+  Get,
+  Param,
   ParseIntPipe,
   Post,
+  Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
-import { RepresentanteService } from './representante.service';
-import { UpdatePersonaDto } from '@/core/personas/dto/update-persona.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CreatePersonaDto } from '@/core/personas/dto/create-persona.dto';
-import { PageOptionsDto } from '@/common/dto/page.option.dto';
+import { CreatePersonaDto } from '../personas/dto/create-persona.dto';
+import { UpdatePersonaDto } from '../personas/dto/update-persona.dto';
 import { Representante } from './entities/representante.entity';
-import { PageDto } from '@/common/dto/page.dto';
-import { JwtGuard } from '@/auth/guards/jwt.guard';
-import { Role } from '@/common/enum/role';
-import { Roles } from '@/common/decorators/roles.decorator';
+import { RepresentanteService } from './representante.service';
 
 @ApiTags('Representante')
 @Controller('representante')

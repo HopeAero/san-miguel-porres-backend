@@ -1,3 +1,6 @@
+import { PageDto } from '@/common/dto/page.dto';
+import { PageOptionsDto } from '@/common/dto/page.option.dto';
+import { WrapperType } from '@/wrapper.type';
 import {
   forwardRef,
   Inject,
@@ -5,37 +8,34 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Estudiante } from './entities/estudiante.entity';
-import { PersonasService } from '@/core/personas/personas.service';
-import { CreatePersonaDto } from '@/core/personas/dto/create-persona.dto';
-import { Transactional } from 'typeorm-transactional';
-import { UpdatePersonaDto } from '@/core/personas/dto/update-persona.dto';
-import { WrapperType } from '@/wrapper.type';
 import { plainToClass } from 'class-transformer';
-import { EstudiantePersonaDto } from './dto/EstudiantePersona.dto';
-import { PageOptionsDto } from '@/common/dto/page.option.dto';
-import { PageDto } from '@/common/dto/page.dto';
+import { Repository } from 'typeorm';
+import { Transactional } from 'typeorm-transactional';
+import { CreatePersonaDto } from '../personas/dto/create-persona.dto';
+import { UpdatePersonaDto } from '../personas/dto/update-persona.dto';
+import { PersonasService } from '../personas/personas.service';
+import { StudentPersonDto } from './dto/StudentPerson.dto';
+import { Student } from './entities/student.entity';
 
 @Injectable()
-export class EstudianteService {
+export class StudentService {
   constructor(
-    @InjectRepository(Estudiante)
-    private estudianteRepository: Repository<Estudiante>,
+    @InjectRepository(Student)
+    private estudianteRepository: Repository<Student>,
     @Inject(forwardRef(() => PersonasService))
     private personasService: WrapperType<PersonasService>,
   ) {}
 
   @Transactional()
-  async create(createEstudianteDto: CreatePersonaDto): Promise<Estudiante> {
-    const persona = await this.personasService.create(createEstudianteDto);
-    const estudiante = await this.estudianteRepository.create({ persona });
-    return this.estudianteRepository.save(estudiante);
+  async create(createStudentDto: CreatePersonaDto): Promise<Student> {
+    const person = await this.personasService.create(createStudentDto);
+    const student = await this.estudianteRepository.create(person);
+    return this.estudianteRepository.save(student);
   }
   async update(
     id: number,
     updateEstudianteDto: UpdatePersonaDto,
-  ): Promise<Estudiante> {
+  ): Promise<Student> {
     const estudiante = await this.estudianteRepository.preload({
       id,
       ...updateEstudianteDto,
@@ -49,7 +49,7 @@ export class EstudianteService {
   }
 
   // Find a single Estudiante by ID
-  async findOne(id: number): Promise<EstudiantePersonaDto> {
+  async findOne(id: number): Promise<StudentPersonDto> {
     const estudiante = await this.estudianteRepository.findOne({
       where: { id },
       relations: ['persona', 'representante'],
@@ -59,13 +59,13 @@ export class EstudianteService {
       throw new NotFoundException(`Estudiante with ID ${id} not found`);
     }
 
-    const estudiantePersonaDto = plainToClass(EstudiantePersonaDto, {
+    const studentPersonDto = plainToClass(StudentPersonDto, {
       id: estudiante.id,
       representante: estudiante.representante,
       ...estudiante.persona,
     });
 
-    return estudiantePersonaDto;
+    return studentPersonDto;
   }
 
   async findPaginated(paginationDto: PageOptionsDto) {

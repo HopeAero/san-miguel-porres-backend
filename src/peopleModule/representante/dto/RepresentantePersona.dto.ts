@@ -1,4 +1,4 @@
-import { Estudiante } from '@/core/estudiante/entities/estudiante.entity';
+import { Student } from '@/peopleModule/student/entities/student.entity';
 
 export class RepresentantePersonaDto {
   id: number;
@@ -8,7 +8,7 @@ export class RepresentantePersonaDto {
   telefono: string;
   direccion: string;
   fechaNacimiento: Date;
-  alumnos: Estudiante[];
+  alumnos: Student[];
 }
 
 export interface RepresentantePersona {

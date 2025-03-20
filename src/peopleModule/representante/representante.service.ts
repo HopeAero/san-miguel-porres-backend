@@ -1,3 +1,6 @@
+import { PageDto } from '@/common/dto/page.dto';
+import { PageOptionsDto } from '@/common/dto/page.option.dto';
+import { WrapperType } from '@/wrapper.type';
 import {
   forwardRef,
   Inject,
@@ -5,20 +8,23 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Representante } from './entities/representante.entity';
-import { Transactional } from 'typeorm-transactional';
-import { CreatePersonaDto } from '@/core/personas/dto/create-persona.dto';
-import { PersonasService } from '@/core/personas/personas.service';
-import { WrapperType } from '@/wrapper.type';
-import { UpdatePersonaDto } from '@/core/personas/dto/update-persona.dto';
 import { plainToClass } from 'class-transformer';
+<<<<<<< HEAD:src/core/representante/representante.service.ts
 import {
   RepresentantePersona,
   RepresentantePersonaDto,
 } from './dto/RepresentantePersona.dto';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { PageDto } from '@/common/dto/page.dto';
+=======
+import { Repository } from 'typeorm';
+import { Transactional } from 'typeorm-transactional';
+import { CreatePersonaDto } from '../personas/dto/create-persona.dto';
+import { UpdatePersonaDto } from '../personas/dto/update-persona.dto';
+import { PersonasService } from '../personas/personas.service';
+import { RepresentantePersonaDto } from './dto/RepresentantePersona.dto';
+import { Representante } from './entities/representante.entity';
+>>>>>>> 86702ef (feat: update user):src/peopleModule/representante/representante.service.ts
 
 @Injectable()
 export class RepresentanteService {
@@ -63,7 +69,7 @@ export class RepresentanteService {
 
     const representanteDto = plainToClass(RepresentantePersonaDto, {
       id: representante.id,
-      alumnos: representante.estudiantes,
+      alumnos: representante.student,
       ...representante.persona,
     });
 

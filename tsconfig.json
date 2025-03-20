@@ -13,7 +13,8 @@
     "paths": {
       "@/*": ["src/*"],
       "@/users/*": ["src/core/users/*"],
-      "@/auth/*": ["src/core/auth/*"]
+      "@/auth/*": ["src/core/auth/*"],
+      "@/people/*": ["src/peopleModule/*"]
     },
     "incremental": true,
     "skipLibCheck": true,
