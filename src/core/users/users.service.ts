@@ -1,9 +1,9 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UsersService {
@@ -11,6 +11,7 @@ export class UsersService {
     @InjectRepository(User)
     private readonly usersRepository: Repository<User>,
   ) {}
+
   async create(createUserDto: CreateUserDto) {
     const existingUser = await this.usersRepository.findOne({
       where: { email: createUserDto.email },
@@ -21,7 +22,7 @@ export class UsersService {
     }
 
     const user = this.usersRepository.create(createUserDto);
-    return this.usersRepository.save(user);
+    return await this.usersRepository.save(user);
   }
 
   async findOneByEmail(email: string) {
@@ -62,6 +63,6 @@ export class UsersService {
       throw new BadRequestException('Usuario no encontrado');
     }
 
-    return this.usersRepository.softDelete(user);
+    return await this.usersRepository.softDelete(user);
   }
 }

@@ -1,5 +1,5 @@
-import { Estudiante } from '@/estudiante/entities/estudiante.entity';
-import { Representante } from '@/representante/entities/representante.entity';
+import { Representante } from '@/peopleModule/representante/entities/representante.entity';
+import { Student } from '@/peopleModule/student/entities/student.entity';
 import {
   Column,
   CreateDateColumn,
@@ -46,11 +46,11 @@ export class Persona {
   })
   representante: Relation<Representante>;
 
-  @OneToOne(() => Estudiante, (estudiante) => estudiante.persona, {
+  @OneToOne(() => Student, (student) => student.persona, {
     onDelete: 'CASCADE',
     nullable: true,
   })
-  estudiante: Relation<Estudiante>;
+  student: Relation<Student>;
 
   @CreateDateColumn()
   createdAt: Date;

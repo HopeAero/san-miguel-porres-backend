@@ -1,17 +1,17 @@
-import { Persona } from '@/personas/entities/persona.entity';
-import { Representante } from '@/representante/entities/representante.entity';
+import { Persona } from '@/peopleModule/personas/entities/persona.entity';
+import { Representante } from '@/peopleModule/representante/entities/representante.entity';
 import {
-  Entity,
-  ManyToOne,
   DeleteDateColumn,
+  Entity,
   JoinColumn,
+  ManyToOne,
   OneToOne,
   PrimaryColumn,
   Relation,
 } from 'typeorm';
 
 @Entity()
-export class Estudiante {
+export class Student {
   @PrimaryColumn()
   id: number;
 
@@ -19,7 +19,7 @@ export class Estudiante {
   @JoinColumn({ name: 'id', referencedColumnName: 'id' })
   persona: Relation<Persona>;
 
-  @ManyToOne(() => Representante, (representante) => representante.estudiantes)
+  @ManyToOne(() => Representante, (representante) => representante.student)
   representante: Relation<Representante>;
 
   @DeleteDateColumn()

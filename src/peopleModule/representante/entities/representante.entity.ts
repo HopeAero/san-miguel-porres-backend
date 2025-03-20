@@ -1,12 +1,12 @@
-import { Estudiante } from '@/estudiante/entities/estudiante.entity';
-import { Persona } from '@/personas/entities/persona.entity';
+import { Persona } from '@/peopleModule/personas/entities/persona.entity';
+import { Student } from '@/peopleModule/student/entities/student.entity';
 import {
-  Entity,
-  OneToOne,
-  JoinColumn,
   DeleteDateColumn,
-  PrimaryColumn,
+  Entity,
+  JoinColumn,
   OneToMany,
+  OneToOne,
+  PrimaryColumn,
   Relation,
 } from 'typeorm';
 
@@ -19,8 +19,8 @@ export class Representante {
   @JoinColumn({ name: 'id', referencedColumnName: 'id' })
   persona: Relation<Persona>;
 
-  @OneToMany(() => Estudiante, (estudiante) => estudiante.representante)
-  estudiantes: Relation<Estudiante[]>;
+  @OneToMany(() => Student, (student) => student.representante)
+  student: Relation<Student[]>;
 
   @DeleteDateColumn()
   deletedAt: Date;

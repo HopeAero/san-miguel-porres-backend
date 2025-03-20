@@ -1,6 +1,6 @@
-import { Representante } from '@/representante/entities/representante.entity';
+import { Representante } from '@/peopleModule/representante/entities/representante.entity';
 
-export class EstudiantePersonaDto {
+export class StudentPersonDto {
   id: number;
   nombre: string;
   apellido: string;
