@@ -9,13 +9,15 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
-import { RepresentantePersona } from './dto/RepresentantePersona.dto';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { CreatePersonaDto } from '../personas/dto/create-persona.dto';
 import { UpdatePersonaDto } from '../personas/dto/update-persona.dto';
 import { PersonasService } from '../personas/personas.service';
-import { RepresentantePersonaDto } from './dto/RepresentantePersona.dto';
+import {
+  RepresentantePersona,
+  RepresentantePersonaDto,
+} from './dto/RepresentantePersona.dto';
 import { Representante } from './entities/representante.entity';
 
 @Injectable()
