@@ -12,7 +12,7 @@ import { EmployeeService } from './employee.service';
 import { CreateEmployeeDTO } from './dto/create-employee.dto';
 import { PaginationEmployeeDto } from './dto/pagination-employee.dto';
 
-@Controller('empleado') // Base route for all endpoints
+@Controller('employee') // Base route for all endpoints
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
