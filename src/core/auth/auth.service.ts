@@ -55,7 +55,7 @@ export class AuthService {
       name: user.name,
       email: user.email,
       password: hashedPassword,
-      role: Role.MODERATOR,
+      role: Role.ADMIN,
     });
 
     return this.generateToken(newUser);
