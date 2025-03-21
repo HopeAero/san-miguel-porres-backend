@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
@@ -17,6 +18,9 @@ import { RoleGuard } from '../auth/guards/roles.guard';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
+import { PageOptionsDto } from '@/common/dto/page.option.dto';
+import { PageDto } from '@/common/dto/page.dto';
+import { UserDTO } from './dto/user.dto';
 
 @Controller('users')
 @Roles(Role.ADMIN)
@@ -32,7 +36,16 @@ export class UsersController {
 
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
-    return await this.usersService.findOneById(id);
+    const user = await this.usersService.findOneById(id);
+    delete user.password;
+    return user;
+  }
+
+  @Get('')
+  async paginate(
+    @Query() paginationDto: PageOptionsDto,
+  ): Promise<PageDto<UserDTO>> {
+    return await this.usersService.paginate(paginationDto);
   }
 
   @Put(':id')

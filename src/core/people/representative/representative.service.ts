@@ -55,7 +55,10 @@ export class RepresentanteService {
   async findOne(id: number): Promise<RepresentativeDto> {
     const representante = await this.representativeRepository.findOne({
       where: { id },
-      relations: ['persona', 'estudiantes'],
+      relations: {
+        person: true,
+        students: true,
+      },
     });
 
     const representanteDto = plainToClass(RepresentativeDto, {
@@ -76,7 +79,10 @@ export class RepresentanteService {
       },
       take: pageOptionsDto.perPage,
       skip: pageOptionsDto.skip,
-      relations: ['persona', 'estudiantes'],
+      relations: {
+        person: true,
+        students: true,
+      },
     });
 
     const representatives: RepresentativeDto[] = result.map(
