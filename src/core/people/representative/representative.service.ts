@@ -76,7 +76,7 @@ export class RepresentanteService {
       },
       take: pageOptionsDto.perPage,
       skip: pageOptionsDto.skip,
-      relations: ['persona', 'estudiantes'],
+      relations: { person: true, students: true },
     });
 
     const representatives: RepresentativeDto[] = result.map(
