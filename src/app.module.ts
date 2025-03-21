@@ -1,5 +1,5 @@
 import { AuthModule } from '@/auth/auth.module';
-import { PersonasModule } from '@/core/people/people/people.module';
+import { PeopleModule } from '@/core/people/people/people.module';
 import { UsersModule } from '@/users/users.module';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -19,7 +19,7 @@ import { StudentModule } from '@/core/people/student/student.module';
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
-    PersonasModule,
+    PeopleModule,
     StudentModule,
     RepresentanteModule,
     AuthModule,
