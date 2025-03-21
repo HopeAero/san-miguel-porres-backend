@@ -1,6 +1,6 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PersonasModule } from '../people/people.module';
+import { PeopleModule } from '../people/people.module';
 import { Representative } from './entities/representative.entity';
 import { RepresentativeController } from './representative.controller';
 import { RepresentanteService } from './representative.service';
@@ -8,7 +8,7 @@ import { RepresentanteService } from './representative.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Representative]),
-    forwardRef(() => PersonasModule),
+    forwardRef(() => PeopleModule),
   ],
   controllers: [RepresentativeController],
   providers: [RepresentanteService],

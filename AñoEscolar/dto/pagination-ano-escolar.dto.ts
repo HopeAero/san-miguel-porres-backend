@@ -1,6 +1,6 @@
 import { IsOptional, IsNumber, Min } from 'class-validator';
 
-export class PaginationEmpleadoDto {
+export class PaginationAnoEscolarDto {
   @IsOptional() // Optional field
   @IsNumber() // Validation: Must be a number
   @Min(1) // Validation: Minimum value is 1
