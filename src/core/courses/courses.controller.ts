@@ -11,8 +11,8 @@ import {
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
-import { PaginationCourseDto } from './dto/pagination-course.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { PageOptionsDto } from '@/common/dto/page.option.dto';
 
 @ApiTags('Courses')
 @Controller('courses')
@@ -35,8 +35,8 @@ export class CoursesController {
   }
 
   @Get() // GET /courses
-  findAll(@Query() paginationDto: PaginationCourseDto) {
-    return this.coursesService.findAll(paginationDto);
+  paginate(@Query() paginationDto: PageOptionsDto) {
+    return this.coursesService.paginate(paginationDto);
   }
 
   @Delete(':id') // DELETE /courses/:id

@@ -1,10 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like, FindOptionsWhere } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Course } from './entities/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
-import { PaginationCourseDto } from './dto/pagination-course.dto';
+import { PageOptionsDto } from '@/common/dto/page.option.dto';
+import { CourseDto } from './dto/course';
+import { plainToClass } from 'class-transformer';
+import { PageDto } from '@/common/dto/page.dto';
 
 @Injectable()
 export class CoursesService {
@@ -39,27 +42,26 @@ export class CoursesService {
     return course;
   }
 
-  async findAll(
-    paginationDto: PaginationCourseDto,
-  ): Promise<{ data: Course[]; total: number }> {
-    const { page, limit, search, filter } = paginationDto;
-    const where: FindOptionsWhere<Course> = {};
-
-    if (search) {
-      where.name = Like(`%${search}%`);
-    }
-
-    if (filter) {
-      Object.assign(where, filter);
-    }
-
-    const [data, total] = await this.courseRepository.findAndCount({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
+  async paginate(paginationDto: PageOptionsDto): Promise<PageDto<Course>> {
+    const [result, total] = await this.courseRepository.findAndCount({
+      order: {
+        id: paginationDto.order,
+      },
+      take: paginationDto.perPage,
+      skip: paginationDto.skip,
+      relations: {},
     });
 
-    return { data, total };
+    const courses: CourseDto[] = result.map((entity: Course) => {
+      const item: CourseDto = plainToClass(CourseDto, {
+        ...entity,
+        id: entity.id,
+      });
+
+      return item;
+    });
+
+    return new PageDto(courses, total, paginationDto);
   }
 
   async remove(id: number): Promise<void> {
