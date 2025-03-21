@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { AnoEscolarService } from './ano-escolar.service';
 import { CreateAnoEscolarDto } from './dto/create-ano-escolar.dto';
 import { UpdateAnoEscolarDto } from './dto/update-ano-escolar.dto';
@@ -14,7 +23,10 @@ export class AnoEscolarController {
   }
 
   @Put(':id') // PUT /ano-escolar/:id
-  update(@Param('id') id: number, @Body() updateAnoEscolarDto: UpdateAnoEscolarDto) {
+  update(
+    @Param('id') id: number,
+    @Body() updateAnoEscolarDto: UpdateAnoEscolarDto,
+  ) {
     return this.anoEscolarService.update(id, updateAnoEscolarDto); // Call service to update
   }
 
