@@ -6,16 +6,19 @@ import { CreateEmployeeDTO } from './dto/create-employee.dto';
 import { PaginationEmployeeDto } from './dto/pagination-employee.dto';
 import { WrapperType } from '@/wrapper.type';
 import { PeopleService } from '@/core/people/people/people.service';
+import { EmployeeDto } from './dto/employee';
+import { PageDto } from '@/common/dto/page.dto';
+import { PageOptionsDto } from '@/common/dto/page.option.dto';
+import { plainToClass } from 'class-transformer';
 
 @Injectable()
 export class EmployeeService {
   constructor(
-    @InjectRepository(Employee) // Inject the Empleado repository
+    @InjectRepository(Employee)
     private employeeRepository: Repository<Employee>,
     private peopleService: WrapperType<PeopleService>,
   ) {}
 
-  // Create a new Empleado
   async create(createEmpleadoDto: CreateEmployeeDTO): Promise<Employee> {
     const person = await this.peopleService.create(createEmpleadoDto);
     const representative = this.employeeRepository.create({
@@ -24,63 +27,84 @@ export class EmployeeService {
     return await this.employeeRepository.save(representative);
   }
 
-  // Update an existing Empleado
   async update(
     id: number,
     updateEmpleadoDto: CreateEmployeeDTO,
   ): Promise<Employee> {
-    const empleado = await this.employeeRepository.preload({
+    const employee = await this.employeeRepository.preload({
       id,
       ...updateEmpleadoDto,
     });
-    if (!empleado) {
-      throw new NotFoundException(`Empleado with ID ${id} not found`); // Throw error if not found
+    if (!employee) {
+      throw new NotFoundException(`Empleado with ID ${id} not found`);
     }
-    return this.employeeRepository.save(empleado); // Save updated data
+    return this.employeeRepository.save(employee);
   }
 
-  // Find a single Empleado by ID
   async findOne(id: number): Promise<Employee> {
-    const empleado = await this.employeeRepository.findOne({ where: { id } }); // Find by ID
-    if (!empleado) {
-      throw new NotFoundException(`Empleado with ID ${id} not found`); // Throw error if not found
+    const employee = await this.employeeRepository.findOne({ where: { id } });
+    if (!employee) {
+      throw new NotFoundException(`Empleado with ID ${id} not found`);
     }
-    return empleado;
+    return employee;
   }
 
-  // Find all Empleados with pagination, search, and filtering
   async findAll(
     paginationDto: PaginationEmployeeDto,
   ): Promise<{ data: Employee[]; total: number }> {
     const { page, limit, search, filter } = paginationDto;
     const where: FindOptionsWhere<Employee> = {};
 
-    // Add search condition if provided
     if (search) {
-      where.person = { name: Like(`%${search}%`) }; // Search by Nombre in related Persona
+      where.person = { name: Like(`%${search}%`) };
     }
 
-    // Add additional filters if provided
     if (filter) {
-      Object.assign(where, filter); // Merge filters into the where clause
+      Object.assign(where, filter);
     }
 
-    // Fetch paginated data and total count
     const [data, total] = await this.employeeRepository.findAndCount({
       where,
-      skip: (page - 1) * limit, // Calculate offset for pagination
-      take: limit, // Limit the number of results
-      relations: ['persona'], // Include related Persona data
+      skip: (page - 1) * limit,
+      take: limit,
+      relations: {
+        person: true,
+      },
     });
 
-    return { data, total }; // Return data and total count
+    return { data, total };
   }
 
-  // Soft-delete an Empleado
   async remove(id: number): Promise<void> {
-    const result = await this.employeeRepository.softDelete(id); // Perform soft-delete
+    const result = await this.employeeRepository.softDelete(id);
     if (result.affected === 0) {
-      throw new NotFoundException(`Empleado with ID ${id} not found`); // Throw error if not found
+      throw new NotFoundException(`Employee with ID ${id} not found`);
     }
+  }
+
+  async paginate(
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<EmployeeDto>> {
+    const [result, total] = await this.employeeRepository.findAndCount({
+      order: {
+        id: pageOptionsDto.order,
+      },
+      take: pageOptionsDto.perPage,
+      skip: pageOptionsDto.skip,
+      relations: {
+        person: true,
+      },
+    });
+
+    const employees: EmployeeDto[] = result.map((employeeEntity: Employee) => {
+      const employees: EmployeeDto = plainToClass(EmployeeDto, {
+        ...employeeEntity.person,
+        id: employeeEntity.id,
+      });
+
+      return employees;
+    });
+
+    return new PageDto(employees, total, pageOptionsDto);
   }
 }

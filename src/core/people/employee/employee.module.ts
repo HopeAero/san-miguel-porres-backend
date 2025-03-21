@@ -9,4 +9,4 @@ import { EmployeeController } from './employee.controller';
   controllers: [EmployeeController], // Register the controller
   providers: [EmployeeService], // Register the service
 })
-export class EmpleadoModule {}
+export class EmployeeModule {}
