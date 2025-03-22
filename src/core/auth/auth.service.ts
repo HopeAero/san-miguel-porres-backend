@@ -12,7 +12,8 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
 import { LoginCredentials } from './dto/login.dto';
 import { RegistrationCredentials } from './dto/register.dto';
-import { AccessToken } from './types/AccessToken';
+import { AuthUser } from './types/AuthUser';
+import { AccessTokenPayload } from './types/AccessTokenPayload';
 
 @Injectable()
 export class AuthService {
@@ -34,17 +35,26 @@ export class AuthService {
     return user;
   }
 
-  async generateToken(user: User): Promise<AccessToken> {
-    const payload = { email: user.email, id: user.id };
-    return { access_token: this.jwtService.sign(payload) };
+  async generateToken(user: User): Promise<AuthUser> {
+    const payload: AccessTokenPayload = {
+      email: user.email,
+      userId: user.id,
+      id: user.id,
+    };
+
+    return {
+      accessToken: this.jwtService.sign(payload),
+      name: user.name,
+      email: user.email,
+    };
   }
 
-  async login(login: LoginCredentials): Promise<AccessToken> {
+  async login(login: LoginCredentials): Promise<AuthUser> {
     const user = await this.validateUser(login.email, login.password);
     return this.generateToken(user);
   }
 
-  async register(user: RegistrationCredentials): Promise<AccessToken> {
+  async register(user: RegistrationCredentials): Promise<AuthUser> {
     const existingUser = await this.usersService.findOneByEmail(user.email);
     if (existingUser) {
       throw new BadRequestException('El usuario ya existe');
