@@ -1,5 +1,6 @@
+import { Role } from '@/common/enum/role';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsNumber, IsString } from 'class-validator';
+import { IsDateString, IsEnum, IsNumber, IsString } from 'class-validator';
 
 export class UserDTO {
   @ApiProperty()
@@ -20,7 +21,8 @@ export class UserDTO {
 
   @ApiProperty()
   @IsString()
-  role: string;
+  @IsEnum(Role)
+  role: Role;
 
   @ApiProperty()
   @IsDateString()
