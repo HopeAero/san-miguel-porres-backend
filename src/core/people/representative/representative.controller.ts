@@ -51,7 +51,7 @@ export class RepresentativeController {
   }
 
   @Roles(Role.MODERATOR, Role.ADMIN)
-  @Get()
+  @Get('all')
   async findAll(): Promise<RepresentativeDto[]> {
     return await this.representanteService.findAll();
   }

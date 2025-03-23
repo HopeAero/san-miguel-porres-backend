@@ -29,6 +29,17 @@ export class UsersService {
     return await this.usersRepository.save(user);
   }
 
+  async findAll() {
+    const users = await this.usersRepository.find();
+    return users.map((user) => {
+      delete user.password;
+      return plainToClass(UserDTO, {
+        ...user,
+        id: user.id,
+      });
+    });
+  }
+
   async findOneByEmail(email: string) {
     return this.usersRepository.findOne({ where: { email } });
   }

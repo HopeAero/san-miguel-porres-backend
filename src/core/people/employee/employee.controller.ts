@@ -33,6 +33,11 @@ export class EmployeeController {
     return await this.employeeService.create(createEmpleadoDto); // Call service to create
   }
 
+  @Get('all') // GET /employee/all
+  async findAll() {
+    return await this.employeeService.findAll(); // Call service to find all
+  }
+
   @Get('paginate') // GET /employee
   async paginate(@Query() paginationDto: PageOptionsDto) {
     return await this.employeeService.paginate(paginationDto); // Call service to paginate employees

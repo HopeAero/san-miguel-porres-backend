@@ -78,6 +78,14 @@ export class StudentService {
     return formatStudent(estudiante);
   }
 
+  async findAll(): Promise<StudentDto[]> {
+    const estudiantes = await this.estudianteRepository.find({
+      relations: { person: true, representative: true },
+    });
+
+    return estudiantes.map((estudiante) => formatStudent(estudiante));
+  }
+
   async paginate(paginationDto: PageOptionsDto): Promise<PageDto<StudentDto>> {
     const [result, total] = await this.estudianteRepository.findAndCount({
       order: {

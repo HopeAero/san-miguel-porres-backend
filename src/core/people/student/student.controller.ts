@@ -36,6 +36,10 @@ export class StudentController {
     return await this.studentService.create(createStudentDto);
   }
 
+  @Get('all')
+  async findAll(): Promise<StudentDto[]> {
+    return await this.studentService.findAll();
+  }
   @Get('paginate')
   async paginate(
     @Query() paginationDto: PageOptionsDto,
