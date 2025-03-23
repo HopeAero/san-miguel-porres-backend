@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { UpdatePersonDto } from './dto/update-person.dto';
-import { Repository } from 'typeorm';
+import { Equal, Repository } from 'typeorm';
 import { Person } from './entities/person.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
@@ -15,6 +15,15 @@ export class PeopleService {
   ) {}
 
   async create(createPersonaDto: CreatePersonDto) {
+    const persona = await this.personasRepository.findOne({
+      where: { dni: Equal(createPersonaDto.dni) },
+      select: ['id', 'dni', 'name'],
+    });
+
+    if (persona) {
+      throw new BadRequestException('Esta cedula ya esta registrada');
+    }
+
     const person = await this.personasRepository.save(createPersonaDto);
 
     return this.findOne(person.id);
