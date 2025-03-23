@@ -11,11 +11,22 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
-import { UpdatePersonDto } from '../people/dto/update-person.dto';
 import { PeopleService } from '../people/people.service';
 import { CreateRepresentativeDto } from './dto/create-representative.dto';
 import { Representative } from './entities/representative.entity';
 import { RepresentativeDto } from './dto/representative.dto';
+import { UpdateRepresentativeDto } from './dto/update-representative.dto';
+
+function formatRepresentative(
+  representativeEntity: Representative,
+): RepresentativeDto {
+  return plainToClass(RepresentativeDto, {
+    ...representativeEntity.person,
+    id: representativeEntity.id,
+    students: representativeEntity.students || null,
+    personId: representativeEntity.person?.id || null,
+  });
+}
 
 @Injectable()
 export class RepresentanteService {
@@ -29,18 +40,20 @@ export class RepresentanteService {
   @Transactional()
   async create(
     createRepresentanteDto: CreateRepresentativeDto,
-  ): Promise<Representative> {
+  ): Promise<RepresentativeDto> {
     const person = await this.peopleService.create(createRepresentanteDto);
     const representative = this.representativeRepository.create({
       person,
     });
-    return this.representativeRepository.save(representative);
+    const savedRepresentative =
+      await this.representativeRepository.save(representative);
+    return await this.findOne(savedRepresentative.id);
   }
 
   async update(
     id: number,
-    updateRepresentanteDto: UpdatePersonDto,
-  ): Promise<Representative> {
+    updateRepresentanteDto: UpdateRepresentativeDto,
+  ): Promise<RepresentativeDto> {
     const representante = await this.peopleService.update(
       id,
       updateRepresentanteDto,
@@ -51,7 +64,10 @@ export class RepresentanteService {
         `No se encontro el representante con el ID ${id}`,
       );
     }
-    return this.representativeRepository.save(representante);
+    const updatedRepresentative =
+      await this.representativeRepository.save(representante);
+
+    return await this.findOne(updatedRepresentative.id);
   }
 
   // Find a single Representante by ID
@@ -65,18 +81,10 @@ export class RepresentanteService {
     });
 
     if (!representante) {
-      throw new NotFoundException(
-        `No se encontro el representante con el ID ${id}`,
-      );
+      throw new NotFoundException(`Representante with ID ${id} not found`);
     }
 
-    const representanteDto = plainToClass(RepresentativeDto, {
-      ...representante.person,
-      id: representante.id,
-      students: representante.students,
-    });
-
-    return representanteDto;
+    return formatRepresentative(representante);
   }
 
   async paginate(
@@ -96,16 +104,7 @@ export class RepresentanteService {
 
     const representatives: RepresentativeDto[] = result.map(
       (representativeEntity: Representative) => {
-        const representative: RepresentativeDto = plainToClass(
-          RepresentativeDto,
-          {
-            ...representativeEntity.person,
-            id: representativeEntity.id,
-            students: representativeEntity.students,
-          },
-        );
-
-        return representative;
+        return formatRepresentative(representativeEntity);
       },
     );
 

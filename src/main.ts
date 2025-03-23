@@ -42,6 +42,8 @@ async function bootstrap() {
     .addTag('Persona')
     .addTag('Student')
     .addTag('Representative')
+    .addTag('Courses')
+    .addTag('Employee')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);

@@ -6,6 +6,7 @@ import {
   JoinColumn,
   DeleteDateColumn,
   PrimaryColumn,
+  Relation,
 } from 'typeorm';
 
 export enum TypeEmployee {
@@ -14,7 +15,7 @@ export enum TypeEmployee {
   Worker = 'worker',
 }
 
-@Entity()
+@Entity({ name: 'employees' })
 export class Employee {
   @PrimaryColumn()
   id: number;
@@ -26,7 +27,7 @@ export class Employee {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'id', referencedColumnName: 'id' })
-  person: Person;
+  person: Relation<Person>;
 
   @DeleteDateColumn()
   deletedAt: Date;

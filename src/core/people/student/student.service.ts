@@ -11,11 +11,20 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
 import { Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
-import { CreatePersonDto } from '../people/dto/create-person.dto';
-import { UpdatePersonDto } from '../people/dto/update-person.dto';
 import { PeopleService } from '../people/people.service';
 import { StudentDto } from './dto/student';
 import { Student } from './entities/student.entity';
+import { CreateStudentDto } from './dto/create-student.dto';
+import { UpdateStudentDto } from './dto/update-student.dto';
+
+function formatStudent(studentEntity: Student): StudentDto {
+  return plainToClass(StudentDto, {
+    ...studentEntity.person,
+    id: studentEntity.id,
+    personId: studentEntity.person?.id || null,
+    representative: studentEntity.representative || null,
+  });
+}
 
 @Injectable()
 export class StudentService {
@@ -27,15 +36,17 @@ export class StudentService {
   ) {}
 
   @Transactional()
-  async create(createStudentDto: CreatePersonDto): Promise<Student> {
+  async create(createStudentDto: CreateStudentDto): Promise<StudentDto> {
     const person = await this.personasService.create(createStudentDto);
     const student = await this.estudianteRepository.create(person);
-    return await this.estudianteRepository.save(student);
+    const savedStudent = await this.estudianteRepository.save(student);
+    return await this.findOne(savedStudent.id);
   }
+
   async update(
     id: number,
-    updateEstudianteDto: UpdatePersonDto,
-  ): Promise<Student> {
+    updateEstudianteDto: UpdateStudentDto,
+  ): Promise<StudentDto> {
     const estudiante = await this.personasService.update(
       id,
       updateEstudianteDto,
@@ -47,17 +58,15 @@ export class StudentService {
       );
     }
 
-    return this.estudianteRepository.save(estudiante);
+    const student = await this.estudianteRepository.save(estudiante);
+    return await this.findOne(student.id);
   }
 
   // Find a single Estudiante by ID
   async findOne(id: number): Promise<StudentDto> {
     const estudiante = await this.estudianteRepository.findOne({
       where: { id },
-      relations: {
-        person: true,
-        representative: true,
-      },
+      relations: { person: true, representative: true },
     });
 
     if (!estudiante) {
@@ -66,13 +75,7 @@ export class StudentService {
       );
     }
 
-    const studentPersonDto = plainToClass(StudentDto, {
-      ...estudiante.person,
-      id: estudiante.id,
-      representative: estudiante.representative,
-    });
-
-    return studentPersonDto;
+    return formatStudent(estudiante);
   }
 
   async paginate(paginationDto: PageOptionsDto): Promise<PageDto<StudentDto>> {
@@ -88,13 +91,7 @@ export class StudentService {
       },
     });
 
-    const resultDto = result.map((estudiante) =>
-      plainToClass(StudentDto, {
-        ...estudiante.person,
-        id: estudiante.id,
-        representative: estudiante.representative,
-      }),
-    );
+    const resultDto = result.map((estudiante) => formatStudent(estudiante));
 
     return new PageDto(resultDto, total, paginationDto);
   }
