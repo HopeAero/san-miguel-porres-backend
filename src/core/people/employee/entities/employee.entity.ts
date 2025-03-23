@@ -1,11 +1,11 @@
 import { Person } from '@/core/people/people/entities/person.entity';
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   OneToOne,
   JoinColumn,
   DeleteDateColumn,
+  PrimaryColumn,
 } from 'typeorm';
 
 export enum TypeEmployee {
@@ -15,7 +15,7 @@ export enum TypeEmployee {
 
 @Entity()
 export class Employee {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   id: number;
 
   @Column({ type: 'enum', enum: [TypeEmployee.Professor, TypeEmployee.Worker] })

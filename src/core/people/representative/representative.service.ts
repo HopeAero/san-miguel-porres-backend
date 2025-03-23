@@ -41,10 +41,11 @@ export class RepresentanteService {
     id: number,
     updateRepresentanteDto: UpdatePersonDto,
   ): Promise<Representative> {
-    const representante = await this.representativeRepository.preload({
+    const representante = await this.peopleService.update(
       id,
-      ...updateRepresentanteDto,
-    });
+      updateRepresentanteDto,
+    );
+
     if (!representante) {
       throw new NotFoundException(
         `No se encontro el representante con el ID ${id}`,

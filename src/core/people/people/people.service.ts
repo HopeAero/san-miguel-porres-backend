@@ -15,7 +15,9 @@ export class PeopleService {
   ) {}
 
   async create(createPersonaDto: CreatePersonDto) {
-    return await this.personasRepository.save(createPersonaDto);
+    const person = await this.personasRepository.save(createPersonaDto);
+
+    return this.findOne(person.id);
   }
 
   async paginate(pageOptionsDto: PageOptionsDto) {

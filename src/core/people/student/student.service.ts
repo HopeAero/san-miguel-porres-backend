@@ -29,17 +29,17 @@ export class StudentService {
   @Transactional()
   async create(createStudentDto: CreatePersonDto): Promise<Student> {
     const person = await this.personasService.create(createStudentDto);
-    const student = this.estudianteRepository.create(person);
+    const student = await this.estudianteRepository.create(person);
     return await this.estudianteRepository.save(student);
   }
   async update(
     id: number,
     updateEstudianteDto: UpdatePersonDto,
   ): Promise<Student> {
-    const estudiante = await this.estudianteRepository.preload({
+    const estudiante = await this.personasService.update(
       id,
-      ...updateEstudianteDto,
-    });
+      updateEstudianteDto,
+    );
 
     if (!estudiante) {
       throw new NotFoundException(
