@@ -10,9 +10,7 @@ import {
   Relation,
 } from 'typeorm';
 
-@Entity({
-  name: 'representatives',
-})
+@Entity({ name: 'representatives' })
 export class Representative {
   @PrimaryColumn()
   id: number;

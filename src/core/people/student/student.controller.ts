@@ -16,21 +16,21 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CreatePersonDto } from '../people/dto/create-person.dto';
-import { UpdatePersonDto } from '../people/dto/update-person.dto';
+import { CreateStudentDto } from './dto/create-student.dto';
+import { UpdateStudentDto } from './dto/update-student.dto';
 import { StudentService } from './student.service';
 import { StudentDto } from './dto/student';
 
 @ApiTags('Student')
+@Controller('student')
 @Roles(Role.MODERATOR, Role.ADMIN)
 @UseGuards(JwtGuard)
 @ApiBearerAuth()
-@Controller('student')
 export class StudentController {
   constructor(private readonly studentService: StudentService) {}
 
   @Post()
-  async create(@Body() createStudentDto: CreatePersonDto) {
+  async create(@Body() createStudentDto: CreateStudentDto) {
     return await this.studentService.create(createStudentDto);
   }
 
@@ -49,7 +49,7 @@ export class StudentController {
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,
-    @Body() updateStudentDto: UpdatePersonDto,
+    @Body() updateStudentDto: UpdateStudentDto,
   ) {
     return await this.studentService.update(id, updateStudentDto);
   }
