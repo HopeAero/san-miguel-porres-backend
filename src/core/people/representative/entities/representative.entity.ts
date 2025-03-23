@@ -15,7 +15,9 @@ export class Representative {
   @PrimaryColumn()
   id: number;
 
-  @OneToOne(() => Person, { cascade: true })
+  @OneToOne(() => Person, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'id', referencedColumnName: 'id' })
   person: Relation<Person>;
 

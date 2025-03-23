@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  Response,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDTO } from './dto/create-employee.dto';
@@ -17,6 +18,7 @@ import { UpdateEmployeeDTO } from './dto/update-employee.dto';
 import { Roles } from '@/common/decorators/roles.decorator';
 import { JwtGuard } from '@/core/auth/guards/jwt.guard';
 import { Role } from '@/common/enum/role';
+import * as express from 'express';
 
 @ApiTags('Employee')
 @Controller('employee')
@@ -27,30 +29,35 @@ export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
   @Post() // POST /employee
-  create(@Body() createEmpleadoDto: CreateEmployeeDTO) {
-    return this.employeeService.create(createEmpleadoDto); // Call service to create
+  async create(@Body() createEmpleadoDto: CreateEmployeeDTO) {
+    return await this.employeeService.create(createEmpleadoDto); // Call service to create
   }
 
   @Put(':id') // PUT /employee/:id
-  update(
+  async update(
     @Param('id') id: number,
     @Body() updateEmpleadoDto: UpdateEmployeeDTO,
+    @Response() res: express.Response,
   ) {
-    return this.employeeService.update(id, updateEmpleadoDto); // Call service to update
+    await this.employeeService.update(id, updateEmpleadoDto);
+
+    return res.status(200).json({
+      message: 'Empleado actualizado correctamente',
+    });
   }
 
   @Get(':id') // GET /employee/:id
-  findOne(@Param('id') id: number) {
-    return this.employeeService.findOne(id); // Call service to find one
+  async findOne(@Param('id') id: number) {
+    return await this.employeeService.findOne(id); // Call service to find one
   }
 
   @Get() // GET /employee
-  paginate(@Query() paginationDto: PageOptionsDto) {
-    return this.employeeService.paginate(paginationDto); // Call service to paginate employees
+  async paginate(@Query() paginationDto: PageOptionsDto) {
+    return await this.employeeService.paginate(paginationDto); // Call service to paginate employees
   }
 
   @Delete(':id') // DELETE /employee/:id
-  remove(@Param('id') id: number) {
-    return this.employeeService.remove(id); // Call service to soft-delete
+  async remove(@Param('id') id: number) {
+    return await this.employeeService.remove(id); // Call service to soft-delete
   }
 }

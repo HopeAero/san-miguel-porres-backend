@@ -14,7 +14,6 @@ import { EmployeeDto } from './dto/employee';
 import { PageDto } from '@/common/dto/page.dto';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { plainToClass } from 'class-transformer';
-import { UpdateEmployeeDTO } from './dto/update-employee.dto';
 import { Transactional } from 'typeorm-transactional';
 
 function formatEmployee(employeeEntity: Employee): EmployeeDto {
@@ -48,19 +47,35 @@ export class EmployeeService {
 
   async update(
     id: number,
-    updateEmpleadoDto: UpdateEmployeeDTO,
-  ): Promise<EmployeeDto> {
-    const employee = await this.employeeRepository.preload({
-      id,
-      ...updateEmpleadoDto,
-    });
+    updateEmpleadoDto: CreateEmployeeDTO,
+  ): Promise<void> {
+    const { employeeType, ...personDto } = updateEmpleadoDto;
 
-    if (!employee) {
-      throw new NotFoundException(`Empleado with ID ${id} not found`);
+    if (employeeType) {
+      const updatedEmployee = await this.employeeRepository.update(id, {
+        employeeType,
+      });
+
+      if (updatedEmployee.affected === 0) {
+        throw new NotFoundException(`Empleado no encontrado con el ID ${id}`);
+      }
     }
 
-    const updatedEmployee = await this.employeeRepository.save(employee);
-    return await this.findOne(updatedEmployee.id);
+    if (personDto) {
+      const employee = await this.peopleService.update(id, personDto);
+
+      if (!employee) {
+        throw new NotFoundException(`Empleado no encontrado con el ID ${id}`);
+      }
+    }
+
+    if (!employeeType && !personDto) {
+      throw new NotFoundException(
+        'No se ha enviado información para actualizar',
+      );
+    }
+
+    return;
   }
 
   async findOne(id: number): Promise<EmployeeDto> {

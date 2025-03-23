@@ -54,15 +54,19 @@ export class RepresentanteService {
     id: number,
     updateRepresentanteDto: UpdateRepresentativeDto,
   ): Promise<RepresentativeDto> {
-    const representante = await this.representativeRepository.preload({
+    const representante = await this.peopleService.update(
       id,
-      ...updateRepresentanteDto,
-    });
+      updateRepresentanteDto,
+    );
+
     if (!representante) {
-      throw new NotFoundException(`Representante with ID ${id} not found`);
+      throw new NotFoundException(
+        `No se encontro el representante con el ID ${id}`,
+      );
     }
     const updatedRepresentative =
       await this.representativeRepository.save(representante);
+
     return await this.findOne(updatedRepresentative.id);
   }
 
@@ -81,6 +85,19 @@ export class RepresentanteService {
     }
 
     return formatRepresentative(representante);
+  }
+
+  async findAll(): Promise<RepresentativeDto[]> {
+    const representantes = await this.representativeRepository.find({
+      relations: {
+        person: true,
+        students: true,
+      },
+    });
+
+    return representantes.map((representante: Representative) => {
+      return formatRepresentative(representante);
+    });
   }
 
   async paginate(
@@ -108,7 +125,9 @@ export class RepresentanteService {
   async remove(id: number): Promise<void> {
     const result = await this.peopleService.remove(id);
     if (result.affected === 0) {
-      throw new NotFoundException(`Representante with ID ${id} not found`);
+      throw new NotFoundException(
+        `No se encontro el representante con el ID ${id}`,
+      );
     }
   }
 }

@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { UpdatePersonDto } from './dto/update-person.dto';
-import { Repository } from 'typeorm';
+import { Equal, Repository } from 'typeorm';
 import { Person } from './entities/person.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
@@ -15,7 +15,18 @@ export class PeopleService {
   ) {}
 
   async create(createPersonaDto: CreatePersonDto) {
-    return await this.personasRepository.save(createPersonaDto);
+    const persona = await this.personasRepository.findOne({
+      where: { dni: Equal(createPersonaDto.dni) },
+      select: ['id', 'dni', 'name'],
+    });
+
+    if (persona) {
+      throw new BadRequestException('Esta cedula ya esta registrada');
+    }
+
+    const person = await this.personasRepository.save(createPersonaDto);
+
+    return this.findOne(person.id);
   }
 
   async paginate(pageOptionsDto: PageOptionsDto) {
@@ -63,9 +74,9 @@ export class PeopleService {
     });
 
     if (!persona) {
-      throw new Error('Esta persona no existe');
+      throw new BadRequestException('Esta persona no existe');
     }
 
-    return await this.personasRepository.softDelete(persona);
+    return await this.personasRepository.softDelete(id);
   }
 }
