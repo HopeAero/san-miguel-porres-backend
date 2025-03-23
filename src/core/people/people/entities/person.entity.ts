@@ -10,6 +10,7 @@ import {
   Relation,
   UpdateDateColumn,
 } from 'typeorm';
+import { Employee } from '@/people/employee/entities/employee.entity';
 
 @Entity({
   name: 'people',
@@ -53,6 +54,12 @@ export class Person {
     nullable: true,
   })
   student: Relation<Student>;
+
+  @OneToOne(() => Employee, (employee) => employee.person, {
+    onDelete: 'CASCADE',
+    nullable: true,
+  })
+  employee: Relation<Employee>;
 
   @CreateDateColumn()
   createdAt: Date;

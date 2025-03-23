@@ -41,7 +41,9 @@ async function bootstrap() {
     .addBearerAuth()
     .addTag('Persona')
     .addTag('Student')
-    .addTag('Representante')
+    .addTag('Representative')
+    .addTag('Courses')
+    .addTag('Employee')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);

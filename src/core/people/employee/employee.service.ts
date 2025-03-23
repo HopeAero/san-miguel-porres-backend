@@ -1,78 +1,79 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like, FindOptionsWhere } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Employee } from './entities/employee.entity';
 import { CreateEmployeeDTO } from './dto/create-employee.dto';
-import { PaginationEmployeeDto } from './dto/pagination-employee.dto';
 import { WrapperType } from '@/wrapper.type';
 import { PeopleService } from '@/core/people/people/people.service';
 import { EmployeeDto } from './dto/employee';
 import { PageDto } from '@/common/dto/page.dto';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { plainToClass } from 'class-transformer';
+import { UpdateEmployeeDTO } from './dto/update-employee.dto';
+import { Transactional } from 'typeorm-transactional';
+
+function formatEmployee(employeeEntity: Employee): EmployeeDto {
+  return plainToClass(EmployeeDto, {
+    ...employeeEntity.person,
+    id: employeeEntity.id,
+    personId: employeeEntity.person?.id || null,
+    employeeType: employeeEntity.employeeType,
+  });
+}
 
 @Injectable()
 export class EmployeeService {
   constructor(
     @InjectRepository(Employee)
     private employeeRepository: Repository<Employee>,
+    @Inject(forwardRef(() => PeopleService))
     private peopleService: WrapperType<PeopleService>,
   ) {}
 
-  async create(createEmpleadoDto: CreateEmployeeDTO): Promise<Employee> {
+  @Transactional()
+  async create(createEmpleadoDto: CreateEmployeeDTO): Promise<EmployeeDto> {
     const person = await this.peopleService.create(createEmpleadoDto);
-    const representative = this.employeeRepository.create({
+    const employee = this.employeeRepository.create({
       person,
+      employeeType: createEmpleadoDto.employeeType,
     });
-    return await this.employeeRepository.save(representative);
+    const savedEmployee = await this.employeeRepository.save(employee);
+    return await this.findOne(savedEmployee.id);
   }
 
   async update(
     id: number,
-    updateEmpleadoDto: CreateEmployeeDTO,
-  ): Promise<Employee> {
+    updateEmpleadoDto: UpdateEmployeeDTO,
+  ): Promise<EmployeeDto> {
     const employee = await this.employeeRepository.preload({
       id,
       ...updateEmpleadoDto,
     });
+
     if (!employee) {
       throw new NotFoundException(`Empleado with ID ${id} not found`);
     }
-    return this.employeeRepository.save(employee);
+
+    const updatedEmployee = await this.employeeRepository.save(employee);
+    return await this.findOne(updatedEmployee.id);
   }
 
-  async findOne(id: number): Promise<Employee> {
-    const employee = await this.employeeRepository.findOne({ where: { id } });
-    if (!employee) {
-      throw new NotFoundException(`Empleado with ID ${id} not found`);
-    }
-    return employee;
-  }
-
-  async findAll(
-    paginationDto: PaginationEmployeeDto,
-  ): Promise<{ data: Employee[]; total: number }> {
-    const { page, limit, search, filter } = paginationDto;
-    const where: FindOptionsWhere<Employee> = {};
-
-    if (search) {
-      where.person = { name: Like(`%${search}%`) };
-    }
-
-    if (filter) {
-      Object.assign(where, filter);
-    }
-
-    const [data, total] = await this.employeeRepository.findAndCount({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
+  async findOne(id: number): Promise<EmployeeDto> {
+    const employee = await this.employeeRepository.findOne({
+      where: { id },
       relations: {
         person: true,
       },
     });
-
-    return { data, total };
+    if (!employee) {
+      throw new NotFoundException(`Empleado with ID ${id} not found`);
+    }
+    return formatEmployee(employee);
   }
 
   async remove(id: number): Promise<void> {
@@ -97,12 +98,7 @@ export class EmployeeService {
     });
 
     const employees: EmployeeDto[] = result.map((employeeEntity: Employee) => {
-      const employees: EmployeeDto = plainToClass(EmployeeDto, {
-        ...employeeEntity.person,
-        id: employeeEntity.id,
-      });
-
-      return employees;
+      return formatEmployee(employeeEntity);
     });
 
     return new PageDto(employees, total, pageOptionsDto);

@@ -16,6 +16,7 @@
       "@/auth/*": ["src/core/auth/*"],
       "@/people/*": ["src/core/people/*"],
       "@/courses/*": ["src/core/courses/*"],
+      "@/employee/*": ["src/core/people/employee"]
     },
     "incremental": true,
     "skipLibCheck": true,

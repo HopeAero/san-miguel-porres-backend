@@ -11,4 +11,7 @@ export class RepresentativeDto extends PersonDto {
   @ValidateNested({ each: true })
   @Type(() => Student)
   students: Student[];
+
+  @ApiProperty({ required: true })
+  personId: number;
 }

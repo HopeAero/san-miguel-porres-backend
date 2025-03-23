@@ -7,12 +7,22 @@ import {
   Put,
   Delete,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDTO } from './dto/create-employee.dto';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { UpdateEmployeeDTO } from './dto/update-employee.dto';
+import { Roles } from '@/common/decorators/roles.decorator';
+import { JwtGuard } from '@/core/auth/guards/jwt.guard';
+import { Role } from '@/common/enum/role';
 
-@Controller('employee') // Base route for all endpoints
+@ApiTags('Employee')
+@Controller('employee')
+@Roles(Role.MODERATOR, Role.ADMIN)
+@UseGuards(JwtGuard)
+@ApiBearerAuth()
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
 
@@ -24,7 +34,7 @@ export class EmployeeController {
   @Put(':id') // PUT /employee/:id
   update(
     @Param('id') id: number,
-    @Body() updateEmpleadoDto: CreateEmployeeDTO,
+    @Body() updateEmpleadoDto: UpdateEmployeeDTO,
   ) {
     return this.employeeService.update(id, updateEmpleadoDto); // Call service to update
   }

@@ -11,6 +11,7 @@ import { AuthMiddleware } from './middleware/auth.middleware';
 import { CoursesModule } from '@/core/courses/courses.module';
 import { RepresentanteModule } from '@/core/people/representative/representative.module';
 import { StudentModule } from '@/core/people/student/student.module';
+import { EmployeeModule } from './core/people/employee/employee.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { StudentModule } from '@/core/people/student/student.module';
     AuthModule,
     UsersModule,
     CoursesModule,
+    EmployeeModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -5,4 +5,7 @@ import { ApiProperty } from '@nestjs/swagger';
 export class StudentDto extends PersonDto {
   @ApiProperty({ type: Representative })
   representative: Representative;
+
+  @ApiProperty({ required: true })
+  personId: number;
 }

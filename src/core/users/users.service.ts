@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -40,7 +40,7 @@ export class UsersService {
   async update(id: number, updateUserDto: UpdateUserDto) {
     if (updateUserDto.email) {
       const existingUser = await this.usersRepository.findOne({
-        where: { email: updateUserDto.email },
+        where: { email: updateUserDto.email, id: Not(id) },
       });
 
       if (existingUser) {
