@@ -98,6 +98,17 @@ export class EmployeeService {
     }
   }
 
+  async findAll(): Promise<EmployeeDto[]> {
+    const employees = await this.employeeRepository.find({
+      relations: {
+        person: true,
+      },
+    });
+    return employees.map((employeeEntity: Employee) => {
+      return formatEmployee(employeeEntity);
+    });
+  }
+
   async paginate(
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<EmployeeDto>> {

@@ -34,20 +34,24 @@ export class UsersController {
     return await this.usersService.create(createUserDto);
   }
 
-  @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    const user = await this.usersService.findOneById(id);
-    delete user.password;
-    return user;
+  @Get('all')
+  async findAll(): Promise<UserDTO[]> {
+    return await this.usersService.findAll();
   }
 
-  @Get('')
+  @Get('paginate')
   async paginate(
     @Query() paginationDto: PageOptionsDto,
   ): Promise<PageDto<UserDTO>> {
     return await this.usersService.paginate(paginationDto);
   }
 
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    const user = await this.usersService.findOneById(id);
+    delete user.password;
+    return user;
+  }
   @Put(':id')
   async update(
     @Param('id', ParseIntPipe) id: number,

@@ -27,13 +27,13 @@ export class PersonasController {
   constructor(private readonly personasService: PeopleService) {}
 
   @Roles(Role.MODERATOR, Role.ADMIN)
-  @Get()
+  @Get('all')
   async findAll(): Promise<Person[]> {
     return await this.personasService.findAll();
   }
 
   @Roles(Role.MODERATOR, Role.ADMIN)
-  @Get('paginated')
+  @Get('paginate')
   async paginate(
     @Query() pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<Person>> {
