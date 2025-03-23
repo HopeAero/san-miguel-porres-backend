@@ -41,7 +41,7 @@ export class UsersController {
     return user;
   }
 
-  @Get('')
+  @Get('paginate')
   async paginate(
     @Query() paginationDto: PageOptionsDto,
   ): Promise<PageDto<UserDTO>> {

@@ -33,7 +33,7 @@ export class PersonasController {
   }
 
   @Roles(Role.MODERATOR, Role.ADMIN)
-  @Get('paginated')
+  @Get('paginate')
   async paginate(
     @Query() pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<Person>> {

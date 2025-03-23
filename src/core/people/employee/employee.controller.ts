@@ -33,6 +33,11 @@ export class EmployeeController {
     return await this.employeeService.create(createEmpleadoDto); // Call service to create
   }
 
+  @Get('paginate') // GET /employee
+  async paginate(@Query() paginationDto: PageOptionsDto) {
+    return await this.employeeService.paginate(paginationDto); // Call service to paginate employees
+  }
+
   @Put(':id') // PUT /employee/:id
   async update(
     @Param('id') id: number,
@@ -49,11 +54,6 @@ export class EmployeeController {
   @Get(':id') // GET /employee/:id
   async findOne(@Param('id') id: number) {
     return await this.employeeService.findOne(id); // Call service to find one
-  }
-
-  @Get() // GET /employee
-  async paginate(@Query() paginationDto: PageOptionsDto) {
-    return await this.employeeService.paginate(paginationDto); // Call service to paginate employees
   }
 
   @Delete(':id') // DELETE /employee/:id
