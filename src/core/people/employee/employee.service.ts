@@ -14,7 +14,6 @@ import { EmployeeDto } from './dto/employee';
 import { PageDto } from '@/common/dto/page.dto';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { plainToClass } from 'class-transformer';
-import { UpdateEmployeeDTO } from './dto/update-employee.dto';
 import { Transactional } from 'typeorm-transactional';
 
 function formatEmployee(employeeEntity: Employee): EmployeeDto {
