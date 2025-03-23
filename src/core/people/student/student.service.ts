@@ -42,7 +42,9 @@ export class StudentService {
     });
 
     if (!estudiante) {
-      throw new NotFoundException(`Estudiante with ID ${id} not found`);
+      throw new NotFoundException(
+        `No se encontro el estudiante con el ID ${id}`,
+      );
     }
 
     return this.estudianteRepository.save(estudiante);
@@ -59,7 +61,9 @@ export class StudentService {
     });
 
     if (!estudiante) {
-      throw new NotFoundException(`Estudiante with ID ${id} not found`);
+      throw new NotFoundException(
+        `No se encontro el estudiante con el ID ${id}`,
+      );
     }
 
     const studentPersonDto = plainToClass(StudentDto, {
@@ -96,11 +100,15 @@ export class StudentService {
   }
 
   // Soft-delete an Estudiante
-  async remove(id: number): Promise<void> {
+  async remove(id: number): Promise<number> {
     const result = await this.personasService.remove(id);
 
     if (result.affected === 0) {
-      throw new NotFoundException(`Estudiante with ID ${id} not found`); // Throw error if not found
+      throw new NotFoundException(
+        `No se encontro el estudiante con el ID ${id}`,
+      ); // Throw error if not found
     }
+
+    return result.affected;
   }
 }

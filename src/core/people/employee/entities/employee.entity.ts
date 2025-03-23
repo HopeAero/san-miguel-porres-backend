@@ -21,8 +21,10 @@ export class Employee {
   @Column({ type: 'enum', enum: [TypeEmployee.Professor, TypeEmployee.Worker] })
   employeeType: TypeEmployee;
 
-  @OneToOne(() => Person, { cascade: true })
-  @JoinColumn()
+  @OneToOne(() => Person, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'id', referencedColumnName: 'id' })
   person: Person;
 
   @DeleteDateColumn()

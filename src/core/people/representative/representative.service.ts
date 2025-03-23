@@ -46,7 +46,9 @@ export class RepresentanteService {
       ...updateRepresentanteDto,
     });
     if (!representante) {
-      throw new NotFoundException(`Representante with ID ${id} not found`);
+      throw new NotFoundException(
+        `No se encontro el representante con el ID ${id}`,
+      );
     }
     return this.representativeRepository.save(representante);
   }
@@ -60,6 +62,12 @@ export class RepresentanteService {
         students: true,
       },
     });
+
+    if (!representante) {
+      throw new NotFoundException(
+        `No se encontro el representante con el ID ${id}`,
+      );
+    }
 
     const representanteDto = plainToClass(RepresentativeDto, {
       ...representante.person,
@@ -107,7 +115,9 @@ export class RepresentanteService {
   async remove(id: number): Promise<void> {
     const result = await this.peopleService.remove(id);
     if (result.affected === 0) {
-      throw new NotFoundException(`Representante with ID ${id} not found`);
+      throw new NotFoundException(
+        `No se encontro el representante con el ID ${id}`,
+      );
     }
   }
 }

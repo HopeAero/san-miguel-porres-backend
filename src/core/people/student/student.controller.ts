@@ -14,12 +14,14 @@ import {
   Put,
   Query,
   UseGuards,
+  Response,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { CreatePersonDto } from '../people/dto/create-person.dto';
 import { UpdatePersonDto } from '../people/dto/update-person.dto';
 import { StudentService } from './student.service';
 import { StudentDto } from './dto/student';
+import * as express from 'express';
 
 @ApiTags('Student')
 @Roles(Role.MODERATOR, Role.ADMIN)
@@ -55,7 +57,20 @@ export class StudentController {
   }
 
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return await this.studentService.remove(id);
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @Response() res: express.Response,
+  ) {
+    const result = await this.studentService.remove(id);
+
+    if (result === 1) {
+      return res.status(200).json({
+        message: 'Estudiante eliminado correctamente',
+      });
+    } else {
+      return res.status(404).json({
+        message: 'Estudiante no encontrado',
+      });
+    }
   }
 }

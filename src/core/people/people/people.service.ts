@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreatePersonDto } from './dto/create-person.dto';
 import { UpdatePersonDto } from './dto/update-person.dto';
 import { Repository } from 'typeorm';
@@ -63,9 +63,9 @@ export class PeopleService {
     });
 
     if (!persona) {
-      throw new Error('Esta persona no existe');
+      throw new BadRequestException('Esta persona no existe');
     }
 
-    return await this.personasRepository.softDelete(persona);
+    return await this.personasRepository.softDelete(id);
   }
 }
