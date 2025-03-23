@@ -11,7 +11,9 @@ import {
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDTO } from './dto/create-employee.dto';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Employee') // Add tags to the endpoint
 @Controller('employee') // Base route for all endpoints
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}

@@ -10,6 +10,7 @@ import {
 
 export enum TypeEmployee {
   Professor = 'professor',
+  Substitute = 'substitute',
   Worker = 'worker',
 }
 
@@ -18,7 +19,7 @@ export class Employee {
   @PrimaryColumn()
   id: number;
 
-  @Column({ type: 'enum', enum: [TypeEmployee.Professor, TypeEmployee.Worker] })
+  @Column({ type: 'string' })
   employeeType: TypeEmployee;
 
   @OneToOne(() => Person, {

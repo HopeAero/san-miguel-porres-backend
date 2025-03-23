@@ -30,15 +30,34 @@ export class EmployeeService {
   async update(
     id: number,
     updateEmpleadoDto: CreateEmployeeDTO,
-  ): Promise<Employee> {
-    const employee = await this.employeeRepository.preload({
-      id,
-      ...updateEmpleadoDto,
-    });
-    if (!employee) {
-      throw new NotFoundException(`Empleado with ID ${id} not found`);
+  ): Promise<void> {
+    const { employeeType, ...personDto } = updateEmpleadoDto;
+
+    if (employeeType) {
+      const updatedEmployee = await this.employeeRepository.update(id, {
+        employeeType,
+      });
+
+      if (updatedEmployee.affected === 0) {
+        throw new NotFoundException(`Empleado no encontrado con el ID ${id}`);
+      }
     }
-    return this.employeeRepository.save(employee);
+
+    if (personDto) {
+      const employee = await this.peopleService.update(id, personDto);
+
+      if (!employee) {
+        throw new NotFoundException(`Empleado no encontrado con el ID ${id}`);
+      }
+    }
+
+    if (!employeeType && !personDto) {
+      throw new NotFoundException(
+        'No se ha enviado información para actualizar',
+      );
+    }
+
+    return;
   }
 
   async findOne(id: number): Promise<Employee> {
