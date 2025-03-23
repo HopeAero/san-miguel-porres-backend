@@ -87,6 +87,19 @@ export class RepresentanteService {
     return formatRepresentative(representante);
   }
 
+  async findAll(): Promise<RepresentativeDto[]> {
+    const representantes = await this.representativeRepository.find({
+      relations: {
+        person: true,
+        students: true,
+      },
+    });
+
+    return representantes.map((representante: Representative) => {
+      return formatRepresentative(representante);
+    });
+  }
+
   async paginate(
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<RepresentativeDto>> {

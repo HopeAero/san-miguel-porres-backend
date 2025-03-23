@@ -52,6 +52,12 @@ export class RepresentativeController {
 
   @Roles(Role.MODERATOR, Role.ADMIN)
   @Get()
+  async findAll(): Promise<RepresentativeDto[]> {
+    return await this.representanteService.findAll();
+  }
+
+  @Roles(Role.MODERATOR, Role.ADMIN)
+  @Get('paginate')
   async paginate(
     @Query() paginationDto: PageOptionsDto,
   ): Promise<PageDto<RepresentativeDto>> {
