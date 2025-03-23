@@ -19,7 +19,7 @@ export class Employee {
   @PrimaryColumn()
   id: number;
 
-  @Column({ type: 'string' })
+  @Column({ type: 'text' })
   employeeType: TypeEmployee;
 
   @OneToOne(() => Person, {
