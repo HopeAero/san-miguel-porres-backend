@@ -36,21 +36,6 @@ export class RepresentativeController {
   }
 
   @Roles(Role.MODERATOR, Role.ADMIN)
-  @Put(':id')
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateRepresentanteDto: UpdateRepresentativeDto,
-  ) {
-    return await this.representanteService.update(id, updateRepresentanteDto);
-  }
-
-  @Roles(Role.MODERATOR, Role.ADMIN)
-  @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return await this.representanteService.findOne(id);
-  }
-
-  @Roles(Role.MODERATOR, Role.ADMIN)
   @Get('all')
   async findAll(): Promise<RepresentativeDto[]> {
     return await this.representanteService.findAll();
@@ -62,6 +47,21 @@ export class RepresentativeController {
     @Query() paginationDto: PageOptionsDto,
   ): Promise<PageDto<RepresentativeDto>> {
     return await this.representanteService.paginate(paginationDto);
+  }
+
+  @Roles(Role.MODERATOR, Role.ADMIN)
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.representanteService.findOne(id);
+  }
+
+  @Roles(Role.MODERATOR, Role.ADMIN)
+  @Put(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateRepresentanteDto: UpdateRepresentativeDto,
+  ) {
+    return await this.representanteService.update(id, updateRepresentanteDto);
   }
 
   @Roles(Role.MODERATOR, Role.ADMIN)
