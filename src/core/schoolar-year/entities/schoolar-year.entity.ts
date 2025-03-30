@@ -1,18 +1,23 @@
-import { Entity, PrimaryGeneratedColumn, Column, DeleteDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  DeleteDateColumn,
+} from 'typeorm';
 
-@Entity('schoolar_years') 
+@Entity('schoolar_years')
 export class SchoolarYear {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column({ unique: true })
-  code: string; 
+  code: string;
 
   @Column()
-  startDate: Date; 
+  startDate: Date;
 
   @Column()
-  endDate: Date; 
+  endDate: Date;
 
   @DeleteDateColumn()
   deletedAt: Date;
