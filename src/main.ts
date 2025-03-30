@@ -43,6 +43,7 @@ async function bootstrap() {
     .addTag('Student')
     .addTag('Representative')
     .addTag('Courses')
+    .addTag('SchoolarYear')
     .addTag('Employee')
     .build();
 
