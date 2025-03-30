@@ -17,10 +17,16 @@ export class SchoolarYearService {
   async create(
     createSchoolarYearDto: CreateSchoolarYearDto,
   ): Promise<SchoolarYear> {
-    const schoolarYear = this.schoolarYearRepository.create(
+    const schoolarYear = await this.schoolarYearRepository.create(
       createSchoolarYearDto,
     );
-    return this.schoolarYearRepository.save(schoolarYear);
+    return await this.schoolarYearRepository.save(schoolarYear);
+  }
+
+  async findAll(): Promise<SchoolarYear[]> {
+    return await this.schoolarYearRepository.find({
+      where: { deletedAt: null },
+    });
   }
 
   async update(
@@ -32,9 +38,11 @@ export class SchoolarYearService {
       ...updateSchoolarYearDto,
     });
     if (!schoolarYear) {
-      throw new NotFoundException(`SchoolarYear with ID ${id} not found`);
+      throw new NotFoundException(
+        `El año escolar con ID ${id} no fue encontrado`,
+      );
     }
-    return this.schoolarYearRepository.save(schoolarYear);
+    return await this.schoolarYearRepository.save(schoolarYear);
   }
 
   async findOne(id: number): Promise<SchoolarYear> {
@@ -42,7 +50,9 @@ export class SchoolarYearService {
       where: { id },
     });
     if (!schoolarYear) {
-      throw new NotFoundException(`SchoolarYear with ID ${id} not found`);
+      throw new NotFoundException(
+        `El año escolar con ID ${id} no fue encontrado`,
+      );
     }
     return schoolarYear;
   }
@@ -62,7 +72,9 @@ export class SchoolarYearService {
   async remove(id: number): Promise<void> {
     const result = await this.schoolarYearRepository.softDelete(id);
     if (result.affected === 0) {
-      throw new NotFoundException(`SchoolarYear with ID ${id} not found`);
+      throw new NotFoundException(
+        `El año escolar con ID ${id} no fue encontrado`,
+      );
     }
   }
 }

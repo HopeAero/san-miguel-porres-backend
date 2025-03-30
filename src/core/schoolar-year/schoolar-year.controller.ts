@@ -27,6 +27,18 @@ export class SchoolarYearController {
     return this.schoolarYearService.create(createSchoolarYearDto);
   }
 
+  @Get('paginate')
+  paginate(
+    @Query() pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<SchoolarYear>> {
+    return this.schoolarYearService.paginate(pageOptionsDto);
+  }
+
+  @Get('all')
+  findAll() {
+    return this.schoolarYearService.findAll();
+  }
+
   @Put(':id')
   update(
     @Param('id') id: number,
@@ -38,13 +50,6 @@ export class SchoolarYearController {
   @Get(':id')
   findOne(@Param('id') id: number) {
     return this.schoolarYearService.findOne(id);
-  }
-
-  @Get()
-  paginate(
-    @Query() pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<SchoolarYear>> {
-    return this.schoolarYearService.paginate(pageOptionsDto);
   }
 
   @Delete(':id')
