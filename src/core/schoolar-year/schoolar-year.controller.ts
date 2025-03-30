@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Put, Delete, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Put,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { SchoolarYearService } from './schoolar-year.service';
 import { CreateSchoolarYearDto } from './dto/create-schoolar-year.dto';
@@ -9,7 +18,7 @@ import { SchoolarYear } from './entities/schoolar-year.entity';
 
 @ApiTags('SchoolarYear')
 @ApiBearerAuth()
-@Controller('schoolar-years') 
+@Controller('schoolar-years')
 export class SchoolarYearController {
   constructor(private readonly schoolarYearService: SchoolarYearService) {}
 
@@ -19,7 +28,10 @@ export class SchoolarYearController {
   }
 
   @Put(':id')
-  update(@Param('id') id: number, @Body() updateSchoolarYearDto: UpdateSchoolarYearDto) {
+  update(
+    @Param('id') id: number,
+    @Body() updateSchoolarYearDto: UpdateSchoolarYearDto,
+  ) {
     return this.schoolarYearService.update(id, updateSchoolarYearDto);
   }
 
@@ -29,7 +41,9 @@ export class SchoolarYearController {
   }
 
   @Get()
-  paginate(@Query() pageOptionsDto: PageOptionsDto): Promise<PageDto<SchoolarYear>> {
+  paginate(
+    @Query() pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<SchoolarYear>> {
     return this.schoolarYearService.paginate(pageOptionsDto);
   }
 
