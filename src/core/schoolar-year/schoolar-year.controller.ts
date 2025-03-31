@@ -10,11 +10,11 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { SchoolarYearService } from './schoolar-year.service';
-import { CreateSchoolarYearDto } from './dto/create-schoolar-year.dto';
 import { UpdateSchoolarYearDto } from './dto/update-schoolar-year.dto';
 import { PageOptionsDto } from '../../common/dto/page.option.dto';
 import { PageDto } from '../../common/dto/page.dto';
 import { SchoolarYear } from './entities/schoolar-year.entity';
+import { CreateCrudOfCrudSchoolarYearDto } from './dto/create-crud-of-crud.dto';
 
 @ApiTags('SchoolarYear')
 @ApiBearerAuth()
@@ -23,8 +23,8 @@ export class SchoolarYearController {
   constructor(private readonly schoolarYearService: SchoolarYearService) {}
 
   @Post()
-  create(@Body() createSchoolarYearDto: CreateSchoolarYearDto) {
-    return this.schoolarYearService.create(createSchoolarYearDto);
+  create(@Body() createCrudOfCrudSchoolarDto: CreateCrudOfCrudSchoolarYearDto) {
+    return this.schoolarYearService.create(createCrudOfCrudSchoolarDto);
   }
 
   @Get('paginate')
