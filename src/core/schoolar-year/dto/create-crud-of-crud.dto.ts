@@ -1,13 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { UpdateCreateLapseDto } from './create-lapse.dto';
-import { ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ValidateNested } from 'class-validator';
 import { CreateSchoolarYearDto } from './create-schoolar-year.dto';
+import { CreateLapseDto } from './create-lapse.dto';
 
-export class UpdateSchoolarYearDto {
+export class CreateCrudOfCrudSchoolarYearDto {
   @ApiProperty({
     description: 'Año escolar',
-    type: CreateSchoolarYearDto,
   })
   @ValidateNested()
   @Type(() => CreateSchoolarYearDto)
@@ -15,9 +14,9 @@ export class UpdateSchoolarYearDto {
 
   @ApiProperty({
     description: 'Lapsos del año escolar',
-    type: [UpdateCreateLapseDto],
+    type: [CreateLapseDto],
   })
   @ValidateNested({ each: true })
-  @Type(() => UpdateCreateLapseDto)
-  lapses: UpdateCreateLapseDto[];
+  @Type(() => CreateLapseDto)
+  lapses: CreateLapseDto[];
 }

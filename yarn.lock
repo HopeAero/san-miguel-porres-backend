@@ -5126,6 +5126,11 @@ lru-cache@^5.1.1:
   dependencies:
     yallist "^3.0.2"
 
+luxon@^3.6.1:
+  version "3.6.1"
+  resolved "https://registry.yarnpkg.com/luxon/-/luxon-3.6.1.tgz#d283ffc4c0076cb0db7885ec6da1c49ba97e47b0"
+  integrity sha512-tJLxrKJhO2ukZ5z0gyjY1zPh3Rh88Ej9P7jNrZiHMUXHae1yvI2imgOZtL1TO8TW6biMMKfTtAOoEJANgtWBMQ==
+
 madge@^8.0.0:
   version "8.0.0"
   resolved "https://registry.yarnpkg.com/madge/-/madge-8.0.0.tgz#cca4ab66fb388e7b6bf43c1f78dcaab3cad30f50"
