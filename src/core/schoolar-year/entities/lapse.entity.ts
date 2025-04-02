@@ -4,11 +4,13 @@ import {
   DeleteDateColumn,
   Entity,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { SchoolarYear } from './schoolar-year.entity';
+import { SchoolCourt } from './school-court.entity';
 
 @Entity('lapses')
 export class Lapse {
@@ -30,6 +32,11 @@ export class Lapse {
     onDelete: 'RESTRICT',
   })
   schoolYear: Relation<SchoolarYear>;
+
+  @OneToMany(() => SchoolCourt, (schoolCourt) => schoolCourt.lapse, {
+    cascade: true,
+  })
+  scholarCourts: Relation<SchoolCourt[]>;
 
   @CreateDateColumn()
   createdAt: Date;

@@ -12,6 +12,7 @@ import { PageDto } from '../../common/dto/page.dto';
 import { Lapse } from './entities/lapse.entity';
 import { CreateCrudOfCrudSchoolarYearDto } from './dto/create-crud-of-crud.dto';
 import { Transactional } from 'typeorm-transactional';
+import { SchoolCourt } from './entities/school-court.entity';
 
 @Injectable()
 export class SchoolarYearService {
@@ -20,6 +21,8 @@ export class SchoolarYearService {
     private schoolarYearRepository: Repository<SchoolarYear>,
     @InjectRepository(Lapse)
     private lapseRepository: Repository<Lapse>,
+    @InjectRepository(SchoolCourt)
+    private schoolCourtRepository: Repository<SchoolCourt>,
   ) {}
 
   @Transactional()
@@ -49,6 +52,19 @@ export class SchoolarYearService {
           `El lapso con fechas ${lapse.startDate} - ${lapse.endDate} está fuera del rango del año escolar.`,
         );
       }
+
+      if (lapse.scholarCourt && lapse.scholarCourt.length > 0) {
+        lapse.scholarCourt.forEach((court) => {
+          if (
+            court.startDate < lapse.startDate ||
+            court.endDate > lapse.endDate
+          ) {
+            throw new BadRequestException(
+              `El corte con fechas ${court.startDate} - ${court.endDate} está fuera del rango del lapso ${lapse}.`,
+            );
+          }
+        });
+      }
     });
 
     const newSchoolarYear =
@@ -58,7 +74,6 @@ export class SchoolarYearService {
 
     // Crear y guardar lapsos de forma secuencial
     let lapseNumber = 1; // Inicializamos el número del lapso
-    const newLapses = [];
 
     for (const lapse of lapses) {
       const newLapse = await this.lapseRepository.create({
@@ -67,8 +82,21 @@ export class SchoolarYearService {
         schoolYear: newSchoolarYear,
       });
       const savedLapse = await this.lapseRepository.save(newLapse);
-      newLapses.push(savedLapse);
       lapseNumber++;
+
+      if (lapse.scholarCourt && lapse.scholarCourt.length > 0) {
+        let scholarCourtNumber = 1; // Inicializamos el número del corte
+
+        for (const court of lapse.scholarCourt) {
+          const newCourt = await this.schoolCourtRepository.create({
+            ...court,
+            courtNumber: scholarCourtNumber,
+            lapse: savedLapse,
+          });
+          await this.schoolCourtRepository.save(newCourt);
+          scholarCourtNumber++;
+        }
+      }
     }
 
     return newSchoolarYear;
