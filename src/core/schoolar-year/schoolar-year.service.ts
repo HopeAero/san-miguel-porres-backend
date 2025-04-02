@@ -46,7 +46,9 @@ export class SchoolarYearService {
     lapses.forEach((lapse) => {
       if (
         lapse.startDate < schoolarYear.startDate ||
-        lapse.endDate > schoolarYear.endDate
+        lapse.endDate > schoolarYear.endDate ||
+        lapse.startDate > lapse.endDate ||
+        lapse.endDate < lapse.startDate
       ) {
         throw new BadRequestException(
           `El lapso con fechas ${lapse.startDate} - ${lapse.endDate} está fuera del rango del año escolar.`,
@@ -57,10 +59,14 @@ export class SchoolarYearService {
         lapse.scholarCourt.forEach((court) => {
           if (
             court.startDate < lapse.startDate ||
-            court.endDate > lapse.endDate
+            court.endDate > lapse.endDate ||
+            court.endDate < court.startDate ||
+            court.startDate > court.endDate ||
+            court.startDate < schoolarYear.startDate ||
+            court.endDate > schoolarYear.endDate
           ) {
             throw new BadRequestException(
-              `El corte con fechas ${court.startDate} - ${court.endDate} está fuera del rango del lapso ${lapse}.`,
+              `El corte con fechas ${court.startDate} - ${court.endDate} está fuera del rango del lapso ${lapse.startDate} - ${lapse.endDate}.`,
             );
           }
         });
@@ -148,17 +154,66 @@ export class SchoolarYearService {
         const updatedLapse = lapses.find(
           (lapse) => lapse.lapseNumber === existingLapse.lapseNumber,
         );
+
         if (updatedLapse) {
+          // Actualizar el lapso
           await this.lapseRepository.update(existingLapse.id, {
             ...existingLapse,
             ...updatedLapse,
           });
+
+          // Obtener los cortes existentes del lapso
+          const existingCourts = await this.schoolCourtRepository.find({
+            where: { lapse: { id: existingLapse.id } },
+            order: { courtNumber: 'ASC' },
+          });
+
+          // Actualizar o eliminar cortes existentes
+          await Promise.all(
+            existingCourts.map(async (existingCourt) => {
+              const updatedCourt = updatedLapse.scholarCourt?.find(
+                (court) => court.courtNumber === existingCourt.courtNumber,
+              );
+
+              if (updatedCourt) {
+                // Actualizar el corte existente
+                await this.schoolCourtRepository.update(existingCourt.id, {
+                  ...existingCourt,
+                  ...updatedCourt,
+                });
+              } else {
+                // Eliminar el corte si no está en el arreglo enviado
+                await this.schoolCourtRepository.softDelete(existingCourt.id);
+              }
+            }),
+          );
+
+          // Crear nuevos cortes si hay más en el arreglo enviado
+          const existingCourtNumbers = existingCourts.map(
+            (court) => court.courtNumber,
+          );
+          const newCourts = updatedLapse.scholarCourt
+            ?.filter(
+              (court) => !existingCourtNumbers.includes(court.courtNumber),
+            )
+            .map((court) => {
+              return this.schoolCourtRepository.create({
+                ...court,
+                lapse: existingLapse,
+              });
+            });
+
+          if (newCourts && newCourts.length > 0) {
+            await this.schoolCourtRepository.save(newCourts);
+          }
         } else {
+          // Eliminar el lapso si no está en el arreglo enviado
           await this.lapseRepository.softDelete(existingLapse.id);
         }
       }),
     );
 
+    // Crear nuevos lapsos si hay más en el arreglo enviado
     if (lapses.length > 0) {
       const existingLapseNumbers = existingLapses.map(
         (lapse) => lapse.lapseNumber,
@@ -173,7 +228,21 @@ export class SchoolarYearService {
         });
 
       if (newLapses.length > 0) {
-        await this.lapseRepository.save(newLapses);
+        const savedLapses = await this.lapseRepository.save(newLapses);
+
+        // Crear cortes para los nuevos lapsos
+        for (const lapse of savedLapses) {
+          const newCourts = lapse.scholarCourts?.map((court) => {
+            return this.schoolCourtRepository.create({
+              ...court,
+              lapse,
+            });
+          });
+
+          if (newCourts && newCourts.length > 0) {
+            await this.schoolCourtRepository.save(newCourts);
+          }
+        }
       }
     }
 

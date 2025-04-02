@@ -5,6 +5,7 @@ import {
   Entity,
   ManyToOne,
   PrimaryGeneratedColumn,
+  Relation,
   UpdateDateColumn,
 } from 'typeorm';
 import { Lapse } from './lapse.entity';
@@ -19,16 +20,20 @@ export class SchoolCourt {
   })
   courtNumber: number;
 
-  @Column()
-  startDate: Date;
+  @Column({
+    type: 'date',
+  })
+  startDate: string;
 
-  @Column()
-  endDate: Date;
+  @Column({
+    type: 'date',
+  })
+  endDate: string;
 
   @ManyToOne(() => Lapse, (lapse) => lapse.scholarCourts, {
     onDelete: 'RESTRICT',
   })
-  lapse: Lapse;
+  lapse: Relation<Lapse>;
 
   @CreateDateColumn()
   createdAt: Date;

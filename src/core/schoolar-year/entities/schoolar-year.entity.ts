@@ -16,11 +16,15 @@ export class SchoolarYear {
   @Column({ unique: true })
   code: string;
 
-  @Column()
-  startDate: Date;
+  @Column({
+    type: 'date',
+  })
+  startDate: string;
 
-  @Column()
-  endDate: Date;
+  @Column({
+    type: 'date',
+  })
+  endDate: string;
 
   @OneToMany(() => Lapse, (lapse) => lapse.schoolYear, {
     onDelete: 'CASCADE',

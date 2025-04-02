@@ -22,11 +22,15 @@ export class Lapse {
   })
   lapseNumber: number;
 
-  @Column()
-  startDate: Date;
+  @Column({
+    type: 'date',
+  })
+  startDate: string;
 
-  @Column()
-  endDate: Date;
+  @Column({
+    type: 'date',
+  })
+  endDate: string;
 
   @ManyToOne(() => SchoolarYear, (schoolYear) => schoolYear.lapses, {
     onDelete: 'RESTRICT',

@@ -1,7 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsNotEmpty, IsDateString, ValidateNested } from 'class-validator';
-import { CreateScholarCourtDto } from './create-scholar-court.dto';
+import {
+  CreateScholarCourtDto,
+  UpdateCreateScholarCourtDto,
+} from './create-scholar-court.dto';
+import { IsValidDate } from '@/common/decorators/isValidDate.decorator';
 
 export class CreateLapseDto {
   @ApiProperty({
@@ -10,7 +14,8 @@ export class CreateLapseDto {
   })
   @IsNotEmpty()
   @IsDateString()
-  startDate: Date;
+  @IsValidDate()
+  startDate: string;
 
   @ApiProperty({
     description: 'Fecha de fin del lapso',
@@ -18,7 +23,8 @@ export class CreateLapseDto {
   })
   @IsNotEmpty()
   @IsDateString()
-  endDate: Date;
+  @IsValidDate()
+  endDate: string;
 
   @ApiProperty({
     description: 'Corte del lapso',
@@ -44,7 +50,8 @@ export class UpdateCreateLapseDto {
   })
   @IsNotEmpty()
   @IsDateString()
-  startDate: Date;
+  @IsValidDate()
+  startDate: string;
 
   @ApiProperty({
     description: 'Fecha de fin del lapso',
@@ -52,13 +59,14 @@ export class UpdateCreateLapseDto {
   })
   @IsNotEmpty()
   @IsDateString()
-  endDate: Date;
+  @IsValidDate()
+  endDate: string;
 
   @ApiProperty({
     description: 'Corte del lapso',
   })
   @ValidateNested({ each: true })
-  @Type(() => CreateScholarCourtDto)
+  @Type(() => UpdateCreateScholarCourtDto)
   @IsNotEmpty()
-  scholarCourt: CreateScholarCourtDto[];
+  scholarCourt: UpdateCreateScholarCourtDto[];
 }

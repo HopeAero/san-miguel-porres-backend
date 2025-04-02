@@ -1,3 +1,4 @@
+import { IsValidDate } from '@/common/decorators/isValidDate.decorator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsDateString, IsNotEmpty } from 'class-validator';
 
@@ -8,7 +9,8 @@ export class CreateScholarCourtDto {
   })
   @IsNotEmpty()
   @IsDateString()
-  startDate: Date;
+  @IsValidDate()
+  startDate: string;
 
   @ApiProperty({
     description: 'Fecha de fin del lapso',
@@ -16,7 +18,8 @@ export class CreateScholarCourtDto {
   })
   @IsNotEmpty()
   @IsDateString()
-  endDate: Date;
+  @IsValidDate()
+  endDate: string;
 }
 
 export class UpdateCreateScholarCourtDto {
@@ -33,7 +36,8 @@ export class UpdateCreateScholarCourtDto {
   })
   @IsNotEmpty()
   @IsDateString()
-  startDate: Date;
+  @IsValidDate()
+  startDate: string;
 
   @ApiProperty({
     description: 'Fecha de fin del lapso',
@@ -41,5 +45,6 @@ export class UpdateCreateScholarCourtDto {
   })
   @IsNotEmpty()
   @IsDateString()
-  endDate: Date;
+  @IsValidDate()
+  endDate: string;
 }

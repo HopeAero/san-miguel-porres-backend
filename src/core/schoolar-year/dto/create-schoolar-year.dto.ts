@@ -1,3 +1,4 @@
+import { IsValidDate } from '@/common/decorators/isValidDate.decorator';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, IsDateString } from 'class-validator';
 
@@ -16,7 +17,8 @@ export class CreateSchoolarYearDto {
   })
   @IsNotEmpty()
   @IsDateString()
-  startDate: Date;
+  @IsValidDate()
+  startDate: string;
 
   @ApiProperty({
     description: 'Fecha de fin del año escolar',
@@ -24,5 +26,6 @@ export class CreateSchoolarYearDto {
   })
   @IsNotEmpty()
   @IsDateString()
-  endDate: Date;
+  @IsValidDate()
+  endDate: string;
 }
