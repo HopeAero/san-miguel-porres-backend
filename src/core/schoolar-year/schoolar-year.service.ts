@@ -250,12 +250,12 @@ export class SchoolarYearService {
   }
 
   async findOne(id: number): Promise<SchoolarYear> {
-    const schoolarYear = await this.schoolarYearRepository.findOne({
-      where: { id },
-      relations: {
-        lapses: true,
-      },
-    });
+    const schoolarYear = await this.schoolarYearRepository
+      .createQueryBuilder('schoolarYear')
+      .leftJoinAndSelect('schoolarYear.lapses', 'lapse')
+      .leftJoinAndSelect('lapse.scholarCourts', 'court')
+      .where('schoolarYear.id = :id', { id })
+      .getOne();
 
     if (!schoolarYear) {
       throw new NotFoundException(
@@ -278,11 +278,27 @@ export class SchoolarYearService {
   }
 
   async remove(id: number): Promise<void> {
+    const existingSchoolarYear = await this.findOne(id);
+
+    if (!existingSchoolarYear) {
+      throw new NotFoundException(
+        `El año escolar con ID ${id} no fue encontrado`,
+      );
+    }
+
     const result = await this.schoolarYearRepository.softDelete(id);
     if (result.affected === 0) {
       throw new NotFoundException(
         `El año escolar con ID ${id} no fue encontrado`,
       );
     }
+
+    await this.lapseRepository.softDelete({
+      schoolYear: { id },
+    });
+
+    await this.schoolCourtRepository.softDelete({
+      lapse: { schoolYear: { id } },
+    });
   }
 }
