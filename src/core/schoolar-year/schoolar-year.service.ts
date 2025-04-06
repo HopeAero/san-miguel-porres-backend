@@ -272,6 +272,8 @@ export class SchoolarYearService {
       order: { id: pageOptionsDto.order },
       take: pageOptionsDto.perPage,
       skip: pageOptionsDto.skip,
+      relations: ['lapses', 'lapses.scholarCourts'],
+      where: { deletedAt: null },
     });
 
     return new PageDto(result, total, pageOptionsDto);
