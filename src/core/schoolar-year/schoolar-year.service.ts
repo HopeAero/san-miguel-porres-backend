@@ -288,13 +288,6 @@ export class SchoolarYearService {
       );
     }
 
-    const result = await this.schoolarYearRepository.softDelete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(
-        `El año escolar con ID ${id} no fue encontrado`,
-      );
-    }
-
     await this.lapseRepository.softDelete({
       schoolYear: { id },
     });
@@ -302,5 +295,12 @@ export class SchoolarYearService {
     await this.schoolCourtRepository.softDelete({
       lapse: { schoolYear: { id } },
     });
+
+    const result = await this.schoolarYearRepository.softDelete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException(
+        `El año escolar con ID ${id} no fue encontrado`,
+      );
+    }
   }
 }
