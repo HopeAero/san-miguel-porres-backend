@@ -110,6 +110,26 @@ export class RepresentanteService {
     });
   }
 
+  async findByDocument(dni: string): Promise<RepresentativeDto> {
+    const representante = await this.representativeRepository.findOne({
+      where: {
+        person: { dni: ILike(`%${dni}%`) },
+      },
+      relations: {
+        person: true,
+        students: true,
+      },
+    });
+
+    if (!representante) {
+      throw new NotFoundException(
+        `No se encontró ningún representante con el documento ${dni}`,
+      );
+    }
+
+    return formatRepresentative(representante);
+  }
+
   async findAll(): Promise<RepresentativeDto[]> {
     const representantes = await this.representativeRepository.find({
       relations: {
