@@ -50,6 +50,12 @@ export class RepresentativeController {
   }
 
   @Roles(Role.MODERATOR, Role.ADMIN)
+  @Get('name/:name')
+  async findByName(@Param('name') name: string) {
+    return await this.representanteService.findByName(name);
+  }
+
+  @Roles(Role.MODERATOR, Role.ADMIN)
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return await this.representanteService.findOne(id);

@@ -9,7 +9,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { PeopleService } from '../people/people.service';
 import { CreateRepresentativeDto } from './dto/create-representative.dto';
@@ -85,6 +85,29 @@ export class RepresentanteService {
     }
 
     return formatRepresentative(representante);
+  }
+
+  async findByName(name: string): Promise<RepresentativeDto[]> {
+    const representantes = await this.representativeRepository.find({
+      where: [
+        { person: { name: ILike(`%${name}%`) } },
+        { person: { lastName: ILike(`%${name}%`) } },
+      ],
+      relations: {
+        person: true,
+        students: true,
+      },
+    });
+
+    if (!representantes || representantes.length === 0) {
+      throw new NotFoundException(
+        `No se encontró ningún representante con el nombre o apellido ${name}`,
+      );
+    }
+
+    return representantes.map((representante: Representative) => {
+      return formatRepresentative(representante);
+    });
   }
 
   async findAll(): Promise<RepresentativeDto[]> {
