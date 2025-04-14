@@ -50,7 +50,7 @@ export class RepresentativeController {
   }
 
   @Roles(Role.MODERATOR, Role.ADMIN)
-  @Get('name/:name')
+  @Get(':name')
   async findByName(@Param('name') name: string) {
     return await this.representanteService.findByName(name);
   }
