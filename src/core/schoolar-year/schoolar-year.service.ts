@@ -139,6 +139,7 @@ export class SchoolarYearService {
     });
 
     const existingLapses = await this.lapseRepository.find({
+      relations: ['schoolYear'],
       where: {
         schoolYear: {
           id: Equal(id),
@@ -158,13 +159,15 @@ export class SchoolarYearService {
         if (updatedLapse) {
           // Actualizar el lapso
           await this.lapseRepository.update(existingLapse.id, {
-            ...existingLapse,
-            ...updatedLapse,
+            startDate: updatedLapse.startDate,
+            endDate: updatedLapse.endDate,
+            lapseNumber: updatedLapse.lapseNumber,
           });
 
           // Obtener los cortes existentes del lapso
           const existingCourts = await this.schoolCourtRepository
             .createQueryBuilder('court')
+            .leftJoinAndSelect('court.lapse', 'lapse')
             .where('court.lapseId = :lapseId', { lapseId: existingLapse.id })
             .orderBy('court.courtNumber', 'ASC')
             .getMany();
@@ -179,8 +182,9 @@ export class SchoolarYearService {
               if (updatedCourt) {
                 // Actualizar el corte existente
                 await this.schoolCourtRepository.update(existingCourt.id, {
-                  ...existingCourt,
-                  ...updatedCourt,
+                  startDate: updatedCourt.startDate,
+                  endDate: updatedCourt.endDate,
+                  courtNumber: updatedCourt.courtNumber,
                 });
               } else {
                 // Eliminar el corte si no está en el arreglo enviado
