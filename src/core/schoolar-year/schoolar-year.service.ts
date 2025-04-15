@@ -55,8 +55,8 @@ export class SchoolarYearService {
         );
       }
 
-      if (lapse.scholarCourt && lapse.scholarCourt.length > 0) {
-        lapse.scholarCourt.forEach((court) => {
+      if (lapse.scholarCourts && lapse.scholarCourts.length > 0) {
+        lapse.scholarCourts.forEach((court) => {
           if (
             court.startDate < lapse.startDate ||
             court.endDate > lapse.endDate ||
@@ -90,10 +90,10 @@ export class SchoolarYearService {
       const savedLapse = await this.lapseRepository.save(newLapse);
       lapseNumber++;
 
-      if (lapse.scholarCourt && lapse.scholarCourt.length > 0) {
+      if (lapse.scholarCourts && lapse.scholarCourts.length > 0) {
         let scholarCourtNumber = 1; // Inicializamos el número del corte
 
-        for (const court of lapse.scholarCourt) {
+        for (const court of lapse.scholarCourts) {
           const newCourt = await this.schoolCourtRepository.create({
             ...court,
             courtNumber: scholarCourtNumber,
@@ -171,7 +171,7 @@ export class SchoolarYearService {
           // Actualizar o eliminar cortes existentes
           await Promise.all(
             existingCourts.map(async (existingCourt) => {
-              const updatedCourt = updatedLapse.scholarCourt?.find(
+              const updatedCourt = updatedLapse.scholarCourts?.find(
                 (court) => court.courtNumber === existingCourt.courtNumber,
               );
 
@@ -192,7 +192,7 @@ export class SchoolarYearService {
           const existingCourtNumbers = existingCourts.map(
             (court) => court.courtNumber,
           );
-          const newCourts = updatedLapse.scholarCourt
+          const newCourts = updatedLapse.scholarCourts
             ?.filter(
               (court) => !existingCourtNumbers.includes(court.courtNumber),
             )
