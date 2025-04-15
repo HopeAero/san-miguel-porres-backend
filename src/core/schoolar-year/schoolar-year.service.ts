@@ -163,10 +163,11 @@ export class SchoolarYearService {
           });
 
           // Obtener los cortes existentes del lapso
-          const existingCourts = await this.schoolCourtRepository.find({
-            where: { lapse: { id: existingLapse.id } },
-            order: { courtNumber: 'ASC' },
-          });
+          const existingCourts = await this.schoolCourtRepository
+            .createQueryBuilder('court')
+            .where('court.lapseId = :lapseId', { lapseId: existingLapse.id })
+            .orderBy('court.courtNumber', 'ASC')
+            .getMany();
 
           // Actualizar o eliminar cortes existentes
           await Promise.all(
