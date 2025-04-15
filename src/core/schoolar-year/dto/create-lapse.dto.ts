@@ -33,7 +33,7 @@ export class CreateLapseDto {
   @ValidateNested({ each: true })
   @Type(() => CreateScholarCourtDto)
   @IsNotEmpty()
-  scholarCourt: CreateScholarCourtDto[];
+  scholarCourts: CreateScholarCourtDto[];
 }
 
 export class UpdateCreateLapseDto {
@@ -68,5 +68,5 @@ export class UpdateCreateLapseDto {
   @ValidateNested({ each: true })
   @Type(() => UpdateCreateScholarCourtDto)
   @IsNotEmpty()
-  scholarCourt: UpdateCreateScholarCourtDto[];
+  scholarCourts: UpdateCreateScholarCourtDto[];
 }
