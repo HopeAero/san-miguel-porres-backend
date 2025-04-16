@@ -59,12 +59,10 @@ export class AuthService {
     if (existingUser) {
       throw new BadRequestException('El usuario ya existe');
     }
-    const hashedPassword = await bcrypt.hash(user.password, 10);
-
     const newUser = await this.usersService.create({
       name: user.name,
       email: user.email,
-      password: hashedPassword,
+      password: user.password,
       role: Role.ADMIN,
     });
 

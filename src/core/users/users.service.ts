@@ -8,6 +8,7 @@ import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { PageDto } from '@/common/dto/page.dto';
 import { plainToClass } from 'class-transformer';
 import { UserDTO } from './dto/user.dto';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
@@ -25,7 +26,13 @@ export class UsersService {
       throw new BadRequestException('Email ya registrado');
     }
 
-    const user = this.usersRepository.create(createUserDto);
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+    const user = this.usersRepository.create({
+      ...createUserDto,
+      password: hashedPassword,
+    });
+
     return await this.usersRepository.save(user);
   }
 
@@ -57,6 +64,10 @@ export class UsersService {
       if (existingUser) {
         throw new BadRequestException('Email ya registrado');
       }
+    }
+
+    if (updateUserDto.password) {
+      updateUserDto.password = await bcrypt.hash(updateUserDto.password, 10);
     }
 
     const user = await this.usersRepository.preload({
