@@ -8,6 +8,7 @@
 /uploads
 /mongo
 metadata
+/src/metadata.ts
 
 # Logs
 logs

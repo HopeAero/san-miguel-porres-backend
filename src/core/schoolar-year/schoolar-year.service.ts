@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Equal, Repository } from 'typeorm';
+import { Equal, In, Repository } from 'typeorm';
 import { SchoolarYear } from './entities/schoolar-year.entity';
 import { UpdateSchoolarYearDto } from './dto/update-schoolar-year.dto';
 import { PageOptionsDto } from '../../common/dto/page.option.dto';
@@ -284,6 +284,7 @@ export class SchoolarYearService {
     return new PageDto(result, total, pageOptionsDto);
   }
 
+  @Transactional()
   async remove(id: number): Promise<void> {
     const existingSchoolarYear = await this.findOne(id);
 
@@ -293,14 +294,28 @@ export class SchoolarYearService {
       );
     }
 
-    await this.lapseRepository.softDelete({
-      schoolYear: { id },
+    const lapses = await this.lapseRepository.find({
+      relations: ['schoolYear'],
+      where: { schoolYear: { id } },
     });
 
-    await this.schoolCourtRepository.softDelete({
-      lapse: { schoolYear: { id } },
-    });
+    if (lapses.length > 0) {
+      const lapseIds = lapses.map((lapse) => lapse.id);
+      await this.lapseRepository.softDelete(lapseIds);
 
+      // Eliminar cortes asociados a los lapsos
+      const courts = await this.schoolCourtRepository.find({
+        relations: ['lapse'],
+        where: { lapse: { id: In(lapseIds) } },
+      });
+
+      if (courts.length > 0) {
+        const courtIds = courts.map((court) => court.id);
+        await this.schoolCourtRepository.softDelete(courtIds);
+      }
+    }
+
+    // Eliminar el año escolar
     const result = await this.schoolarYearRepository.softDelete(id);
     if (result.affected === 0) {
       throw new NotFoundException(
