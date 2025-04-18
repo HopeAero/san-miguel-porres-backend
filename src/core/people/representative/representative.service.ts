@@ -7,9 +7,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectRepository, InjectDataSource } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
-import { ILike, Repository } from 'typeorm';
+import { ILike, Repository, DataSource } from 'typeorm';
 import { Transactional } from 'typeorm-transactional';
 import { PeopleService } from '../people/people.service';
 import { CreateRepresentativeDto } from './dto/create-representative.dto';
@@ -35,6 +35,7 @@ export class RepresentanteService {
     private representativeRepository: Repository<Representative>,
     @Inject(forwardRef(() => PeopleService))
     private peopleService: WrapperType<PeopleService>,
+    @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
 
   @Transactional()
@@ -172,5 +173,16 @@ export class RepresentanteService {
         `No se encontro el representante con el ID ${id}`,
       );
     }
+  }
+
+  // Search Representatives by term
+  async searchRepresentatives(term: string): Promise<any[]> {
+    const query = `
+      SELECT TOP 10 * 
+      FROM representatives
+      WHERE name LIKE @term OR id_number LIKE @term
+    `;
+    const formattedTerm = `%${term}%`;
+    return this.dataSource.query(query, { term: formattedTerm });
   }
 }

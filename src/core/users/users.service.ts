@@ -109,6 +109,6 @@ export class UsersService {
       throw new BadRequestException('Usuario no encontrado');
     }
 
-    return await this.usersRepository.softDelete(user);
+    return await this.usersRepository.softDelete(id);
   }
 }
