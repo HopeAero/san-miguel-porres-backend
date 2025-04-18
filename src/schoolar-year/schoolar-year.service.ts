@@ -4,8 +4,8 @@ import { Repository } from 'typeorm';
 import { SchoolarYear } from './entities/schoolar-year.entity';
 import { CreateSchoolarYearDto } from './dto/create-schoolar-year.dto';
 import { UpdateSchoolarYearDto } from './dto/update-schoolar-year.dto';
-import { PageOptionsDto } from '../../common/dto/page-options.dto';
-import { PageDto } from '../../common/dto/page.dto';
+import { PageOptionsDto } from '@/common/dto/page.option.dto';
+import { PageDto } from '@/common/dto/page.dto';
 
 @Injectable()
 export class SchoolarYearService {
@@ -14,12 +14,19 @@ export class SchoolarYearService {
     private schoolarYearRepository: Repository<SchoolarYear>,
   ) {}
 
-  async create(createSchoolarYearDto: CreateSchoolarYearDto): Promise<SchoolarYear> {
-    const schoolarYear = this.schoolarYearRepository.create(createSchoolarYearDto);
+  async create(
+    createSchoolarYearDto: CreateSchoolarYearDto,
+  ): Promise<SchoolarYear> {
+    const schoolarYear = this.schoolarYearRepository.create(
+      createSchoolarYearDto,
+    );
     return this.schoolarYearRepository.save(schoolarYear);
   }
 
-  async update(id: number, updateSchoolarYearDto: UpdateSchoolarYearDto): Promise<SchoolarYear> {
+  async update(
+    id: number,
+    updateSchoolarYearDto: UpdateSchoolarYearDto,
+  ): Promise<SchoolarYear> {
     const schoolarYear = await this.schoolarYearRepository.preload({
       id,
       ...updateSchoolarYearDto,
@@ -31,14 +38,18 @@ export class SchoolarYearService {
   }
 
   async findOne(id: number): Promise<SchoolarYear> {
-    const schoolarYear = await this.schoolarYearRepository.findOne({ where: { id } });
+    const schoolarYear = await this.schoolarYearRepository.findOne({
+      where: { id },
+    });
     if (!schoolarYear) {
       throw new NotFoundException(`SchoolarYear with ID ${id} not found`);
     }
     return schoolarYear;
   }
 
-  async paginate(pageOptionsDto: PageOptionsDto): Promise<PageDto<SchoolarYear>> {
+  async paginate(
+    pageOptionsDto: PageOptionsDto,
+  ): Promise<PageDto<SchoolarYear>> {
     const [result, total] = await this.schoolarYearRepository.findAndCount({
       order: { id: pageOptionsDto.order },
       take: pageOptionsDto.perPage,

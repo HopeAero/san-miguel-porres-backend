@@ -183,6 +183,6 @@ export class RepresentanteService {
       WHERE name LIKE @term OR id_number LIKE @term
     `;
     const formattedTerm = `%${term}%`;
-    return this.dataSource.query(query, { term: formattedTerm });
+    return this.dataSource.query(query, [formattedTerm]);
   }
 }
