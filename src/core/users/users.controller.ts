@@ -9,9 +9,9 @@ import {
   ParseIntPipe,
   Patch,
   Post,
-  Put,
   Query,
   UseGuards,
+  Response,
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { JwtGuard } from '../auth/guards/jwt.guard';
@@ -22,6 +22,7 @@ import { UsersService } from './users.service';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { PageDto } from '@/common/dto/page.dto';
 import { UserDTO } from './dto/user.dto';
+import * as express from 'express';
 
 @Controller('users')
 @Roles(Role.ADMIN)
@@ -62,7 +63,20 @@ export class UsersController {
   }
 
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return await this.usersService.remove(id);
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @Response() res: express.Response,
+  ) {
+    const result = await this.usersService.remove(id);
+
+    if (result.affected === 1) {
+      return res.status(200).json({
+        message: 'Usuario eliminado correctamente',
+      });
+    } else {
+      return res.status(404).json({
+        message: 'Usuario no encontrado',
+      });
+    }
   }
 }
