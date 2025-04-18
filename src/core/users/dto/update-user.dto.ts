@@ -13,13 +13,13 @@ export class UpdateUserDto {
   @IsNotEmpty()
   email: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
-  @IsNotEmpty()
-  password: string;
+  @IsOptional()
+  password?: string;
 
   @ApiPropertyOptional({ enum: Role, default: Role.ADMIN })
   @IsEnum(Role)
   @IsOptional()
-  role: Role;
+  role?: Role;
 }
