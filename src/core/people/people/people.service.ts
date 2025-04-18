@@ -1,24 +1,35 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePersonaDto } from './dto/create-persona.dto';
-import { UpdatePersonaDto } from './dto/update-persona.dto';
-import { Repository } from 'typeorm';
-import { Persona } from './entities/persona.entity';
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { CreatePersonDto } from './dto/create-person.dto';
+import { UpdatePersonDto } from './dto/update-person.dto';
+import { Equal, Repository } from 'typeorm';
+import { Person } from './entities/person.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { PageDto } from '@/common/dto/page.dto';
 
 @Injectable()
-export class PersonasService {
+export class PeopleService {
   constructor(
-    @InjectRepository(Persona)
-    private readonly personasRepository: Repository<Persona>,
+    @InjectRepository(Person)
+    private readonly personasRepository: Repository<Person>,
   ) {}
 
-  async create(createPersonaDto: CreatePersonaDto) {
-    return await this.personasRepository.save(createPersonaDto);
+  async create(createPersonaDto: CreatePersonDto) {
+    const persona = await this.personasRepository.findOne({
+      where: { dni: Equal(createPersonaDto.dni) },
+      select: ['id', 'dni', 'name'],
+    });
+
+    if (persona) {
+      throw new BadRequestException('Esta cedula ya esta registrada');
+    }
+
+    const person = await this.personasRepository.save(createPersonaDto);
+
+    return this.findOne(person.id);
   }
 
-  async findAllPaginated(pageOptionsDto: PageOptionsDto) {
+  async paginate(pageOptionsDto: PageOptionsDto) {
     const [result, total] = await this.personasRepository.findAndCount({
       order: {
         createdAt: pageOptionsDto.order,
@@ -42,7 +53,7 @@ export class PersonasService {
     return persona;
   }
 
-  async update(id: number, updatePersonaDto: UpdatePersonaDto) {
+  async update(id: number, updatePersonaDto: UpdatePersonDto) {
     const persona = await this.personasRepository.findOne({
       where: { id },
     });
@@ -63,9 +74,9 @@ export class PersonasService {
     });
 
     if (!persona) {
-      throw new Error('Esta persona no existe');
+      throw new BadRequestException('Esta persona no existe');
     }
 
-    return await this.personasRepository.softDelete(persona);
+    return await this.personasRepository.softDelete(id);
   }
 }

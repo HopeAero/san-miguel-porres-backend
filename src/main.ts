@@ -1,14 +1,14 @@
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { CORS } from './common';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import envConfig from './config/environment';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import {
   initializeTransactionalContext,
   StorageDriver,
 } from 'typeorm-transactional';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
+import { AppModule } from './app.module';
+import { CORS } from './common';
+import envConfig from './config/environment';
 
 async function bootstrap() {
   initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
@@ -38,7 +38,13 @@ async function bootstrap() {
       'davidsalcedo388@gmail.com',
     )
     .setVersion('1.0')
+    .addBearerAuth()
     .addTag('Persona')
+    .addTag('Student')
+    .addTag('Representative')
+    .addTag('Courses')
+    .addTag('SchoolarYear')
+    .addTag('Employee')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);

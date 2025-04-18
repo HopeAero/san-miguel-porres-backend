@@ -7,34 +7,24 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity()
-export class Persona {
+@Entity({
+  name: 'users',
+})
+export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({
-    nullable: true,
-  })
-  ci: string;
+  @Column()
+  name: string;
 
   @Column()
-  nombre: string;
+  email: string;
 
   @Column()
-  apellido: string;
-
-  @Column({
-    nullable: true,
-  })
-  telefono: string;
+  password: string;
 
   @Column()
-  direccion: string;
-
-  @Column({
-    type: 'date',
-  })
-  fechaNacimiento: Date;
+  role: string;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -43,5 +33,5 @@ export class Persona {
   updatedAt: Date;
 
   @DeleteDateColumn()
-  deletedAt: Date;
+  deleteAt: Date;
 }

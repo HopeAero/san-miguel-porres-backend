@@ -1,30 +1,34 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsOptional, IsString } from 'class-validator';
+import { IsDateString, IsNumber, IsOptional, IsString } from 'class-validator';
 
-export class CreatePersonaDto {
+export class PersonDto {
   @ApiProperty()
-  @IsString()
-  @IsOptional()
-  ci: string;
-
-  @ApiProperty()
-  @IsString()
-  nombre: string;
-
-  @ApiProperty()
-  @IsString()
-  apellido: string;
+  @IsNumber()
+  id: number;
 
   @ApiProperty()
   @IsString()
   @IsOptional()
-  telefono: string;
+  dni: string;
 
   @ApiProperty()
   @IsString()
-  direccion: string;
+  name: string;
+
+  @ApiProperty()
+  @IsString()
+  lastName: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsOptional()
+  phone: string;
+
+  @ApiProperty()
+  @IsString()
+  direction: string;
 
   @ApiProperty()
   @IsDateString()
-  fechaNacimiento: Date;
+  birthDate: Date;
 }
