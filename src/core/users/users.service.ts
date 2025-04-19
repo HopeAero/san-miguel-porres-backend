@@ -63,11 +63,14 @@ export class UsersService {
   async update(id: number, updateUserDto: UpdateUserDto) {
     if (updateUserDto.email) {
       const existingUser = await this.usersRepository.findOne({
-        where: { email: updateUserDto.email, id: Not(id) },
+        where: { email: updateUserDto.email },
       });
 
       if (existingUser) {
-        throw new BadRequestException('Email ya registrado');
+        throw new StatusError({
+          message: `Email ya registrado`,
+          statusCode: STATUS.BAD_REQUEST,
+        });
       }
     }
 
