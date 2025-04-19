@@ -15,19 +15,13 @@ export class SchoolCourt {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({
-    default: 1,
-  })
+  @Column({ default: 1 })
   courtNumber: number;
 
-  @Column({
-    type: 'date',
-  })
+  @Column({ type: 'date' })
   startDate: string;
 
-  @Column({
-    type: 'date',
-  })
+  @Column({ type: 'date' })
   endDate: string;
 
   @ManyToOne(() => Lapse, (lapse) => lapse.scholarCourts, {

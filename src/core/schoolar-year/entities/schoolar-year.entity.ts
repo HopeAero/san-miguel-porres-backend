@@ -16,14 +16,10 @@ export class SchoolarYear {
   @Column({ unique: true })
   code: string;
 
-  @Column({
-    type: 'date',
-  })
+  @Column({ type: 'date' })
   startDate: string;
 
-  @Column({
-    type: 'date',
-  })
+  @Column({ type: 'date' })
   endDate: string;
 
   @OneToMany(() => Lapse, (lapse) => lapse.schoolYear, {

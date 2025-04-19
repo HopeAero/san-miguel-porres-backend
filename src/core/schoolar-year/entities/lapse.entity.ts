@@ -17,19 +17,13 @@ export class Lapse {
   @PrimaryGeneratedColumn()
   id: string;
 
-  @Column({
-    default: 1,
-  })
+  @Column({ default: 1 })
   lapseNumber: number;
 
-  @Column({
-    type: 'date',
-  })
+  @Column({ type: 'date' })
   startDate: string;
 
-  @Column({
-    type: 'date',
-  })
+  @Column({ type: 'date' })
   endDate: string;
 
   @ManyToOne(() => SchoolarYear, (schoolYear) => schoolYear.lapses, {
