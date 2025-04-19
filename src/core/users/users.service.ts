@@ -9,6 +9,8 @@ import { PageDto } from '@/common/dto/page.dto';
 import { plainToClass } from 'class-transformer';
 import { UserDTO } from './dto/user.dto';
 import * as bcrypt from 'bcryptjs';
+import { StatusError } from '@/common';
+import { STATUS } from '@/common/constants';
 
 @Injectable()
 export class UsersService {
@@ -23,7 +25,10 @@ export class UsersService {
     });
 
     if (existingUser) {
-      throw new BadRequestException('Email ya registrado');
+      throw new StatusError({
+        message: `Email ya registrado`,
+        statusCode: STATUS.BAD_REQUEST,
+      });
     }
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
@@ -48,11 +53,11 @@ export class UsersService {
   }
 
   async findOneByEmail(email: string) {
-    return this.usersRepository.findOne({ where: { email } });
+    return await this.usersRepository.findOne({ where: { email } });
   }
 
   async findOneById(id: number) {
-    return this.usersRepository.findOne({ where: { id } });
+    return await this.usersRepository.findOne({ where: { id } });
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {
@@ -78,7 +83,10 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new BadRequestException('Usuario no encontrado');
+      throw new StatusError({
+        message: `Usuario no encontrado`,
+        statusCode: STATUS.NOT_FOUND,
+      });
     }
 
     return this.usersRepository.save(user);
