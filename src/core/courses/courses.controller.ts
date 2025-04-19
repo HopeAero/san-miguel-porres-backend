@@ -18,13 +18,12 @@ import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { Role } from '@/common/enum/role';
 import { Roles } from '@/common/decorators/roles.decorator';
 import { JwtGuard } from '../auth/guards/jwt.guard';
-import { RoleGuard } from '../auth/guards/roles.guard';
 import { CourseDto } from './dto/course.dto';
 import { PageDto } from '@/common/dto/page.dto';
 
 @ApiTags('Courses')
 @Roles(Role.MODERATOR, Role.ADMIN)
-@UseGuards(JwtGuard, RoleGuard)
+@UseGuards(JwtGuard)
 @ApiBearerAuth()
 @Controller('courses')
 export class CoursesController {

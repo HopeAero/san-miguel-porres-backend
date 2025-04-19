@@ -8,6 +8,7 @@ import {
 } from 'typeorm-transactional';
 import { AppModule } from './app.module';
 import { CORS } from './common';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import envConfig from './config/environment';
 
 async function bootstrap() {
@@ -28,6 +29,9 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
+  // Registrar el filtro de excepciones global
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   const config = new DocumentBuilder()
     .setTitle('API Sistema de Gestion Escolar')

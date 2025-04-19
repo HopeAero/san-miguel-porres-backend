@@ -23,6 +23,7 @@ import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { PageDto } from '@/common/dto/page.dto';
 import { UserDTO } from './dto/user.dto';
 import * as express from 'express';
+import { STATUS } from '@/common/constants';
 
 @Controller('users')
 @Roles(Role.ADMIN)
@@ -49,10 +50,23 @@ export class UsersController {
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @Response() res: express.Response,
+  ) {
     const user = await this.usersService.findOneById(id);
-    delete user.password;
-    return user;
+
+    if (user) {
+      delete user.password;
+
+      return res.status(200).json({
+        user,
+      });
+    }
+
+    return res.status(STATUS.NOT_FOUND).json({
+      message: `Usuario no encontrado`,
+    });
   }
   @Patch(':id')
   async update(
