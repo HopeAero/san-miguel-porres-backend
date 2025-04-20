@@ -10,6 +10,7 @@ import { CreateSchoolLapseDto } from '../../dto/create-school-lapse.dto';
 import { CreateSchoolYearDto } from '../../dto/create-school-year.dto';
 import { CreateSchoolCourtDto } from '../../dto/create-school-court.dto';
 import { CreationDateValidationHelper } from './creation-date-validation.helper';
+import { CreateCourseSchoolYearsAction } from './create-course-school-years.action';
 
 @Injectable()
 export class CreateSchoolYearAction {
@@ -21,6 +22,7 @@ export class CreateSchoolYearAction {
     @InjectRepository(SchoolCourt)
     private schoolCourtRepository: Repository<SchoolCourt>,
     private creationDateValidationHelper: CreationDateValidationHelper,
+    private createCourseSchoolYearsAction: CreateCourseSchoolYearsAction,
   ) {}
 
   @Transactional()
@@ -44,6 +46,14 @@ export class CreateSchoolYearAction {
         newSchoolYear,
       );
       lapseNumber++;
+    }
+
+    // Crear las asignaturas asociadas al año escolar si existen
+    if (schoolYear.courseSchoolYears && schoolYear.courseSchoolYears.length > 0) {
+      await this.createCourseSchoolYearsAction.execute(
+        newSchoolYear.id,
+        schoolYear.courseSchoolYears,
+      );
     }
 
     return newSchoolYear;

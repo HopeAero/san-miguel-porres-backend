@@ -7,6 +7,7 @@ import {
   Relation,
 } from 'typeorm';
 import { SchoolLapse } from './school-lapse.entity';
+import { CourseSchoolYear } from './course-school-year.entity';
 
 @Entity('school_years')
 export class SchoolYear {
@@ -26,6 +27,15 @@ export class SchoolYear {
     onDelete: 'CASCADE',
   })
   schoolLapses: Relation<SchoolLapse[]>;
+
+  @OneToMany(
+    () => CourseSchoolYear,
+    (courseSchoolYear) => courseSchoolYear.schoolYear,
+    {
+      cascade: true,
+    },
+  )
+  courseSchoolYears: Relation<CourseSchoolYear[]>;
 
   @DeleteDateColumn()
   deletedAt: Date;

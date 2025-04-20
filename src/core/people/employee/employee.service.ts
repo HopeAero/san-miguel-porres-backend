@@ -15,6 +15,7 @@ import { PageDto } from '@/common/dto/page.dto';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { plainToClass } from 'class-transformer';
 import { Transactional } from 'typeorm-transactional';
+import { SearchEmployeeDto } from './dto/search-employee.dto';
 
 function formatEmployee(employeeEntity: Employee): EmployeeDto {
   return plainToClass(EmployeeDto, {
@@ -98,12 +99,53 @@ export class EmployeeService {
     }
   }
 
-  async findAll(): Promise<EmployeeDto[]> {
-    const employees = await this.employeeRepository.find({
-      relations: {
-        person: true,
-      },
-    });
+  /**
+   * Encuentra todos los empleados con opciones de filtrado
+   * @param searchDto Criterios de búsqueda opcionales (nombre, tipo de empleado)
+   * @returns Lista de empleados filtrada
+   */
+  async findAll(searchDto?: SearchEmployeeDto): Promise<EmployeeDto[]> {
+    // Si no hay criterios de búsqueda, usamos el método simple
+    if (!searchDto || (!searchDto.name && !searchDto.employeeType)) {
+      const employees = await this.employeeRepository.find({
+        relations: {
+          person: true,
+        },
+      });
+      return employees.map((employeeEntity: Employee) => {
+        return formatEmployee(employeeEntity);
+      });
+    }
+
+    // Si hay criterios, construimos una consulta más compleja
+    const query = this.employeeRepository
+      .createQueryBuilder('employee')
+      .leftJoinAndSelect('employee.person', 'person')
+      .where('employee.deletedAt IS NULL');
+
+    // Aplicar filtro por tipo de empleado si se proporciona
+    if (searchDto.employeeType) {
+      query.andWhere('employee.employeeType = :employeeType', {
+        employeeType: searchDto.employeeType,
+      });
+    }
+
+    // Aplicar filtro por nombre si se proporciona (autocomplete)
+    if (searchDto.name) {
+      query.andWhere(
+        '(person.name ILIKE :search OR person.lastName ILIKE :search)',
+        {
+          search: `%${searchDto.name}%`,
+        },
+      );
+    }
+
+    // Ordenar por nombre y apellido
+    query.orderBy('person.name', 'ASC').addOrderBy('person.lastName', 'ASC');
+
+    const employees = await query.getMany();
+
+    // Formatear resultados
     return employees.map((employeeEntity: Employee) => {
       return formatEmployee(employeeEntity);
     });

@@ -4,83 +4,104 @@ import {
   Employee,
   TypeEmployee,
 } from '@/core/people/employee/entities/employee.entity';
+import { fakerES_MX as faker } from '@faker-js/faker';
 
 export const runTeacherSeed = async (dataSource: DataSource): Promise<void> => {
   // Obtener los repositorios necesarios
   const personRepository = dataSource.getRepository(Person);
   const employeeRepository = dataSource.getRepository(Employee);
 
-  // Datos de profesores para el seed
-  const teachersData = [
-    {
-      dni: '12345678',
-      name: 'María',
-      lastName: 'González',
-      phone: '04241234567',
-      direction: 'Av. Principal #123, Caracas',
-      birthDate: new Date('1985-05-15'),
-    },
-    {
-      dni: '23456789',
-      name: 'José',
-      lastName: 'Rodríguez',
-      phone: '04167654321',
-      direction: 'Calle Los Samanes #45, Maracaibo',
-      birthDate: new Date('1980-08-23'),
-    },
-    {
-      dni: '34567890',
-      name: 'Ana',
-      lastName: 'Martínez',
-      phone: '04248765432',
-      direction: 'Urbanización El Valle, Valencia',
-      birthDate: new Date('1990-02-10'),
-    },
-    {
-      dni: '45678901',
-      name: 'Luis',
-      lastName: 'Pérez',
-      phone: '04149876543',
-      direction: 'Sector La Floresta, Mérida',
-      birthDate: new Date('1983-11-27'),
-    },
-    {
-      dni: '56789012',
-      name: 'Carmen',
-      lastName: 'Díaz',
-      phone: '04248901234',
-      direction: 'Av. Libertador #78, Barquisimeto',
-      birthDate: new Date('1988-07-19'),
-    },
-  ];
+  // Número de profesores a generar (al menos 30)
+  const numberOfTeachers = 30;
 
-  // Crear profesores
-  for (const teacherData of teachersData) {
+  // Array para almacenar los profesores creados
+  const createdTeachers: Employee[] = [];
+
+  // Generar profesores con datos aleatorios
+  for (let i = 0; i < numberOfTeachers; i++) {
+    // Generar un DNI único para profesor
+    const dni = `P${faker.string.numeric(8)}`;
+
     // Verificar si ya existe un profesor con ese DNI
     const existingPerson = await personRepository.findOne({
-      where: { dni: teacherData.dni },
+      where: { dni },
     });
 
     if (!existingPerson) {
+      // Crear datos de persona (profesor)
+      const personData = {
+        dni,
+        name: faker.person.firstName(),
+        lastName: faker.person.lastName(),
+        phone: `04${faker.string.numeric(9)}`,
+        direction: faker.location.streetAddress({ useFullAddress: true }),
+        // Fechas de nacimiento para adultos entre 25 y 65 años
+        birthDate: faker.date.between({
+          from: new Date(new Date().getFullYear() - 65, 0, 1),
+          to: new Date(new Date().getFullYear() - 25, 11, 31),
+        }),
+      };
+
       // 1. Crear la persona
-      const person = personRepository.create(teacherData);
+      const person = personRepository.create(personData);
       const savedPerson = await personRepository.save(person);
 
-      // 2. Crear el empleado de tipo profesor
-      const employee = employeeRepository.create({
+      // 2. Crear el profesor como empleado de tipo profesor
+      const teacher = employeeRepository.create({
         id: savedPerson.id,
-        employeeType: TypeEmployee.Professor,
         person: savedPerson,
+        employeeType: TypeEmployee.Professor,
       });
 
-      await employeeRepository.save(employee);
+      const savedTeacher = await employeeRepository.save(teacher);
+      createdTeachers.push(savedTeacher);
+
+      // Generar especialidad y grado aleatorios (solo para mostrar en consola)
+      const degree = faker.helpers.arrayElement([
+        'Licenciado en Educación',
+        'Profesor',
+        'Licenciado en Matemáticas',
+        'Licenciado en Física',
+        'Licenciado en Historia',
+        'Licenciado en Literatura',
+        'Licenciado en Biología',
+        'Licenciado en Química',
+        'Licenciado en Educación Física',
+        'Licenciado en Filosofía',
+        'Licenciado en Ciencias Sociales',
+        'Licenciado en Arte',
+        'Licenciado en Música',
+        'Licenciado en Educación Inicial',
+      ]);
+
+      const specialty = faker.helpers.arrayElement([
+        'Matemáticas',
+        'Física',
+        'Química',
+        'Biología',
+        'Historia',
+        'Literatura',
+        'Geografía',
+        'Educación Física',
+        'Arte',
+        'Música',
+        'Inglés',
+        'Filosofía',
+        'Informática',
+        'Ciencias Sociales',
+      ]);
+
       console.log(
-        `Profesor ${teacherData.name} ${teacherData.lastName} creado exitosamente`,
+        `Profesor ${personData.name} ${personData.lastName} creado exitosamente - ${degree} en ${specialty}`,
       );
     } else {
-      console.log(`El profesor con DNI ${teacherData.dni} ya existe`);
+      console.log(`El profesor con DNI ${dni} ya existe, generando otro...`);
+      // Restar 1 al contador para asegurar que se generen suficientes profesores
+      i--;
     }
   }
 
-  console.log('Seed de profesores completado');
+  console.log(
+    `Seed de profesores completado. Se crearon ${createdTeachers.length} profesores.`,
+  );
 };

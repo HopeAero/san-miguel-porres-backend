@@ -11,11 +11,17 @@ export class UpdateDateValidationHelper {
   public validate(updateSchoolYearDto: UpdateSchoolYearDto): void {
     const { schoolYear, schoolLapses } = updateSchoolYearDto;
 
-    schoolLapses.forEach((schoolLapse) => {
-      this.validateSchoolLapseDates(schoolLapse, schoolYear);
+    schoolLapses.forEach((schoolLapse, lapseIndex) => {
+      this.validateSchoolLapseDates(schoolLapse, schoolYear, lapseIndex);
 
-      schoolLapse.schoolCourts?.forEach((schoolCourt) => {
-        this.validateSchoolCourtDates(schoolCourt, schoolLapse, schoolYear);
+      schoolLapse.schoolCourts?.forEach((schoolCourt, courtIndex) => {
+        this.validateSchoolCourtDates(
+          schoolCourt,
+          schoolLapse,
+          schoolYear,
+          lapseIndex,
+          courtIndex,
+        );
       });
     });
   }
@@ -23,13 +29,14 @@ export class UpdateDateValidationHelper {
   public validateSchoolLapseDates(
     schoolLapse: UpdateInputSchoolLapseDto,
     schoolYear: CreateSchoolYearDto,
+    lapseIndex: number,
   ): void {
     if (
       schoolLapse.startDate < schoolYear.startDate ||
       schoolLapse.endDate > schoolYear.endDate
     ) {
       throw new BadRequestException(
-        `El lapso con fechas ${schoolLapse.startDate} - ${schoolLapse.endDate} está fuera del rango del año escolar (${schoolYear.startDate} - ${schoolYear.endDate}).`,
+        `El lapso #${lapseIndex + 1} con fechas ${schoolLapse.startDate} - ${schoolLapse.endDate} está fuera del rango del año escolar (${schoolYear.startDate} - ${schoolYear.endDate}).`,
       );
     }
 
@@ -38,7 +45,7 @@ export class UpdateDateValidationHelper {
       schoolLapse.endDate < schoolLapse.startDate
     ) {
       throw new BadRequestException(
-        `El lapso con fechas ${schoolLapse.startDate} - ${schoolLapse.endDate} tiene un rango de fechas inválido.`,
+        `El lapso #${lapseIndex + 1} con fechas ${schoolLapse.startDate} - ${schoolLapse.endDate} tiene un rango de fechas inválido.`,
       );
     }
   }
@@ -47,13 +54,15 @@ export class UpdateDateValidationHelper {
     schoolCourt: UpdateInputSchoolCourtDto,
     schoolLapse: UpdateInputSchoolLapseDto,
     schoolYear: CreateSchoolYearDto,
+    lapseIndex: number,
+    courtIndex: number,
   ): void {
     if (
       schoolCourt.startDate < schoolLapse.startDate ||
       schoolCourt.endDate > schoolLapse.endDate
     ) {
       throw new BadRequestException(
-        `El corte con fechas ${schoolCourt.startDate} - ${schoolCourt.endDate} está fuera del rango del lapso ${schoolLapse.startDate} - ${schoolLapse.endDate}.`,
+        `El corte #${courtIndex + 1} del lapso #${lapseIndex + 1} con fechas ${schoolCourt.startDate} - ${schoolCourt.endDate} está fuera del rango del lapso ${schoolLapse.startDate} - ${schoolLapse.endDate}.`,
       );
     }
 
@@ -62,7 +71,7 @@ export class UpdateDateValidationHelper {
       schoolCourt.endDate > schoolYear.endDate
     ) {
       throw new BadRequestException(
-        `El corte con fechas ${schoolCourt.startDate} - ${schoolCourt.endDate} está fuera del rango del año escolar (${schoolYear.startDate} - ${schoolYear.endDate}).`,
+        `El corte #${courtIndex + 1} del lapso #${lapseIndex + 1} con fechas ${schoolCourt.startDate} - ${schoolCourt.endDate} está fuera del rango del año escolar (${schoolYear.startDate} - ${schoolYear.endDate}).`,
       );
     }
 
@@ -71,7 +80,7 @@ export class UpdateDateValidationHelper {
       schoolCourt.startDate > schoolCourt.endDate
     ) {
       throw new BadRequestException(
-        `El corte con fechas ${schoolCourt.startDate} - ${schoolCourt.endDate} tiene un rango de fechas inválido.`,
+        `El corte #${courtIndex + 1} del lapso #${lapseIndex + 1} con fechas ${schoolCourt.startDate} - ${schoolCourt.endDate} tiene un rango de fechas inválido.`,
       );
     }
   }

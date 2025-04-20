@@ -1,6 +1,15 @@
 import { IsValidDate } from '@/common/decorators/isValidDate.decorator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, IsDateString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsDateString,
+  IsArray,
+  IsOptional,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+import { CourseSchoolYearDto } from './course-school-year.dto';
 
 export class CreateSchoolYearDto {
   @ApiProperty({
@@ -28,4 +37,14 @@ export class CreateSchoolYearDto {
   @IsDateString()
   @IsValidDate()
   endDate: string;
+
+  @ApiProperty({
+    description: 'Asignaturas asociadas al año escolar',
+    type: [CourseSchoolYearDto],
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CourseSchoolYearDto)
+  courseSchoolYears?: CourseSchoolYearDto[];
 }

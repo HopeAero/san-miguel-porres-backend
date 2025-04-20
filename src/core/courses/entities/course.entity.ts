@@ -17,6 +17,9 @@ export class Course {
   @Column() // Name of the subject
   name: string;
 
+  @Column({ nullable: true }) // Public display name (optional)
+  publicName: string;
+
   @Column() // Grade level associated with the subject
   grade: number;
 

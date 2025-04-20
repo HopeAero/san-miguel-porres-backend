@@ -8,6 +8,7 @@ import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { CourseDto } from './dto/course.dto';
 import { plainToClass } from 'class-transformer';
 import { PageDto } from '@/common/dto/page.dto';
+import { CourseByGradeDto } from './dto/course-by-grade.dto';
 
 @Injectable()
 export class CoursesService {
@@ -45,6 +46,36 @@ export class CoursesService {
       throw new NotFoundException(`Course with ID ${id} not found`);
     }
     return plainToClass(CourseDto, course);
+  }
+
+  /**
+   * Obtiene todos los cursos activos (no eliminados) sin paginación,
+   * opcionalmente filtrados por grado.
+   * Este método es útil para construir selectores en el frontend.
+   */
+  async findAll(grade?: number | null): Promise<CourseByGradeDto[]> {
+    // Crear la condición where base (solo considerar no eliminados)
+    const whereCondition: any = {
+      deletedAt: null, // Solo cursos no eliminados
+    };
+
+    // Si se especifica un grado y es un número válido, añadirlo a la condición
+    if (grade !== undefined && grade !== null && !isNaN(Number(grade))) {
+      whereCondition.grade = Number(grade);
+    }
+
+    // Buscar cursos que cumplan con las condiciones
+    const courses = await this.courseRepository.find({
+      where: whereCondition,
+      order: {
+        grade: 'ASC',
+        name: 'ASC', // Ordenar primero por grado, luego por nombre
+      },
+      select: ['id', 'name', 'publicName', 'grade'], // Incluimos publicName en la selección
+    });
+
+    // Transformar a DTOs
+    return courses.map((course) => plainToClass(CourseByGradeDto, course));
   }
 
   async paginate(paginationDto: PageOptionsDto): Promise<PageDto<CourseDto>> {

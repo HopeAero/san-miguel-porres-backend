@@ -10,6 +10,14 @@ export class CourseDto {
   @IsString()
   name: string;
 
+  @ApiProperty({
+    required: false,
+    description: 'Nombre público para mostrar (opcional)',
+  })
+  @IsOptional()
+  @IsString()
+  publicName?: string;
+
   @ApiProperty()
   @IsNumber()
   grade: number;

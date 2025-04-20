@@ -11,9 +11,9 @@ export class FindSchoolYearAction {
   ) {}
 
   /**
-   * Encuentra un año escolar por su ID, incluyendo sus lapsos y cortes
+   * Encuentra un año escolar por su ID, incluyendo sus lapsos, cortes y asignaturas
    * @param id El ID del año escolar a buscar
-   * @returns El año escolar con sus lapsos y cortes
+   * @returns El año escolar con sus lapsos, cortes y asignaturas
    * @throws NotFoundException si el año escolar no existe
    */
   async execute(id: number): Promise<SchoolYear> {
@@ -21,6 +21,9 @@ export class FindSchoolYearAction {
       .createQueryBuilder('schoolYear')
       .leftJoinAndSelect('schoolYear.schoolLapses', 'schoolLapse')
       .leftJoinAndSelect('schoolLapse.schoolCourts', 'schoolCourt')
+      .leftJoinAndSelect('schoolYear.courseSchoolYears', 'courseSchoolYear')
+      .leftJoinAndSelect('courseSchoolYear.course', 'course')
+      .leftJoinAndSelect('courseSchoolYear.professor', 'professor')
       .where('schoolYear.id = :id', { id })
       .getOne();
 

@@ -4,6 +4,7 @@ import { In, Repository } from 'typeorm';
 import { SchoolYear } from '../../entities/school-year.entity';
 import { SchoolLapse } from '../../entities/school-lapse.entity';
 import { SchoolCourt } from '../../entities/school-court.entity';
+import { CourseSchoolYear } from '../../entities/course-school-year.entity';
 import { Transactional } from 'typeorm-transactional';
 import { FindSchoolYearAction } from '../find-school-year/find-school-year.action';
 
@@ -16,6 +17,8 @@ export class RemoveSchoolYearAction {
     private schoolLapseRepository: Repository<SchoolLapse>,
     @InjectRepository(SchoolCourt)
     private schoolCourtRepository: Repository<SchoolCourt>,
+    @InjectRepository(CourseSchoolYear)
+    private courseSchoolYearRepository: Repository<CourseSchoolYear>,
     private findSchoolYearAction: FindSchoolYearAction,
   ) {}
 
@@ -35,6 +38,12 @@ export class RemoveSchoolYearAction {
       await this.removeSchoolLapsesWithCourts(schoolLapses);
     }
 
+    // Buscar las asignaturas asociadas
+    const courseSchoolYears = await this.findCourseSchoolYearsBySchoolYear(id);
+    if (courseSchoolYears.length) {
+      await this.removeCourseSchoolYears(courseSchoolYears);
+    }
+
     // Eliminar el año escolar
     await this.removeSchoolYear(id);
   }
@@ -46,6 +55,21 @@ export class RemoveSchoolYearAction {
       relations: ['schoolYear'],
       where: { schoolYear: { id: schoolYearId } },
     });
+  }
+
+  private async findCourseSchoolYearsBySchoolYear(
+    schoolYearId: number,
+  ): Promise<CourseSchoolYear[]> {
+    return this.courseSchoolYearRepository.find({
+      where: { schoolYearId },
+    });
+  }
+
+  private async removeCourseSchoolYears(
+    courseSchoolYears: CourseSchoolYear[],
+  ): Promise<void> {
+    const courseSchoolYearIds = courseSchoolYears.map((course) => course.id);
+    await this.courseSchoolYearRepository.delete(courseSchoolYearIds);
   }
 
   private async removeSchoolLapsesWithCourts(

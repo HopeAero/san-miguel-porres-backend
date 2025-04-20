@@ -9,17 +9,25 @@ import {
   Query,
   UseGuards,
   ParseIntPipe,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiQuery,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import { Role } from '@/common/enum/role';
 import { Roles } from '@/common/decorators/roles.decorator';
 import { JwtGuard } from '../auth/guards/jwt.guard';
 import { CourseDto } from './dto/course.dto';
 import { PageDto } from '@/common/dto/page.dto';
+import { CourseByGradeDto } from './dto/course-by-grade.dto';
 
 @ApiTags('Courses')
 @Roles(Role.MODERATOR, Role.ADMIN)
@@ -34,6 +42,41 @@ export class CoursesController {
     return this.coursesService.create(createCourseDto);
   }
 
+  @Get('all') // GET /courses/all
+  @ApiOperation({
+    summary: 'Obtener todos los cursos para selectores',
+    description:
+      'Retorna todos los cursos activos sin paginar, opcionalmente filtrados por grado',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de cursos',
+    type: [CourseByGradeDto],
+  })
+  @ApiQuery({
+    name: 'grade',
+    required: false,
+    type: Number,
+    description: 'Filtrar por grado específico (opcional)',
+  })
+  findAll(
+    @Query(
+      'grade',
+      new DefaultValuePipe(undefined),
+      new ParseIntPipe({ optional: true }),
+    )
+    grade?: number,
+  ): Promise<CourseByGradeDto[]> {
+    return this.coursesService.findAll(grade);
+  }
+
+  @Get('paginate') // GET /courses/paginate
+  paginate(
+    @Query() paginationDto: PageOptionsDto,
+  ): Promise<PageDto<CourseDto>> {
+    return this.coursesService.paginate(paginationDto);
+  }
+
   @Put(':id') // PUT /courses/:id
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -45,13 +88,6 @@ export class CoursesController {
   @Get(':id') // GET /courses/:id
   findOne(@Param('id', ParseIntPipe) id: number): Promise<CourseDto> {
     return this.coursesService.findOne(id);
-  }
-
-  @Get() // GET /courses
-  paginate(
-    @Query() paginationDto: PageOptionsDto,
-  ): Promise<PageDto<CourseDto>> {
-    return this.coursesService.paginate(paginationDto);
   }
 
   @Delete(':id') // DELETE /courses/:id

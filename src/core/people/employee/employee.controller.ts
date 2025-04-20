@@ -13,12 +13,19 @@ import {
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDTO } from './dto/create-employee.dto';
 import { PageOptionsDto } from '@/common/dto/page.option.dto';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UpdateEmployeeDTO } from './dto/update-employee.dto';
 import { Roles } from '@/common/decorators/roles.decorator';
 import { JwtGuard } from '@/core/auth/guards/jwt.guard';
 import { Role } from '@/common/enum/role';
 import * as express from 'express';
+import { SearchEmployeeDto } from './dto/search-employee.dto';
+import { EmployeeDto } from './dto/employee';
 
 @ApiTags('Employee')
 @Controller('employee')
@@ -34,8 +41,18 @@ export class EmployeeController {
   }
 
   @Get('all') // GET /employee/all
-  async findAll() {
-    return await this.employeeService.findAll(); // Call service to find all
+  @ApiOperation({
+    summary: 'Obtener todos los empleados',
+    description:
+      'Permite buscar empleados con filtros opcionales por nombre y tipo de empleado',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de empleados',
+    type: [EmployeeDto],
+  })
+  async findAll(@Query() searchDto: SearchEmployeeDto) {
+    return await this.employeeService.findAll(searchDto); // Call service to find all
   }
 
   @Get('paginate') // GET /employee

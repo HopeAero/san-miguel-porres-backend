@@ -6,6 +6,7 @@ import { UpdateDateValidationHelper } from './update-date-validation.helper';
 import { FindSchoolYearAction } from '../find-school-year/find-school-year.action';
 import { UpdateSchoolYearBasicAction } from './update-school-year-basic.action';
 import { UpdateSchoolLapsesAction } from './update-school-lapses.action';
+import { UpdateCourseSchoolYearsAction } from './update-course-school-years.action';
 
 @Injectable()
 export class UpdateSchoolYearAction {
@@ -14,6 +15,7 @@ export class UpdateSchoolYearAction {
     private findSchoolYearAction: FindSchoolYearAction,
     private updateSchoolYearBasicAction: UpdateSchoolYearBasicAction,
     private updateSchoolLapsesAction: UpdateSchoolLapsesAction,
+    private updateCourseSchoolYearsAction: UpdateCourseSchoolYearsAction,
   ) {}
 
   @Transactional()
@@ -35,6 +37,14 @@ export class UpdateSchoolYearAction {
       existingSchoolYear,
       updateSchoolYearDto.schoolLapses,
     );
+
+    // Actualizar, eliminar o crear asignaturas asociadas al año escolar
+    if (updateSchoolYearDto.courseSchoolYears) {
+      await this.updateCourseSchoolYearsAction.execute(
+        existingSchoolYear.id,
+        updateSchoolYearDto.courseSchoolYears,
+      );
+    }
 
     // Obtener el año escolar actualizado usando la acción especializada
     return this.findSchoolYearAction.execute(id);

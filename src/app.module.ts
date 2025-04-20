@@ -13,6 +13,7 @@ import { RepresentanteModule } from '@/core/people/representative/representative
 import { StudentModule } from '@/core/people/student/student.module';
 import { EmployeeModule } from './core/people/employee/employee.module';
 import { SchoolYearModule } from './core/school-year/school-year.module';
+import { InscriptionsModule } from './core/inscriptions/inscriptions.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { SchoolYearModule } from './core/school-year/school-year.module';
     CoursesModule,
     EmployeeModule,
     SchoolYearModule,
+    InscriptionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
