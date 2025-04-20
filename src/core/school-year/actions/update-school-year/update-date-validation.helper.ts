@@ -1,8 +1,8 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { UpdateSchoolYearDto } from '../../dto/update-school-year.dto';
-import { UpdateCreateSchoolLapseDto } from '../../dto/create-school-lapse.dto';
-import { UpdateCreateSchoolCourtDto } from '../../dto/create-school-court.dto';
 import { CreateSchoolYearDto } from '../../dto/create-school-year.dto';
+import { UpdateInputSchoolLapseDto } from '../../dto/update-input-school-lapse.dto';
+import { UpdateInputSchoolCourtDto } from '../../dto/update-input-school-court.dto';
 
 @Injectable()
 export class UpdateDateValidationHelper {
@@ -21,7 +21,7 @@ export class UpdateDateValidationHelper {
   }
 
   public validateSchoolLapseDates(
-    schoolLapse: UpdateCreateSchoolLapseDto,
+    schoolLapse: UpdateInputSchoolLapseDto,
     schoolYear: CreateSchoolYearDto,
   ): void {
     if (
@@ -44,8 +44,8 @@ export class UpdateDateValidationHelper {
   }
 
   public validateSchoolCourtDates(
-    schoolCourt: UpdateCreateSchoolCourtDto,
-    schoolLapse: UpdateCreateSchoolLapseDto,
+    schoolCourt: UpdateInputSchoolCourtDto,
+    schoolLapse: UpdateInputSchoolLapseDto,
     schoolYear: CreateSchoolYearDto,
   ): void {
     if (

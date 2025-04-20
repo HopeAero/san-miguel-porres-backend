@@ -12,6 +12,9 @@ import {
   UpdateSchoolYearAction,
   UpdateDateValidationHelper,
   CreationDateValidationHelper,
+  UpdateSchoolYearBasicAction,
+  UpdateSchoolLapsesAction,
+  UpdateSchoolCourtsAction,
 } from './actions';
 
 @Module({
@@ -25,6 +28,9 @@ import {
     UpdateSchoolYearAction,
     UpdateDateValidationHelper,
     CreationDateValidationHelper,
+    UpdateSchoolYearBasicAction,
+    UpdateSchoolLapsesAction,
+    UpdateSchoolCourtsAction,
   ],
   exports: [SchoolYearService],
 })

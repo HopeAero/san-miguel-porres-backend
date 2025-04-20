@@ -110,3 +110,46 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+# Sistema Escolar San Miguel Porres
+
+## Roles y Permisos
+
+El sistema tiene los siguientes roles con diferentes niveles de acceso:
+
+### ADMIN
+- Acceso completo a todos los módulos del sistema.
+- Es el único que puede gestionar usuarios (crear, ver, modificar, eliminar).
+- Tiene acceso a todas las funcionalidades disponibles para MODERATOR y TEACHER.
+
+### MODERATOR
+- Gestión de estudiantes
+- Gestión de representantes
+- Gestión de empleados
+- Gestión de cursos
+- Gestión de años escolares
+- NO puede gestionar usuarios (solo ADMIN puede hacerlo)
+
+### TEACHER
+- Actualmente sin permisos específicos, rol creado para futuras expansiones.
+
+## Módulos del Sistema
+
+| Módulo | Descripción | ADMIN | MODERATOR | TEACHER |
+|--------|-------------|-------|-----------|---------|
+| Usuarios | Gestión de usuarios del sistema | ✅ | ❌ | ❌ |
+| Estudiantes | Gestión de estudiantes de la institución | ✅ | ✅ | ❌ |
+| Representantes | Gestión de representantes de estudiantes | ✅ | ✅ | ❌ |
+| Empleados | Gestión del personal de la institución | ✅ | ✅ | ❌ |
+| Cursos | Gestión de asignaturas académicas | ✅ | ✅ | ❌ |
+| Años Escolares | Gestión de los años escolares con sus lapsos | ✅ | ✅ | ❌ |
+
+## Estructura de Permisos
+
+La estructura de permisos está basada en una jerarquía donde:
+
+1. El rol **ADMIN** tiene el nivel más alto de privilegios
+2. El rol **MODERATOR** tiene un nivel intermedio
+3. El rol **TEACHER** tiene un nivel básico (actualmente sin permisos)
+
+Cada rol puede acceder a los recursos permitidos para su nivel y para los niveles inferiores en la jerarquía.

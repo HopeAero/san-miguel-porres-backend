@@ -1,14 +1,25 @@
 import { DataSource } from 'typeorm';
 import { runAdminUserSeed } from './admin-user.seed';
+import { runTeacherSeed } from './teacher.seed';
+import { runRepresentativeSeed } from './representative.seed';
+import { runStudentSeed } from './student.seed';
+import { runSchoolYear2024Seed } from './school-year-2024.seed';
 
 export const runSeeds = async (dataSource: DataSource): Promise<void> => {
   try {
-    // Ejecutar todos los seeders
+    console.log('Ejecutando seeds...');
+
+    // Seeds existentes
     await runAdminUserSeed(dataSource);
 
-    console.log('Seeders ejecutados exitosamente');
+    // Nuevos seeds
+    await runTeacherSeed(dataSource);
+    await runRepresentativeSeed(dataSource);
+    await runStudentSeed(dataSource);
+    await runSchoolYear2024Seed(dataSource);
+
+    console.log('Seeds ejecutados exitosamente');
   } catch (error) {
-    console.error('Error al ejecutar seeders:', error);
-    throw error;
+    console.error('Error al ejecutar seeds:', error);
   }
 };

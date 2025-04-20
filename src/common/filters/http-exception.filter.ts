@@ -27,12 +27,40 @@ export class HttpExceptionFilter implements ExceptionFilter {
       const status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
+      // Comprobación para status 403 - FORBIDDEN
+      if (status === HttpStatus.FORBIDDEN) {
+        // Si es "Forbidden resource", lo reemplazamos con "Acceso prohibido"
+        const message =
+          typeof exceptionResponse === 'object' &&
+          'message' in exceptionResponse
+            ? exceptionResponse['message']
+            : exception.message;
+
+        if (message === 'Forbidden resource') {
+          return errorResponse(
+            response,
+            status,
+            'No tienes permisos para acceder a este recurso',
+          );
+        }
+
+        return errorResponse(
+          response,
+          status,
+          typeof message === 'string'
+            ? message
+            : 'No tienes permisos para acceder a este recurso',
+        );
+      }
+
       // Errores de validación (ValidationPipe)
       if (
         typeof exceptionResponse === 'object' &&
         'message' in exceptionResponse
       ) {
         const message = exceptionResponse['message'];
+
+        console.log('message', message);
 
         // Array de mensajes de error (convertir a formato SchemaError)
         if (Array.isArray(message)) {
@@ -53,7 +81,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
           return errorResponse(
             response,
             status,
-            'Error de validación',
+            details?.[0]?.message ||
+              'Ha ocurrido un error al validar los datos',
             details,
           );
         }

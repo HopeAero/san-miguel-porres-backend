@@ -4,4 +4,7 @@ export enum Role {
 
   // The MODERATOR role has a higher priority than the USER role.
   MODERATOR = 'MODERATOR',
+
+  // The TEACHER role is for school teachers
+  TEACHER = 'TEACHER',
 }

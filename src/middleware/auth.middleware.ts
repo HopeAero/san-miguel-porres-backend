@@ -21,7 +21,7 @@ export class AuthMiddleware implements NestMiddleware {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (e) {
         throw new HttpException(
-          'Invalido token de acceso',
+          'Token de acceso inválido',
           HttpStatus.FORBIDDEN,
         );
       }

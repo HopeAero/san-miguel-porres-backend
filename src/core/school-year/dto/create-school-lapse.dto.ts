@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsDateString, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsDateString, ValidateNested, IsOptional, IsNumber } from 'class-validator';
 import {
   CreateSchoolCourtDto,
   UpdateCreateSchoolCourtDto,
@@ -38,11 +38,20 @@ export class CreateSchoolLapseDto {
 
 export class UpdateCreateSchoolLapseDto {
   @ApiProperty({
+    description: 'ID del lapso (solo para actualización)',
+    example: 1,
+    required: false
+  })
+  @IsOptional()
+  @IsNumber()
+  id?: number;
+
+  @ApiProperty({
     description: 'Número del lapso',
     example: 1,
   })
-  @IsNotEmpty()
-  lapseNumber: number;
+  @IsOptional()
+  lapseNumber?: number;
 
   @ApiProperty({
     description: 'Fecha de inicio del lapso',

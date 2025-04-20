@@ -54,18 +54,24 @@ export class CreateSchoolYearAction {
     lapseNumber: number,
     schoolYear: SchoolYear,
   ): Promise<void> {
-    // Crear y guardar el lapso
+    // Extraer los cortes antes de crear el lapso sin los cortes
+    const { schoolCourts, ...lapseWithoutCourts } = schoolLapse;
+
+    // Crear y guardar el lapso sin sus cortes para evitar duplicación
     const savedSchoolLapse = await this.createSchoolLapse(
-      schoolLapse,
+      {
+        ...lapseWithoutCourts,
+        schoolCourts: [],
+      },
       lapseNumber,
       schoolYear,
     );
 
-    // Crear y guardar los cortes asociados al lapso
-    if (schoolLapse.schoolCourts && schoolLapse.schoolCourts.length > 0) {
+    // Crear y guardar los cortes asociados al lapso manualmente
+    if (schoolCourts.length > 0) {
       let schoolCourtNumber = 1;
 
-      for (const schoolCourt of schoolLapse.schoolCourts) {
+      for (const schoolCourt of schoolCourts) {
         await this.createSchoolCourt(
           schoolCourt,
           savedSchoolLapse,

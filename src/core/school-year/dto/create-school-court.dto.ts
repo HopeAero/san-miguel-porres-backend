@@ -1,6 +1,6 @@
 import { IsValidDate } from '@/common/decorators/isValidDate.decorator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDateString, IsNotEmpty } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsOptional, IsNumber } from 'class-validator';
 
 export class CreateSchoolCourtDto {
   @ApiProperty({
@@ -24,11 +24,20 @@ export class CreateSchoolCourtDto {
 
 export class UpdateCreateSchoolCourtDto {
   @ApiProperty({
+    description: 'ID del corte (solo para actualización)',
+    example: 1,
+    required: false
+  })
+  @IsOptional()
+  @IsNumber()
+  id?: number;
+
+  @ApiProperty({
     description: 'Número del corte escolar',
     example: 1,
   })
-  @IsNotEmpty()
-  courtNumber: number;
+  @IsOptional()
+  courtNumber?: number;
 
   @ApiProperty({
     description: 'Fecha de inicio del corte escolar',
