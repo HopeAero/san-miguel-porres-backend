@@ -28,4 +28,14 @@ export class SearchEmployeeDto {
   @IsOptional()
   @IsNumber()
   limit?: number;
+
+  @ApiProperty({
+    description:
+      'IDs de empleados que deben incluirse siempre, separados por coma',
+    required: false,
+    type: String,
+  })
+  @IsOptional()
+  @IsString()
+  forceItemsIds?: string;
 }

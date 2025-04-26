@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Raw } from 'typeorm';
+import { Repository, Raw, In } from 'typeorm';
 import { Course } from './entities/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
@@ -57,6 +57,7 @@ export class CoursesService {
     grade?: number | null,
     name?: string | null,
     limit?: number | null,
+    forceItemsIds?: string | null,
   ): Promise<CourseByGradeDto[]> {
     // Crear la condición where base (solo considerar no eliminados)
     const whereCondition: any = {
@@ -92,7 +93,54 @@ export class CoursesService {
     const courses = await this.courseRepository.find(findOptions);
 
     // Transformar a DTOs
-    return courses.map((course) => plainToClass(CourseByGradeDto, course));
+    const result = courses.map((course) =>
+      plainToClass(CourseByGradeDto, course),
+    );
+
+    return this.getResultWithForceItemsIds(result, forceItemsIds);
+  }
+
+  private async getResultWithForceItemsIds(
+    result: CourseByGradeDto[],
+    forceItemsIds: string | null,
+  ): Promise<CourseByGradeDto[]> {
+    console.log('forceItemsIds', forceItemsIds);
+    // Si hay IDs forzados, buscarlos y añadirlos al resultado
+    if (forceItemsIds && forceItemsIds.trim()) {
+      // Separar los IDs y convertirlos a números
+      const neededItemsIds = this.getNeededItemsIds(
+        forceItemsIds,
+        result.map((course) => course.id),
+      );
+
+      if (!neededItemsIds.length) return result;
+
+      // Buscar los cursos por los IDs forzados, incluyendo eliminados
+      const additionalCourses = await this.courseRepository.find({
+        where: { id: In(neededItemsIds) },
+        select: ['id', 'name', 'publicName', 'grade'],
+        withDeleted: true, // Incluir entidades con soft delete
+      });
+      // Concatenar los resultados
+      result = result.concat(additionalCourses);
+    }
+
+    return result;
+  }
+
+  private getNeededItemsIds(
+    forceItemsIdsInput: string | null,
+    currentCoursesIds: number[],
+  ): number[] {
+    if (!forceItemsIdsInput) return [];
+
+    const forceItemsIds = forceItemsIdsInput
+      .split(',')
+      .map((id) => id.trim())
+      .filter((id) => !isNaN(Number(id)))
+      .map((id) => Number(id));
+
+    return forceItemsIds.filter((id) => !currentCoursesIds.includes(id));
   }
 
   /**

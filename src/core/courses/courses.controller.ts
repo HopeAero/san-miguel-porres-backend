@@ -71,22 +71,30 @@ export class CoursesController {
     type: Number,
     description: 'Limitar la cantidad de resultados (opcional)',
   })
+  @ApiQuery({
+    name: 'forceItemsIds',
+    required: false,
+    type: String,
+    description:
+      'IDs de cursos que deben incluirse siempre, separados por coma (opcional)',
+  })
   findAll(
     @Query(
       'grade',
       new DefaultValuePipe(undefined),
       new ParseIntPipe({ optional: true }),
     )
-    grade?: number,
-    @Query('name') name?: string,
+    grade?: number | null,
+    @Query('name') name?: string | null,
     @Query(
       'limit',
       new DefaultValuePipe(undefined),
       new ParseIntPipe({ optional: true }),
     )
-    limit?: number,
+    limit?: number | null,
+    @Query('forceItemsIds') forceItemsIds?: string | null,
   ): Promise<CourseByGradeDto[]> {
-    return this.coursesService.findAll(grade, name, limit);
+    return this.coursesService.findAll(grade, name, limit, forceItemsIds);
   }
 
   @Get('paginate') // GET /courses/paginate

@@ -72,6 +72,13 @@ export class EmployeeController {
     type: Number,
     description: 'Limitar la cantidad de resultados (opcional)',
   })
+  @ApiQuery({
+    name: 'forceItemsIds',
+    required: false,
+    type: String,
+    description:
+      'IDs de empleados que deben incluirse siempre, separados por coma (opcional)',
+  })
   async findAll(
     @Query('name') name?: string,
     @Query('employeeType') employeeType?: TypeEmployee,
@@ -81,12 +88,14 @@ export class EmployeeController {
       new ParseIntPipe({ optional: true }),
     )
     limit?: number,
+    @Query('forceItemsIds') forceItemsIds?: string,
   ): Promise<EmployeeDto[]> {
     // Construimos manualmente el objeto SearchEmployeeDto para mantener compatibilidad
     const searchDto = {
       name,
       employeeType,
       limit,
+      forceItemsIds,
     };
 
     return await this.employeeService.findAll(searchDto);
