@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { TypeEmployee } from '../entities/employee.entity';
 
 export class SearchEmployeeDto {
@@ -19,4 +19,13 @@ export class SearchEmployeeDto {
   @IsOptional()
   @IsEnum(TypeEmployee)
   employeeType?: TypeEmployee;
+
+  @ApiProperty({
+    description: 'Limitar la cantidad de resultados',
+    required: false,
+    type: Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  limit?: number;
 }

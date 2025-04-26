@@ -9,6 +9,8 @@ import {
   Query,
   UseGuards,
   Response,
+  ParseIntPipe,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { CreateEmployeeDTO } from './dto/create-employee.dto';
@@ -16,6 +18,7 @@ import { PageOptionsDto } from '@/common/dto/page.option.dto';
 import {
   ApiBearerAuth,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
@@ -24,7 +27,7 @@ import { Roles } from '@/common/decorators/roles.decorator';
 import { JwtGuard } from '@/core/auth/guards/jwt.guard';
 import { Role } from '@/common/enum/role';
 import * as express from 'express';
-import { SearchEmployeeDto } from './dto/search-employee.dto';
+import { TypeEmployee } from './entities/employee.entity';
 import { EmployeeDto } from './dto/employee';
 
 @ApiTags('Employee')
@@ -51,8 +54,42 @@ export class EmployeeController {
     description: 'Lista de empleados',
     type: [EmployeeDto],
   })
-  async findAll(@Query() searchDto: SearchEmployeeDto) {
-    return await this.employeeService.findAll(searchDto); // Call service to find all
+  @ApiQuery({
+    name: 'name',
+    required: false,
+    type: String,
+    description: 'Filtrar por nombre o apellido (opcional)',
+  })
+  @ApiQuery({
+    name: 'employeeType',
+    required: false,
+    enum: TypeEmployee,
+    description: 'Filtrar por tipo de empleado (opcional)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Limitar la cantidad de resultados (opcional)',
+  })
+  async findAll(
+    @Query('name') name?: string,
+    @Query('employeeType') employeeType?: TypeEmployee,
+    @Query(
+      'limit',
+      new DefaultValuePipe(undefined),
+      new ParseIntPipe({ optional: true }),
+    )
+    limit?: number,
+  ): Promise<EmployeeDto[]> {
+    // Construimos manualmente el objeto SearchEmployeeDto para mantener compatibilidad
+    const searchDto = {
+      name,
+      employeeType,
+      limit,
+    };
+
+    return await this.employeeService.findAll(searchDto);
   }
 
   @Get('paginate') // GET /employee

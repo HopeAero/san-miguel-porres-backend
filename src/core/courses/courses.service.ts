@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Raw } from 'typeorm';
 import { Course } from './entities/course.entity';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
@@ -50,10 +50,14 @@ export class CoursesService {
 
   /**
    * Obtiene todos los cursos activos (no eliminados) sin paginación,
-   * opcionalmente filtrados por grado.
+   * opcionalmente filtrados por grado, nombre y limitados en cantidad.
    * Este método es útil para construir selectores en el frontend.
    */
-  async findAll(grade?: number | null): Promise<CourseByGradeDto[]> {
+  async findAll(
+    grade?: number | null,
+    name?: string | null,
+    limit?: number | null,
+  ): Promise<CourseByGradeDto[]> {
     // Crear la condición where base (solo considerar no eliminados)
     const whereCondition: any = {
       deletedAt: null, // Solo cursos no eliminados
@@ -64,18 +68,42 @@ export class CoursesService {
       whereCondition.grade = Number(grade);
     }
 
-    // Buscar cursos que cumplan con las condiciones
-    const courses = await this.courseRepository.find({
+    // Si se especifica un nombre, añadirlo a la condición para búsqueda parcial
+    if (name && name.trim()) {
+      whereCondition.name = this.getILikeQuery(name);
+    }
+
+    // Opciones de consulta para el repositorio
+    const findOptions: any = {
       where: whereCondition,
       order: {
         grade: 'ASC',
         name: 'ASC', // Ordenar primero por grado, luego por nombre
       },
       select: ['id', 'name', 'publicName', 'grade'], // Incluimos publicName en la selección
-    });
+    };
+
+    // Si se especifica un límite, añadirlo a las opciones
+    if (limit !== undefined && limit !== null && !isNaN(Number(limit))) {
+      findOptions.take = Number(limit);
+    }
+
+    // Buscar cursos que cumplan con las condiciones
+    const courses = await this.courseRepository.find(findOptions);
 
     // Transformar a DTOs
     return courses.map((course) => plainToClass(CourseByGradeDto, course));
+  }
+
+  /**
+   * Auxiliar para crear una búsqueda insensible a mayúsculas/minúsculas
+   * adaptada al SGBD utilizado (PostgreSQL, MySQL, SQLite)
+   */
+  private getILikeQuery(text: string): any {
+    // Para PostgreSQL usar ILike
+    return Raw((alias) => `LOWER(${alias}) LIKE LOWER(:value)`, {
+      value: `%${text}%`,
+    });
   }
 
   async paginate(paginationDto: PageOptionsDto): Promise<PageDto<CourseDto>> {

@@ -46,7 +46,7 @@ export class CoursesController {
   @ApiOperation({
     summary: 'Obtener todos los cursos para selectores',
     description:
-      'Retorna todos los cursos activos sin paginar, opcionalmente filtrados por grado',
+      'Retorna todos los cursos activos sin paginar, opcionalmente filtrados por grado, nombre y con límite',
   })
   @ApiResponse({
     status: 200,
@@ -59,6 +59,18 @@ export class CoursesController {
     type: Number,
     description: 'Filtrar por grado específico (opcional)',
   })
+  @ApiQuery({
+    name: 'name',
+    required: false,
+    type: String,
+    description: 'Filtrar por nombre o parte del nombre (opcional)',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    type: Number,
+    description: 'Limitar la cantidad de resultados (opcional)',
+  })
   findAll(
     @Query(
       'grade',
@@ -66,8 +78,15 @@ export class CoursesController {
       new ParseIntPipe({ optional: true }),
     )
     grade?: number,
+    @Query('name') name?: string,
+    @Query(
+      'limit',
+      new DefaultValuePipe(undefined),
+      new ParseIntPipe({ optional: true }),
+    )
+    limit?: number,
   ): Promise<CourseByGradeDto[]> {
-    return this.coursesService.findAll(grade);
+    return this.coursesService.findAll(grade, name, limit);
   }
 
   @Get('paginate') // GET /courses/paginate

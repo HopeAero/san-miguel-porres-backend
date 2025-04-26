@@ -101,12 +101,12 @@ export class EmployeeService {
 
   /**
    * Encuentra todos los empleados con opciones de filtrado
-   * @param searchDto Criterios de búsqueda opcionales (nombre, tipo de empleado)
+   * @param searchDto Criterios de búsqueda opcionales (nombre, tipo de empleado, límite)
    * @returns Lista de empleados filtrada
    */
   async findAll(searchDto?: SearchEmployeeDto): Promise<EmployeeDto[]> {
     // Si no hay criterios de búsqueda, usamos el método simple
-    if (!searchDto || (!searchDto.name && !searchDto.employeeType)) {
+    if (!searchDto || (!searchDto.name && !searchDto.employeeType && !searchDto.limit)) {
       const employees = await this.employeeRepository.find({
         relations: {
           person: true,
@@ -142,6 +142,13 @@ export class EmployeeService {
 
     // Ordenar por nombre y apellido
     query.orderBy('person.name', 'ASC').addOrderBy('person.lastName', 'ASC');
+
+    // Aplicar límite si se proporciona
+    if (searchDto.limit && searchDto.limit > 0) {
+      query.take(searchDto.limit);
+    }
+
+    console.log('Employee search query:', query.getSql());
 
     const employees = await query.getMany();
 
