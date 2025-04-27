@@ -4,10 +4,11 @@ import { PeopleModule } from '../people/people.module';
 import { Student } from './entities/student.entity';
 import { StudentController } from './student.controller';
 import { StudentService } from './student.service';
+import { Representative } from '../representative/entities/representative.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Student]),
+    TypeOrmModule.forFeature([Student, Representative]),
     forwardRef(() => PeopleModule),
   ],
   controllers: [StudentController],
