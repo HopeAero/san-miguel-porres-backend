@@ -15,10 +15,6 @@ import {
   UpdateSchoolYearAction,
 } from './actions';
 import {
-  SchoolYearPaginateDto,
-  SchoolYearPaginateResponseDto,
-} from './dto/school-year-paginate.dto';
-import {
   SchoolYearDetailsDto,
   SchoolLapseDetailsDto,
   CourseSchoolYearDetailsDto,
@@ -46,61 +42,37 @@ export class SchoolYearService {
     return this.createSchoolYearAction.execute(createCrudSchoolYearDto);
   }
 
-  async findAll(
-    page: number = 1,
-    limit: number = 10,
-  ): Promise<SchoolYearPaginateResponseDto> {
-    // Consulta para obtener el total de registros
-    const totalQuery = this.schoolYearRepository
-      .createQueryBuilder('schoolYear')
-      .where('schoolYear.deletedAt IS NULL');
+  // Método específico para componentes de selección
+  async findAll(searchTerm: string = ''): Promise<SchoolYear[]> {
+    try {
+      const query = this.schoolYearRepository
+        .createQueryBuilder('schoolYear')
+        .select(['schoolYear.id', 'schoolYear.code'])
+        .where('schoolYear.deletedAt IS NULL');
 
-    const total = await totalQuery.getCount();
+      // Si hay término de búsqueda, filtrar por código asegurando que sea seguro
+      if (searchTerm && searchTerm.trim()) {
+        // Eliminar caracteres especiales para evitar inyección SQL o problemas de conversión
+        const safeSearchTerm = searchTerm.replace(/[^a-zA-Z0-9\s-]/g, '');
 
-    // Consulta optimizada para obtener directamente los contadores en una sola consulta
-    const schoolYearsWithCounts = await this.schoolYearRepository
-      .createQueryBuilder('schoolYear')
-      .leftJoin('schoolYear.schoolLapses', 'schoolLapse')
-      .leftJoin('schoolLapse.schoolCourts', 'schoolCourt')
-      .leftJoin('schoolYear.courseSchoolYears', 'courseSchoolYear')
-      .select([
-        'schoolYear.id',
-        'schoolYear.code',
-        'schoolYear.startDate',
-        'schoolYear.endDate',
-      ])
-      .addSelect('COUNT(DISTINCT schoolLapse.id)', 'lapsesCount')
-      .addSelect('COUNT(DISTINCT schoolCourt.id)', 'courtsCount')
-      .addSelect('COUNT(DISTINCT courseSchoolYear.id)', 'coursesCount')
-      .where('schoolYear.deletedAt IS NULL')
-      .groupBy('schoolYear.id')
-      .orderBy('schoolYear.startDate', 'DESC')
-      .limit(limit)
-      .offset((page - 1) * limit)
-      .getRawMany();
+        if (safeSearchTerm) {
+          query.andWhere('schoolYear.code LIKE :searchTerm', {
+            searchTerm: `%${safeSearchTerm}%`,
+          });
+        }
+      }
 
-    // Transformar los resultados al DTO de paginación
-    const items: SchoolYearPaginateDto[] = schoolYearsWithCounts.map(
-      (rawSchoolYear) => {
-        return {
-          id: rawSchoolYear.schoolYear_id,
-          code: rawSchoolYear.schoolYear_code,
-          startDate: rawSchoolYear.schoolYear_startDate,
-          endDate: rawSchoolYear.schoolYear_endDate,
-          lapsesCount: parseInt(rawSchoolYear.lapsesCount) || 0,
-          courtsCount: parseInt(rawSchoolYear.courtsCount) || 0,
-          coursesCount: parseInt(rawSchoolYear.coursesCount) || 0,
-        };
-      },
-    );
+      // Ordenar por fecha de inicio descendente
+      query.orderBy('schoolYear.startDate', 'DESC');
 
-    return {
-      items,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
+      const schoolYears = await query.getMany();
+
+      return schoolYears;
+    } catch (error) {
+      console.error('Error al buscar años escolares para selector:', error);
+      // Devolver un array vacío en caso de error para evitar que se rompa la aplicación
+      return [];
+    }
   }
 
   async update(

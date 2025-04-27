@@ -14,6 +14,7 @@ import { StudentModule } from '@/core/people/student/student.module';
 import { EmployeeModule } from './core/people/employee/employee.module';
 import { SchoolYearModule } from './core/school-year/school-year.module';
 import { InscriptionsModule } from './core/inscriptions/inscriptions.module';
+import { CourseSchoolYearModule } from './core/course-school-year/course-school-year.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { InscriptionsModule } from './core/inscriptions/inscriptions.module';
     EmployeeModule,
     SchoolYearModule,
     InscriptionsModule,
+    CourseSchoolYearModule,
   ],
   controllers: [AppController],
   providers: [AppService],
