@@ -9,3 +9,5 @@ export const STATUS = {
   UNPROCESSABLE_ENTITY: 422,
   INTERNAL_SERVER_ERROR: 500,
 };
+
+export * from './order.constant';

@@ -154,6 +154,15 @@ export class CoursesService {
   }
 
   async paginate(paginationDto: PageOptionsDto): Promise<PageDto<CourseDto>> {
+    // Si hay filtros (searchTerm o grade), usar queryBuilder para más flexibilidad
+    if (
+      (paginationDto.searchTerm && paginationDto.searchTerm.trim() !== '') ||
+      paginationDto.grade !== undefined
+    ) {
+      return this.paginateWithFilters(paginationDto);
+    }
+
+    // Método original sin filtros
     const [result, total] = await this.courseRepository.findAndCount({
       order: {
         id: paginationDto.order,
@@ -162,6 +171,53 @@ export class CoursesService {
       skip: paginationDto.skip,
     });
 
+    const courses: CourseDto[] = result.map((entity: Course) => {
+      return plainToClass(CourseDto, {
+        ...entity,
+        id: entity.id,
+      });
+    });
+
+    return new PageDto(courses, total, paginationDto);
+  }
+
+  /**
+   * Paginar cursos con filtros aplicados
+   * @param paginationDto Opciones de paginación con posibles filtros
+   * @returns Lista paginada de cursos filtrados
+   */
+  private async paginateWithFilters(
+    paginationDto: PageOptionsDto,
+  ): Promise<PageDto<CourseDto>> {
+    const queryBuilder = this.courseRepository
+      .createQueryBuilder('course')
+      .where('course.deletedAt IS NULL');
+
+    // Aplicar filtro por nombre si se proporciona
+    if (paginationDto.searchTerm && paginationDto.searchTerm.trim() !== '') {
+      queryBuilder.andWhere(
+        '(LOWER(course.name) LIKE LOWER(:searchTerm) OR LOWER(course.publicName) LIKE LOWER(:searchTerm))',
+        { searchTerm: `%${paginationDto.searchTerm.trim()}%` },
+      );
+    }
+
+    // Aplicar filtro por grado si se proporciona
+    if (paginationDto.grade !== undefined) {
+      queryBuilder.andWhere('course.grade = :grade', {
+        grade: paginationDto.grade,
+      });
+    }
+
+    // Ordenar y paginar
+    queryBuilder
+      .orderBy('course.id', paginationDto.order)
+      .skip(paginationDto.skip)
+      .take(paginationDto.perPage);
+
+    // Ejecutar la consulta
+    const [result, total] = await queryBuilder.getManyAndCount();
+
+    // Formatear resultados
     const courses: CourseDto[] = result.map((entity: Course) => {
       return plainToClass(CourseDto, {
         ...entity,

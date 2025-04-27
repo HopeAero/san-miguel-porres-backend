@@ -19,19 +19,20 @@ export class PaginateEmployeeAction {
    * @param pageOptionsDto Opciones de paginación
    * @returns Lista paginada de empleados
    */
-  async execute(
-    pageOptionsDto: PageOptionsDto,
-  ): Promise<PageDto<EmployeeDto>> {
-    // Si se proporcionó un searchTerm, utilizar queryBuilder para la búsqueda
+  async execute(pageOptionsDto: PageOptionsDto): Promise<PageDto<EmployeeDto>> {
+    // Si se proporcionó un searchTerm o employeeType, utilizar queryBuilder para la búsqueda
     if (
-      pageOptionsDto.searchTerm !== undefined &&
-      pageOptionsDto.searchTerm !== null &&
-      pageOptionsDto.searchTerm.trim() !== ''
+      (pageOptionsDto.searchTerm !== undefined &&
+        pageOptionsDto.searchTerm !== null &&
+        pageOptionsDto.searchTerm.trim() !== '') ||
+      (pageOptionsDto.employeeType !== undefined &&
+        pageOptionsDto.employeeType !== null &&
+        pageOptionsDto.employeeType.trim() !== '')
     ) {
-      return this.executeWithSearch(pageOptionsDto);
+      return this.executeWithFilters(pageOptionsDto);
     }
 
-    // Si no hay searchTerm, usar el método findAndCount estándar
+    // Si no hay filtros, usar el método findAndCount estándar
     const [result, total] = await this.employeeRepository.findAndCount({
       order: {
         id: pageOptionsDto.order,
@@ -51,11 +52,11 @@ export class PaginateEmployeeAction {
   }
 
   /**
-   * Ejecuta la paginación con búsqueda por término
-   * @param pageOptionsDto Opciones de paginación con término de búsqueda
+   * Ejecuta la paginación con filtros
+   * @param pageOptionsDto Opciones de paginación con filtros
    * @returns Lista paginada y filtrada de empleados
    */
-  private async executeWithSearch(
+  private async executeWithFilters(
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<EmployeeDto>> {
     const queryBuilder = this.employeeRepository
@@ -63,11 +64,28 @@ export class PaginateEmployeeAction {
       .leftJoinAndSelect('employee.person', 'person')
       .where('employee.deletedAt IS NULL');
 
-    // Aplicar filtro de búsqueda por nombre, apellido o documento
-    queryBuilder.andWhere(
-      '(person.name ILIKE :searchTerm OR person.lastName ILIKE :searchTerm OR person.dni ILIKE :searchTerm)',
-      { searchTerm: `%${pageOptionsDto.searchTerm.trim()}%` },
-    );
+    // Aplicar filtro de búsqueda por término si se proporciona
+    if (
+      pageOptionsDto.searchTerm !== undefined &&
+      pageOptionsDto.searchTerm !== null &&
+      pageOptionsDto.searchTerm.trim() !== ''
+    ) {
+      queryBuilder.andWhere(
+        '(person.name ILIKE :searchTerm OR person.lastName ILIKE :searchTerm OR person.dni ILIKE :searchTerm)',
+        { searchTerm: `%${pageOptionsDto.searchTerm.trim()}%` },
+      );
+    }
+
+    // Aplicar filtro por tipo de empleado si se proporciona
+    if (
+      pageOptionsDto.employeeType !== undefined &&
+      pageOptionsDto.employeeType !== null &&
+      pageOptionsDto.employeeType.trim() !== ''
+    ) {
+      queryBuilder.andWhere('employee.employeeType = :employeeType', {
+        employeeType: pageOptionsDto.employeeType.trim(),
+      });
+    }
 
     // Ordenar y paginar
     queryBuilder
@@ -99,4 +117,4 @@ export class PaginateEmployeeAction {
       employeeType: employeeEntity.employeeType,
     });
   }
-} 
+}
