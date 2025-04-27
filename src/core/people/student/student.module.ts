@@ -5,6 +5,7 @@ import { Student } from './entities/student.entity';
 import { StudentController } from './student.controller';
 import { StudentService } from './student.service';
 import { Representative } from '../representative/entities/representative.entity';
+import { PaginateStudentAction } from './actions';
 
 @Module({
   imports: [
@@ -12,7 +13,7 @@ import { Representative } from '../representative/entities/representative.entity
     forwardRef(() => PeopleModule),
   ],
   controllers: [StudentController],
-  providers: [StudentService],
+  providers: [StudentService, PaginateStudentAction],
   exports: [StudentService],
 })
 export class StudentModule {}

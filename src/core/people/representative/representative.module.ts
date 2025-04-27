@@ -4,6 +4,7 @@ import { PeopleModule } from '../people/people.module';
 import { Representative } from './entities/representative.entity';
 import { RepresentativeController } from './representative.controller';
 import { RepresentanteService } from './representative.service';
+import { FindAllRepresentativeAction, PaginateRepresentativeAction } from './actions';
 
 @Module({
   imports: [
@@ -11,7 +12,11 @@ import { RepresentanteService } from './representative.service';
     forwardRef(() => PeopleModule),
   ],
   controllers: [RepresentativeController],
-  providers: [RepresentanteService],
+  providers: [
+    RepresentanteService, 
+    FindAllRepresentativeAction, 
+    PaginateRepresentativeAction
+  ],
   exports: [RepresentanteService],
 })
 export class RepresentanteModule {}

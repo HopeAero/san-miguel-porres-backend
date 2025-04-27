@@ -4,6 +4,7 @@ import { EmployeeService } from './employee.service';
 import { EmployeeController } from './employee.controller';
 import { PeopleModule } from '../people/people.module';
 import { Employee } from './entities/employee.entity';
+import { FindAllEmployeeAction, PaginateEmployeeAction } from './actions';
 
 @Module({
   imports: [
@@ -11,7 +12,11 @@ import { Employee } from './entities/employee.entity';
     forwardRef(() => PeopleModule),
   ],
   controllers: [EmployeeController], // Register the controller
-  providers: [EmployeeService], // Register the service
+  providers: [
+    EmployeeService,
+    FindAllEmployeeAction,
+    PaginateEmployeeAction
+  ], // Register the service and actions
   exports: [EmployeeService],
 })
 export class EmployeeModule {}

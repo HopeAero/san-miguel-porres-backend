@@ -104,7 +104,6 @@ export class CoursesService {
     result: CourseByGradeDto[],
     forceItemsIds: string | null,
   ): Promise<CourseByGradeDto[]> {
-    console.log('forceItemsIds', forceItemsIds);
     // Si hay IDs forzados, buscarlos y añadirlos al resultado
     if (forceItemsIds && forceItemsIds.trim()) {
       // Separar los IDs y convertirlos a números

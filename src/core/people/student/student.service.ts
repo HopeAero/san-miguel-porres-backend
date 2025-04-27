@@ -18,6 +18,7 @@ import { Student } from './entities/student.entity';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { Representative } from '../representative/entities/representative.entity';
+import { PaginateStudentAction } from './actions';
 
 function formatStudent(studentEntity: Student): StudentDto {
   return plainToClass(StudentDto, {
@@ -37,6 +38,7 @@ export class StudentService {
     private representativeRepository: Repository<Representative>,
     @Inject(forwardRef(() => PeopleService))
     private personasService: WrapperType<PeopleService>,
+    private paginateStudentAction: PaginateStudentAction,
   ) {}
 
   @Transactional()
@@ -130,37 +132,8 @@ export class StudentService {
   }
 
   async paginate(paginationDto: PageOptionsDto): Promise<PageDto<StudentDto>> {
-    let queryBuilder = this.estudianteRepository
-      .createQueryBuilder('student')
-      .leftJoinAndSelect('student.person', 'person')
-      .leftJoinAndSelect('student.representative', 'representative')
-      .orderBy('student.id', paginationDto.order);
-
-    // Aplicar filtro de búsqueda solo si searchTerm existe, no es null y no es una cadena vacía
-    if (
-      !!paginationDto.searchTerm &&
-      paginationDto.searchTerm !== undefined &&
-      paginationDto.searchTerm !== null &&
-      paginationDto.searchTerm.trim() !== ''
-    ) {
-      queryBuilder = queryBuilder.andWhere(
-        '(person.name ILIKE :searchTerm OR person.lastName ILIKE :searchTerm OR person.dni ILIKE :searchTerm)',
-        { searchTerm: `%${paginationDto.searchTerm.trim()}%` },
-      );
-    }
-
-    // Aplicar paginación
-    queryBuilder = queryBuilder
-      .skip(paginationDto.skip)
-      .take(paginationDto.perPage);
-
-    // Ejecutar la consulta
-    const [result, total] = await queryBuilder.getManyAndCount();
-
-    // Formatear los resultados
-    const resultDto = result.map((estudiante) => formatStudent(estudiante));
-
-    return new PageDto(resultDto, total, paginationDto);
+    // Delegar el paginado a la acción específica
+    return this.paginateStudentAction.execute(paginationDto);
   }
 
   // Soft-delete an Estudiante
