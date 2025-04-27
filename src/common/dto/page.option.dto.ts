@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, Max, Min, IsString } from 'class-validator';
 import { Expose, Type } from 'class-transformer';
 
 export enum Order {
@@ -33,6 +33,14 @@ export class PageOptionsDto {
   @Max(50)
   @IsOptional()
   readonly perPage?: number = 10;
+
+  @ApiPropertyOptional({
+    description: 'Término de búsqueda para filtrar registros (opcional)',
+    type: String,
+  })
+  @IsString()
+  @IsOptional()
+  readonly searchTerm?: string | null;
 
   @Expose()
   get skip(): number {

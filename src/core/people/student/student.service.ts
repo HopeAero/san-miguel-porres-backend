@@ -54,14 +54,14 @@ export class StudentService {
 
     // Crear la persona
     const person = await this.personasService.create(createStudentDto);
-    
+
     // Crear el estudiante con la relación al representante
     const student = this.estudianteRepository.create({
       id: person.id,
       person: person,
       representative: representative,
     });
-    
+
     const savedStudent = await this.estudianteRepository.save(student);
     return await this.findOne(savedStudent.id);
   }
@@ -130,18 +130,34 @@ export class StudentService {
   }
 
   async paginate(paginationDto: PageOptionsDto): Promise<PageDto<StudentDto>> {
-    const [result, total] = await this.estudianteRepository.findAndCount({
-      order: {
-        id: paginationDto.order,
-      },
-      take: paginationDto.perPage,
-      skip: paginationDto.skip,
-      relations: {
-        person: true,
-        representative: true,
-      },
-    });
+    let queryBuilder = this.estudianteRepository
+      .createQueryBuilder('student')
+      .leftJoinAndSelect('student.person', 'person')
+      .leftJoinAndSelect('student.representative', 'representative')
+      .orderBy('student.id', paginationDto.order);
 
+    // Aplicar filtro de búsqueda solo si searchTerm existe, no es null y no es una cadena vacía
+    if (
+      !!paginationDto.searchTerm &&
+      paginationDto.searchTerm !== undefined &&
+      paginationDto.searchTerm !== null &&
+      paginationDto.searchTerm.trim() !== ''
+    ) {
+      queryBuilder = queryBuilder.andWhere(
+        '(person.name ILIKE :searchTerm OR person.lastName ILIKE :searchTerm OR person.dni ILIKE :searchTerm)',
+        { searchTerm: `%${paginationDto.searchTerm.trim()}%` },
+      );
+    }
+
+    // Aplicar paginación
+    queryBuilder = queryBuilder
+      .skip(paginationDto.skip)
+      .take(paginationDto.perPage);
+
+    // Ejecutar la consulta
+    const [result, total] = await queryBuilder.getManyAndCount();
+
+    // Formatear los resultados
     const resultDto = result.map((estudiante) => formatStudent(estudiante));
 
     return new PageDto(resultDto, total, paginationDto);
