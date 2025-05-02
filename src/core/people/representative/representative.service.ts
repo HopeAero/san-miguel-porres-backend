@@ -16,6 +16,8 @@ import { CreateRepresentativeDto } from './dto/create-representative.dto';
 import { Representative } from './entities/representative.entity';
 import { RepresentativeDto } from './dto/representative.dto';
 import { UpdateRepresentativeDto } from './dto/update-representative.dto';
+import { SearchRepresentativeDto } from './dto/search-representative.dto';
+import { FindAllRepresentativeAction, PaginateRepresentativeAction } from './actions';
 
 function formatRepresentative(
   representativeEntity: Representative,
@@ -36,6 +38,8 @@ export class RepresentanteService {
     @Inject(forwardRef(() => PeopleService))
     private peopleService: WrapperType<PeopleService>,
     @InjectDataSource() private readonly dataSource: DataSource,
+    private findAllRepresentativeAction: FindAllRepresentativeAction,
+    private paginateRepresentativeAction: PaginateRepresentativeAction,
   ) {}
 
   @Transactional()
@@ -131,38 +135,21 @@ export class RepresentanteService {
     return formatRepresentative(representante);
   }
 
-  async findAll(): Promise<RepresentativeDto[]> {
-    const representantes = await this.representativeRepository.find({
-      relations: {
-        person: true,
-        students: true,
-      },
-    });
-
-    return representantes.map((representante: Representative) => {
-      return formatRepresentative(representante);
-    });
+  /**
+   * Encuentra todos los representantes con opciones de filtrado
+   * @param searchDto Criterios de búsqueda opcionales (término de búsqueda, límite)
+   * @returns Lista de representantes filtrada
+   */
+  async findAll(
+    searchDto?: SearchRepresentativeDto,
+  ): Promise<RepresentativeDto[]> {
+    return this.findAllRepresentativeAction.execute(searchDto);
   }
 
   async paginate(
     pageOptionsDto: PageOptionsDto,
   ): Promise<PageDto<RepresentativeDto>> {
-    const [result, total] = await this.representativeRepository.findAndCount({
-      order: {
-        id: pageOptionsDto.order,
-      },
-      take: pageOptionsDto.perPage,
-      skip: pageOptionsDto.skip,
-      relations: { person: true, students: true },
-    });
-
-    const representatives: RepresentativeDto[] = result.map(
-      (representativeEntity: Representative) => {
-        return formatRepresentative(representativeEntity);
-      },
-    );
-
-    return new PageDto(representatives, total, pageOptionsDto);
+    return this.paginateRepresentativeAction.execute(pageOptionsDto);
   }
 
   // Soft-delete a Representante

@@ -6,6 +6,7 @@ import {
   Inject,
   Injectable,
   NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { plainToClass } from 'class-transformer';
@@ -16,6 +17,8 @@ import { StudentDto } from './dto/student';
 import { Student } from './entities/student.entity';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
+import { Representative } from '../representative/entities/representative.entity';
+import { PaginateStudentAction } from './actions';
 
 function formatStudent(studentEntity: Student): StudentDto {
   return plainToClass(StudentDto, {
@@ -31,14 +34,36 @@ export class StudentService {
   constructor(
     @InjectRepository(Student)
     private estudianteRepository: Repository<Student>,
+    @InjectRepository(Representative)
+    private representativeRepository: Repository<Representative>,
     @Inject(forwardRef(() => PeopleService))
     private personasService: WrapperType<PeopleService>,
+    private paginateStudentAction: PaginateStudentAction,
   ) {}
 
   @Transactional()
   async create(createStudentDto: CreateStudentDto): Promise<StudentDto> {
+    // Verificar que el representante existe
+    const representative = await this.representativeRepository.findOne({
+      where: { id: createStudentDto.representativeId },
+    });
+
+    if (!representative) {
+      throw new BadRequestException(
+        `No se encontró el representante con ID ${createStudentDto.representativeId}`,
+      );
+    }
+
+    // Crear la persona
     const person = await this.personasService.create(createStudentDto);
-    const student = await this.estudianteRepository.create(person);
+
+    // Crear el estudiante con la relación al representante
+    const student = this.estudianteRepository.create({
+      id: person.id,
+      person: person,
+      representative: representative,
+    });
+
     const savedStudent = await this.estudianteRepository.save(student);
     return await this.findOne(savedStudent.id);
   }
@@ -47,6 +72,26 @@ export class StudentService {
     id: number,
     updateEstudianteDto: UpdateStudentDto,
   ): Promise<StudentDto> {
+    // Verificar que el representante existe si se proporcionó un ID
+    if (updateEstudianteDto.representativeId) {
+      const representative = await this.representativeRepository.findOne({
+        where: { id: updateEstudianteDto.representativeId },
+      });
+
+      if (!representative) {
+        throw new BadRequestException(
+          `No se encontró el representante con ID ${updateEstudianteDto.representativeId}`,
+        );
+      }
+
+      // Actualizar la relación con el representante
+      await this.estudianteRepository.update(
+        { id },
+        { representative: representative },
+      );
+    }
+
+    // Actualizar los datos de la persona
     const estudiante = await this.personasService.update(
       id,
       updateEstudianteDto,
@@ -87,21 +132,8 @@ export class StudentService {
   }
 
   async paginate(paginationDto: PageOptionsDto): Promise<PageDto<StudentDto>> {
-    const [result, total] = await this.estudianteRepository.findAndCount({
-      order: {
-        id: paginationDto.order,
-      },
-      take: paginationDto.perPage,
-      skip: paginationDto.skip,
-      relations: {
-        person: true,
-        representative: true,
-      },
-    });
-
-    const resultDto = result.map((estudiante) => formatStudent(estudiante));
-
-    return new PageDto(resultDto, total, paginationDto);
+    // Delegar el paginado a la acción específica
+    return this.paginateStudentAction.execute(paginationDto);
   }
 
   // Soft-delete an Estudiante

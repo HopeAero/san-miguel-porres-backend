@@ -15,6 +15,7 @@ import { EmployeeModule } from './core/people/employee/employee.module';
 import { SchoolYearModule } from './core/school-year/school-year.module';
 import { InscriptionsModule } from './core/inscriptions/inscriptions.module';
 import { ContractsModule } from './core/contracts/contracts.module';
+import { CourseSchoolYearModule } from './core/course-school-year/course-school-year.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { ContractsModule } from './core/contracts/contracts.module';
     EmployeeModule,
     SchoolYearModule,
     InscriptionsModule,
+    CourseSchoolYearModule,
     ContractsModule,
   ],
   controllers: [AppController],

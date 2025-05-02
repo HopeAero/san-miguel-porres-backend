@@ -1,32 +1,20 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
-import { Expose, Type } from 'class-transformer';
+import { IsEnum, IsInt, IsOptional, Max, Min, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
+import { Order } from '@/common/constants/order.constant';
 
-export enum Order {
-  ASC = 'ASC',
-  DESC = 'DESC',
-}
 export class PageOptionsDto {
-  @ApiPropertyOptional({ enum: Order, default: Order.ASC })
-  @IsEnum(Order)
-  @IsOptional()
-  readonly order?: Order = Order.ASC;
-
-  @ApiPropertyOptional({
-    minimum: 1,
-    default: 1,
-  })
+  /**
+   * Pagination - Current Page Number
+   */
   @Type(() => Number)
   @IsInt()
   @Min(1)
   @IsOptional()
   readonly page?: number = 1;
 
-  @ApiPropertyOptional({
-    minimum: 1,
-    maximum: 50,
-    default: 10,
-  })
+  /**
+   * Pagination - Items Per Page
+   */
   @Type(() => Number)
   @IsInt()
   @Min(1)
@@ -34,10 +22,39 @@ export class PageOptionsDto {
   @IsOptional()
   readonly perPage?: number = 10;
 
-  @Expose()
+  /**
+   * Sorting Order
+   */
+  @IsEnum(Order)
+  @IsOptional()
+  readonly order?: Order = Order.ASC;
+
+  /**
+   * Get number of items to skip
+   */
   get skip(): number {
     return (this.page - 1) * this.perPage;
   }
 
-  set skip(value: number) {}
+  /**
+   * Search term for filtering results
+   */
+  @IsString()
+  @IsOptional()
+  readonly searchTerm?: string;
+
+  /**
+   * Employee type for filtering employee results
+   */
+  @IsString()
+  @IsOptional()
+  readonly employeeType?: string;
+
+  /**
+   * Grade for filtering course results
+   */
+  @Type(() => Number)
+  @IsInt()
+  @IsOptional()
+  readonly grade?: number;
 }
