@@ -37,10 +37,10 @@ export class FindInscriptionAction {
 
       const students = await queryRunner.manager.query(
         `
-        SELECT s.id, p.name, p."lastName", p.identification
+        SELECT s.id, p.name, p."lastName", p.dni
         FROM students s
-        JOIN people p ON s.personId = p.id
-        WHERE s.id = $1 AND s.deletedAt IS NULL
+        JOIN people p ON s."id" = p.id
+        WHERE s.id = $1 AND s."deletedAt" IS NULL
       `,
         [inscription.studentId],
       );
@@ -63,7 +63,7 @@ export class FindInscriptionAction {
       id: number;
       name: string;
       lastName: string;
-      identification: string;
+      dni: string;
     } | null,
   ): InscriptionResponseDto {
     const responseDto = new InscriptionResponseDto();
