@@ -16,7 +16,7 @@ import {
   UseGuards,
   Response,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 import { StudentService } from './student.service';
@@ -37,9 +37,19 @@ export class StudentController {
   }
 
   @Get('all')
-  async findAll(): Promise<StudentDto[]> {
-    return await this.studentService.findAll();
+  @ApiOperation({ summary: 'Obtener todos los estudiantes' })
+  @ApiQuery({ name: 'search', required: false, description: 'Término de búsqueda para filtrar por nombre, apellido o cédula' })
+  @ApiQuery({ name: 'limit', required: false, description: 'Límite de resultados a devolver' })
+  @ApiQuery({ name: 'ids', required: false, description: 'IDs específicos de estudiantes a incluir (separados por comas)' })
+  @ApiResponse({ status: 200, description: 'Lista de estudiantes encontrados' })
+  async findAll(
+    @Query('search') search?: string,
+    @Query('limit') limit?: number,
+    @Query('ids') ids?: string,
+  ): Promise<StudentDto[]> {
+    return await this.studentService.findAllWithFilters(search, limit, ids);
   }
+
   @Get('paginate')
   async paginate(
     @Query() paginationDto: PageOptionsDto,

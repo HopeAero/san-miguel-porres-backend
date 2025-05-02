@@ -34,6 +34,17 @@ export class InscriptionResponseDto {
   student?: {
     id: number;
     name: string;
+    lastName?: string;
+    dni?: string;
+  };
+
+  // Información del representante (será proporcionada por el servicio)
+  representative?: {
+    id: number;
+    name: string;
+    lastName?: string;
+    dni?: string;
+    fullInfo?: string;
   };
 
   // Cursos inscritos - Ahora usando el DTO CourseInscriptionResponseDto

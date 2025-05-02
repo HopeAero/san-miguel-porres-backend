@@ -4,13 +4,33 @@ import { InscriptionsService } from './inscriptions.service';
 import { InscriptionsController } from './inscriptions.controller';
 import { Inscription } from './entities/inscription.entity';
 import { CourseInscription } from './entities/course-inscription.entity';
+import { CourseSchoolYear } from '../school-year/entities/course-school-year.entity';
+import { SchoolYear } from '../school-year/entities/school-year.entity';
+import {
+  CreateInscriptionAction,
+  UpdateInscriptionAction,
+  FindInscriptionAction,
+  RemoveInscriptionAction,
+  PaginateInscriptionAction,
+} from './actions';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Inscription, CourseInscription])],
+  imports: [
+    TypeOrmModule.forFeature([
+      Inscription,
+      CourseInscription,
+      CourseSchoolYear,
+      SchoolYear,
+    ]),
+  ],
   controllers: [InscriptionsController],
   providers: [
     InscriptionsService,
-    // Aquí se añadirán las acciones cuando se implementen
+    CreateInscriptionAction,
+    UpdateInscriptionAction,
+    FindInscriptionAction,
+    RemoveInscriptionAction,
+    PaginateInscriptionAction,
   ],
   exports: [InscriptionsService],
 })

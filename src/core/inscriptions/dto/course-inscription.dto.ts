@@ -18,6 +18,7 @@ export class CourseInscriptionResponseDto {
   id: number;
   courseSchoolYearId: number;
   inscriptionId: number;
+  studentId?: number;
 
   // Relaciones expandidas
   courseSchoolYear: {
@@ -34,13 +35,6 @@ export class CourseInscriptionResponseDto {
     };
   };
 
-  inscription: {
-    id: number;
-    studentId: number;
-    grade: string;
-    student: {
-      id: number;
-      name: string;
-    };
-  };
+  // Ya no incluimos la inscripción completa para evitar referencias circulares
+  // La inscripción ya contiene esta información y es redundante aquí
 }
