@@ -1,9 +1,11 @@
 import { Contract } from '@/core/contracts/entities/contract.entity';
 import { Person } from '@/core/people/people/entities/person.entity';
+import { CourseSchoolYear } from '@/core/school-year/entities/course-school-year.entity';
 import {
   Entity,
   Column,
   OneToOne,
+  OneToMany,
   JoinColumn,
   DeleteDateColumn,
   PrimaryColumn,
@@ -32,6 +34,12 @@ export class Employee {
 
   @OneToOne(() => Contract, (contract) => contract.employee, { cascade: true })
   contract: Relation<Contract>;
+
+  @OneToMany(
+    () => CourseSchoolYear,
+    (courseSchoolYear) => courseSchoolYear.professor,
+  )
+  courseSchoolYears: Relation<CourseSchoolYear[]>;
 
   @DeleteDateColumn()
   deletedAt: Date;

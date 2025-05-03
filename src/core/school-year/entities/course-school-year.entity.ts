@@ -41,9 +41,11 @@ export class CourseSchoolYear {
   @JoinColumn({ name: 'schoolYearId' })
   schoolYear: Relation<SchoolYear>;
 
-  @ManyToOne(() => Employee, { nullable: true })
+  @ManyToOne(() => Employee, (employee) => employee.courseSchoolYears, {
+    nullable: true,
+  })
   @JoinColumn({ name: 'professorId' })
-  professor: Employee;
+  professor: Relation<Employee>;
 
   @DeleteDateColumn()
   deletedAt: Date;

@@ -14,12 +14,7 @@ import { CourseSchoolYearController } from './course-school-year.controller';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([
-      CourseSchoolYear,
-      Course,
-      SchoolYear,
-      Employee,
-    ]),
+    TypeOrmModule.forFeature([CourseSchoolYear, Course, SchoolYear, Employee]),
   ],
   controllers: [CourseSchoolYearController],
   providers: [
@@ -39,4 +34,4 @@ import { CourseSchoolYearController } from './course-school-year.controller';
     RemoveCourseSchoolYearAction,
   ],
 })
-export class CourseSchoolYearModule {} 
+export class CourseSchoolYearModule {}

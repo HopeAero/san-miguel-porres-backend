@@ -3,9 +3,15 @@ import { ApiProperty } from '@nestjs/swagger';
 import { TypeEmployee } from '../entities/employee.entity';
 
 export class EmployeeDto extends PersonDto {
-  @ApiProperty()
+  @ApiProperty({
+    enum: TypeEmployee,
+    description: 'Tipo de empleado',
+  })
   employeeType: TypeEmployee;
 
-  @ApiProperty({ required: true })
+  @ApiProperty({
+    type: () => Number,
+    description: 'ID de la persona asociada',
+  })
   personId: number;
 }
