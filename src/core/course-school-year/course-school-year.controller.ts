@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, ParseIntPipe } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { CourseSchoolYearService } from './course-school-year.service';
 import { CreateCourseSchoolYearDto } from './dto/create-course-school-year.dto';
 import { UpdateCourseSchoolYearDto } from './dto/update-course-school-year.dto';
@@ -11,6 +11,22 @@ import { PageDto } from '@/common/dto/page.dto';
 @Controller('course-school-year')
 export class CourseSchoolYearController {
   constructor(private readonly courseSchoolYearService: CourseSchoolYearService) {}
+
+  @ApiOperation({ summary: 'Obtener todos los course-school-years sin paginación' })
+  @ApiResponse({
+    status: 200,
+    description: 'Listado completo de asignaturas por año escolar',
+    type: [CourseSchoolYearResponseDto],
+  })
+  @ApiQuery({ name: 'schoolYearId', required: false, description: 'ID del año escolar' })
+  @ApiQuery({ name: 'grade', required: false, description: 'Grado (nivel educativo)' })
+  @Get('all')
+  async findAllWithoutPagination(
+    @Query('schoolYearId', new ParseIntPipe({ optional: true })) schoolYearId?: number,
+    @Query('grade') grade?: string,
+  ) {
+    return this.courseSchoolYearService.findAllWithoutPagination(schoolYearId, grade);
+  }
 
   @ApiOperation({ summary: 'Obtener listado paginado de asignaturas por año escolar' })
   @ApiResponse({

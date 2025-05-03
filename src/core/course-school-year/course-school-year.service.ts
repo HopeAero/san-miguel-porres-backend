@@ -8,7 +8,13 @@ import { PageDto } from '@/common/dto/page.dto';
 import { CreateCourseSchoolYearDto } from './dto/create-course-school-year.dto';
 import { UpdateCourseSchoolYearDto } from './dto/update-course-school-year.dto';
 import { CourseSchoolYearResponseDto } from './dto/course-school-year-response.dto';
-import { PaginateCourseSchoolYearDto, CourseSchoolYearPaginateResponseDto } from './dto/paginate-course-school-year.dto';
+import {
+  PaginateCourseSchoolYearDto,
+  CourseSchoolYearPaginateResponseDto,
+} from './dto/paginate-course-school-year.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { CourseSchoolYear } from '@/core/school-year/entities/course-school-year.entity';
 
 @Injectable()
 export class CourseSchoolYearService {
@@ -18,14 +24,73 @@ export class CourseSchoolYearService {
     private readonly createCourseSchoolYearAction: CreateCourseSchoolYearAction,
     private readonly updateCourseSchoolYearAction: UpdateCourseSchoolYearAction,
     private readonly removeCourseSchoolYearAction: RemoveCourseSchoolYearAction,
+    @InjectRepository(CourseSchoolYear)
+    private readonly courseSchoolYearRepository: Repository<CourseSchoolYear>,
   ) {}
+
+  /**
+   * Obtiene todas las asignaturas por año escolar sin paginación
+   * @param schoolYearId ID del año escolar (opcional)
+   * @param grade Grado o nivel educativo (opcional)
+   * @returns Lista de asignaturas por año escolar
+   */
+  async findAllWithoutPagination(
+    schoolYearId?: number,
+    grade?: string,
+  ): Promise<CourseSchoolYearResponseDto[]> {
+    const queryBuilder = this.courseSchoolYearRepository
+      .createQueryBuilder('courseSchoolYear')
+      .leftJoinAndSelect('courseSchoolYear.course', 'course')
+      .leftJoinAndSelect('courseSchoolYear.schoolYear', 'schoolYear')
+      .leftJoinAndSelect('courseSchoolYear.professor', 'professor')
+      .where('courseSchoolYear.deletedAt IS NULL');
+
+    if (schoolYearId) {
+      queryBuilder.andWhere('courseSchoolYear.schoolYearId = :schoolYearId', {
+        schoolYearId,
+      });
+    }
+
+    if (grade) {
+      queryBuilder.andWhere('courseSchoolYear.grade = :grade', { grade });
+    }
+
+    queryBuilder.orderBy('courseSchoolYear.grade', 'ASC');
+    queryBuilder.addOrderBy('course.name', 'ASC');
+
+    const results = await queryBuilder.getMany();
+
+    return results.map((entity) => {
+      const dto = new CourseSchoolYearResponseDto();
+      dto.id = entity.id;
+      dto.grade = entity.grade;
+      dto.weeklyHours = entity.weeklyHours;
+      dto.courseId = entity.courseId;
+      dto.schoolYearId = entity.schoolYearId;
+      dto.professorId = entity.professorId;
+      dto.course = entity.course;
+      dto.schoolYear = entity.schoolYear;
+      dto.professor = entity.professor
+        ? {
+            id: entity.professor.id,
+            name:
+              entity.professor.person?.name +
+              ' ' +
+              entity.professor.person?.lastName,
+          }
+        : null;
+      return dto;
+    });
+  }
 
   /**
    * Pagina y filtra asignaturas por año escolar
    * @param options Opciones de paginación y filtrado
    * @returns Datos paginados de asignaturas por año escolar
    */
-  async paginate(options: PaginateCourseSchoolYearDto): Promise<PageDto<CourseSchoolYearPaginateResponseDto>> {
+  async paginate(
+    options: PaginateCourseSchoolYearDto,
+  ): Promise<PageDto<CourseSchoolYearPaginateResponseDto>> {
     return this.paginateCourseSchoolYearAction.execute(options);
   }
 
@@ -43,7 +108,9 @@ export class CourseSchoolYearService {
    * @param dto Datos para crear la asignatura por año escolar
    * @returns Datos de la asignatura por año escolar creada
    */
-  async create(dto: CreateCourseSchoolYearDto): Promise<CourseSchoolYearResponseDto> {
+  async create(
+    dto: CreateCourseSchoolYearDto,
+  ): Promise<CourseSchoolYearResponseDto> {
     return this.createCourseSchoolYearAction.execute(dto);
   }
 
@@ -53,7 +120,10 @@ export class CourseSchoolYearService {
    * @param dto Datos para actualizar la asignatura por año escolar
    * @returns Datos de la asignatura por año escolar actualizada
    */
-  async update(id: number, dto: UpdateCourseSchoolYearDto): Promise<CourseSchoolYearResponseDto> {
+  async update(
+    id: number,
+    dto: UpdateCourseSchoolYearDto,
+  ): Promise<CourseSchoolYearResponseDto> {
     return this.updateCourseSchoolYearAction.execute(id, dto);
   }
 
@@ -64,4 +134,4 @@ export class CourseSchoolYearService {
   async remove(id: number): Promise<void> {
     return this.removeCourseSchoolYearAction.execute(id);
   }
-} 
+}

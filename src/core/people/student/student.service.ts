@@ -131,6 +131,46 @@ export class StudentService {
     return estudiantes.map((estudiante) => formatStudent(estudiante));
   }
 
+  async findAllWithFilters(search?: string, limit?: number, ids?: string): Promise<StudentDto[]> {
+    // Crear un queryBuilder para realizar la búsqueda con filtros
+    const queryBuilder = this.estudianteRepository
+      .createQueryBuilder('student')
+      .leftJoinAndSelect('student.person', 'person')
+      .leftJoinAndSelect('student.representative', 'representative')
+      .leftJoinAndSelect('representative.person', 'representativePerson')
+      .where('student.deletedAt IS NULL');
+
+    // Aplicar filtro de búsqueda si existe
+    if (search && search.trim() !== '') {
+      queryBuilder.andWhere(
+        '(person.name ILIKE :search OR person.lastName ILIKE :search OR person.dni ILIKE :search)',
+        { search: `%${search.trim()}%` }
+      );
+    }
+
+    // Aplicar filtro por IDs específicos si existe
+    if (ids) {
+      const idArray = ids.split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+      if (idArray.length > 0) {
+        queryBuilder.andWhere('student.id IN (:...ids)', { ids: idArray });
+      }
+    }
+
+    // Aplicar límite si existe
+    if (limit && !isNaN(Number(limit))) {
+      queryBuilder.take(Number(limit));
+    }
+
+    // Ordenar por ID de forma ascendente por defecto
+    queryBuilder.orderBy('student.id', 'ASC');
+
+    // Ejecutar la consulta
+    const students = await queryBuilder.getMany();
+
+    // Transformar los estudiantes al formato DTO
+    return students.map(student => formatStudent(student));
+  }
+
   async paginate(paginationDto: PageOptionsDto): Promise<PageDto<StudentDto>> {
     // Delegar el paginado a la acción específica
     return this.paginateStudentAction.execute(paginationDto);
