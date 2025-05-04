@@ -106,7 +106,7 @@ export class FindInscriptionAction {
           if (ci.courseSchoolYear) {
             courseInscriptionDto.courseSchoolYear = {
               id: ci.courseSchoolYear.id,
-              grade: String(ci.courseSchoolYear.grade), // Convertir a string para cumplir con el DTO
+              grade: ci.courseSchoolYear.grade,
               courseId: ci.courseSchoolYear.courseId,
               course: ci.courseSchoolYear.course
                 ? {

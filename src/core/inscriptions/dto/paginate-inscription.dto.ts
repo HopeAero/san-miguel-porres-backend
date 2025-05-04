@@ -24,8 +24,8 @@ export class PaginateInscriptionDto extends PageOptionsDto {
     required: false,
   })
   @IsOptional()
-  @IsString()
-  gradeFilter?: string;
+  @IsNumber()
+  gradeFilter?: number;
 
   @ApiProperty({
     description: 'Buscar por término (nombre de estudiante)',
@@ -42,4 +42,4 @@ export class PaginateInscriptionResponseDto extends PageDto<InscriptionResponseD
     type: [InscriptionResponseDto],
   })
   items: InscriptionResponseDto[];
-} 
+}

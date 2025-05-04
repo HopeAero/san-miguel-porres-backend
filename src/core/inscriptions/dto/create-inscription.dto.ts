@@ -1,5 +1,11 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  ValidateNested,
+} from 'class-validator';
 
 export class CreateCourseInscriptionDto {
   @IsNumber()
@@ -16,13 +22,13 @@ export class CreateInscriptionDto {
   @IsNotEmpty()
   schoolYearId: number;
 
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  grade: string;
+  grade: number;
 
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateCourseInscriptionDto)
   courseInscriptions?: CreateCourseInscriptionDto[];
-} 
+}

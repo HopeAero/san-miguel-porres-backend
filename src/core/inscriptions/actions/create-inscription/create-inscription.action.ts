@@ -1,9 +1,16 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, In } from 'typeorm';
 import { Inscription } from '../../entities/inscription.entity';
 import { CourseInscription } from '../../entities/course-inscription.entity';
-import { CreateInscriptionDto, CreateCourseInscriptionDto } from '../../dto/create-inscription.dto';
+import {
+  CreateInscriptionDto,
+  CreateCourseInscriptionDto,
+} from '../../dto/create-inscription.dto';
 import { CourseSchoolYear } from '../../../school-year/entities/course-school-year.entity';
 import { SchoolYear } from '../../../school-year/entities/school-year.entity';
 import { Transactional } from 'typeorm-transactional';
@@ -23,8 +30,11 @@ export class CreateInscriptionAction {
   ) {}
 
   @Transactional()
-  async execute(createInscriptionDto: CreateInscriptionDto): Promise<Inscription> {
-    const { studentId, schoolYearId, grade, courseInscriptions } = createInscriptionDto;
+  async execute(
+    createInscriptionDto: CreateInscriptionDto,
+  ): Promise<Inscription> {
+    const { studentId, schoolYearId, grade, courseInscriptions } =
+      createInscriptionDto;
 
     // Validar existencia del estudiante
     // Nota: No inyectamos el repositorio de Student para evitar dependencias circulares
@@ -36,9 +46,11 @@ export class CreateInscriptionAction {
         'SELECT id FROM students WHERE id = $1 AND deleted_at IS NULL',
         [studentId],
       );
-      
+
       if (!studentExists || studentExists.length === 0) {
-        throw new NotFoundException(`Estudiante con ID ${studentId} no encontrado`);
+        throw new NotFoundException(
+          `Estudiante con ID ${studentId} no encontrado`,
+        );
       }
     } finally {
       await queryRunner.release();
@@ -49,7 +61,9 @@ export class CreateInscriptionAction {
       where: { id: schoolYearId, deletedAt: null },
     });
     if (!schoolYear) {
-      throw new NotFoundException(`Año escolar con ID ${schoolYearId} no encontrado`);
+      throw new NotFoundException(
+        `Año escolar con ID ${schoolYearId} no encontrado`,
+      );
     }
 
     // Verificar si ya existe una inscripción para este estudiante, año escolar y grado
@@ -75,20 +89,32 @@ export class CreateInscriptionAction {
       grade,
     });
 
-    const savedInscription = await this.inscriptionRepository.save(newInscription);
+    const savedInscription =
+      await this.inscriptionRepository.save(newInscription);
 
     // Si se proporcionan inscripciones de asignaturas específicas, usar esas
     if (courseInscriptions && courseInscriptions.length > 0) {
-      await this.createSpecifiedCourseInscriptions(savedInscription.id, courseInscriptions);
+      await this.createSpecifiedCourseInscriptions(
+        savedInscription.id,
+        courseInscriptions,
+      );
     } else {
       // De lo contrario, inscribir automáticamente en todas las asignaturas disponibles para el año y grado
-      await this.createAutomaticCourseInscriptions(savedInscription.id, schoolYearId, parseInt(grade, 10));
+      await this.createAutomaticCourseInscriptions(
+        savedInscription.id,
+        schoolYearId,
+        +grade,
+      );
     }
 
     // Cargar la inscripción con sus relaciones
     return this.inscriptionRepository.findOne({
       where: { id: savedInscription.id },
-      relations: ['schoolYear', 'courseInscriptions', 'courseInscriptions.courseSchoolYear'],
+      relations: [
+        'schoolYear',
+        'courseInscriptions',
+        'courseInscriptions.courseSchoolYear',
+      ],
     });
   }
 
@@ -97,7 +123,9 @@ export class CreateInscriptionAction {
     courseInscriptions: CreateCourseInscriptionDto[],
   ): Promise<void> {
     // Obtener los ids de courseSchoolYear
-    const courseSchoolYearIds = courseInscriptions.map(ci => ci.courseSchoolYearId);
+    const courseSchoolYearIds = courseInscriptions.map(
+      (ci) => ci.courseSchoolYearId,
+    );
 
     // Verificar que las asignaturas existen y corresponden al año escolar y grado
     const validCourseSchoolYears = await this.courseSchoolYearRepository.find({
@@ -108,16 +136,20 @@ export class CreateInscriptionAction {
     });
 
     if (validCourseSchoolYears.length !== courseSchoolYearIds.length) {
-      throw new NotFoundException('Una o más asignaturas especificadas no fueron encontradas');
+      throw new NotFoundException(
+        'Una o más asignaturas especificadas no fueron encontradas',
+      );
     }
 
     // Crear las inscripciones de asignaturas
-    const courseInscriptionEntities = validCourseSchoolYears.map(courseSchoolYear => {
-      return this.courseInscriptionRepository.create({
-        courseSchoolYearId: courseSchoolYear.id,
-        inscriptionId,
-      });
-    });
+    const courseInscriptionEntities = validCourseSchoolYears.map(
+      (courseSchoolYear) => {
+        return this.courseInscriptionRepository.create({
+          courseSchoolYearId: courseSchoolYear.id,
+          inscriptionId,
+        });
+      },
+    );
 
     await this.courseInscriptionRepository.save(courseInscriptionEntities);
   }
@@ -128,13 +160,14 @@ export class CreateInscriptionAction {
     grade: number,
   ): Promise<void> {
     // Buscar todas las asignaturas disponibles para el año escolar y grado
-    const availableCourseSchoolYears = await this.courseSchoolYearRepository.find({
-      where: {
-        schoolYearId,
-        grade,
-        deletedAt: null,
-      },
-    });
+    const availableCourseSchoolYears =
+      await this.courseSchoolYearRepository.find({
+        where: {
+          schoolYearId,
+          grade,
+          deletedAt: null,
+        },
+      });
 
     if (availableCourseSchoolYears.length === 0) {
       // No hay asignaturas disponibles, pero aún así creamos la inscripción
@@ -142,13 +175,15 @@ export class CreateInscriptionAction {
     }
 
     // Crear inscripciones para todas las asignaturas disponibles
-    const courseInscriptionEntities = availableCourseSchoolYears.map(courseSchoolYear => {
-      return this.courseInscriptionRepository.create({
-        courseSchoolYearId: courseSchoolYear.id,
-        inscriptionId,
-      });
-    });
+    const courseInscriptionEntities = availableCourseSchoolYears.map(
+      (courseSchoolYear) => {
+        return this.courseInscriptionRepository.create({
+          courseSchoolYearId: courseSchoolYear.id,
+          inscriptionId,
+        });
+      },
+    );
 
     await this.courseInscriptionRepository.save(courseInscriptionEntities);
   }
-} 
+}

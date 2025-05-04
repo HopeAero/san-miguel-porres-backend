@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Query } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Put,
+  Query,
+} from '@nestjs/common';
 import { InscriptionsService } from './inscriptions.service';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateInscriptionDto } from './dto/create-inscription.dto';
@@ -12,14 +21,20 @@ export class InscriptionsController {
 
   @Get()
   @ApiOperation({ summary: 'Obtener lista paginada de inscripciones' })
-  @ApiResponse({ status: 200, description: 'Lista de inscripciones obtenida correctamente' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de inscripciones obtenida correctamente',
+  })
   findAll(@Query() paginateDto: PaginateInscriptionDto) {
     return this.inscriptionsService.findAll(paginateDto);
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Obtener una inscripción por ID' })
-  @ApiResponse({ status: 200, description: 'Inscripción obtenida correctamente' })
+  @ApiResponse({
+    status: 200,
+    description: 'Inscripción obtenida correctamente',
+  })
   @ApiResponse({ status: 404, description: 'Inscripción no encontrada' })
   findOne(@Param('id') id: string) {
     return this.inscriptionsService.findOne(+id);
@@ -34,15 +49,24 @@ export class InscriptionsController {
 
   @Put(':id')
   @ApiOperation({ summary: 'Actualizar una inscripción' })
-  @ApiResponse({ status: 200, description: 'Inscripción actualizada correctamente' })
+  @ApiResponse({
+    status: 200,
+    description: 'Inscripción actualizada correctamente',
+  })
   @ApiResponse({ status: 404, description: 'Inscripción no encontrada' })
-  update(@Param('id') id: string, @Body() updateInscriptionDto: UpdateInscriptionDto) {
+  update(
+    @Param('id') id: string,
+    @Body() updateInscriptionDto: UpdateInscriptionDto,
+  ) {
     return this.inscriptionsService.update(+id, updateInscriptionDto);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Eliminar una inscripción' })
-  @ApiResponse({ status: 200, description: 'Inscripción eliminada correctamente' })
+  @ApiResponse({
+    status: 200,
+    description: 'Inscripción eliminada correctamente',
+  })
   @ApiResponse({ status: 404, description: 'Inscripción no encontrada' })
   async remove(@Param('id') id: string) {
     await this.inscriptionsService.remove(+id);

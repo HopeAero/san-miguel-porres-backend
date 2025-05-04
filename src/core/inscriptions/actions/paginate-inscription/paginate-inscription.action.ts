@@ -2,9 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Inscription } from '../../entities/inscription.entity';
-import { 
-  PaginateInscriptionDto, 
-  PaginateInscriptionResponseDto 
+import {
+  PaginateInscriptionDto,
+  PaginateInscriptionResponseDto,
 } from '../../dto/paginate-inscription.dto';
 import { PageDto } from '@/common/dto/page.dto';
 import { InscriptionResponseDto } from '../../dto/inscription.dto';
@@ -21,7 +21,9 @@ export class PaginateInscriptionAction {
     private readonly dataSource: DataSource,
   ) {}
 
-  async execute(dto: PaginateInscriptionDto): Promise<PaginateInscriptionResponseDto> {
+  async execute(
+    dto: PaginateInscriptionDto,
+  ): Promise<PaginateInscriptionResponseDto> {
     const queryBuilder = this.inscriptionRepository
       .createQueryBuilder('inscription')
       .leftJoinAndSelect('inscription.schoolYear', 'schoolYear')
@@ -92,7 +94,7 @@ export class PaginateInscriptionAction {
     }
 
     // Obtener los IDs de los estudiantes para buscar su información
-    const studentIds = inscriptions.map(inscription => inscription.studentId);
+    const studentIds = inscriptions.map((inscription) => inscription.studentId);
 
     // Usar SQL nativo para obtener los datos de estudiantes relacionados y sus representantes
     const studentsWithRepresentatives = await this.dataSource.query(`
@@ -114,43 +116,57 @@ export class PaginateInscriptionAction {
     `);
 
     // Log para verificar si hay datos de representantes
-    this.logger.debug(`Encontrados ${studentsWithRepresentatives.length} estudiantes`);
-    this.logger.debug(`Datos de representantes: ${JSON.stringify(studentsWithRepresentatives.map(s => ({
-      studentId: s.id,
-      hasRepresentative: !!s.representativeId,
-      representativeId: s.representativeId,
-    })))}`);
+    this.logger.debug(
+      `Encontrados ${studentsWithRepresentatives.length} estudiantes`,
+    );
+    this.logger.debug(
+      `Datos de representantes: ${JSON.stringify(
+        studentsWithRepresentatives.map((s) => ({
+          studentId: s.id,
+          hasRepresentative: !!s.representativeId,
+          representativeId: s.representativeId,
+        })),
+      )}`,
+    );
 
     // Mapear las inscripciones con los datos de estudiantes y representantes
-    const items = inscriptions.map(inscription => {
-      const studentInfo = studentsWithRepresentatives.find(s => s.id === inscription.studentId);
+    const items = inscriptions.map((inscription) => {
+      const studentInfo = studentsWithRepresentatives.find(
+        (s) => s.id === inscription.studentId,
+      );
       return this.mapToResponseDto(inscription, studentInfo);
     });
 
     // Devolver el DTO de respuesta paginada
-    return new PageDto(items, totalCount, dto) as PaginateInscriptionResponseDto;
+    return new PageDto(
+      items,
+      totalCount,
+      dto,
+    ) as PaginateInscriptionResponseDto;
   }
 
   private mapToResponseDto(
     inscription: Inscription,
-    studentInfo: { 
-      id: number; 
-      name: string; 
-      lastName: string; 
-      dni: string;
-      representativeId: number;
-      representativeName: string;
-      representativeLastName: string;
-      representativeDni: string;
-    } | undefined,
+    studentInfo:
+      | {
+          id: number;
+          name: string;
+          lastName: string;
+          dni: string;
+          representativeId: number;
+          representativeName: string;
+          representativeLastName: string;
+          representativeDni: string;
+        }
+      | undefined,
   ): InscriptionResponseDto {
     const responseDto = new InscriptionResponseDto();
-    
+
     responseDto.id = inscription.id;
     responseDto.studentId = inscription.studentId;
     responseDto.schoolYearId = inscription.schoolYearId;
     responseDto.grade = inscription.grade;
-    
+
     // Información del año escolar
     if (inscription.schoolYear) {
       responseDto.schoolYear = {
@@ -158,7 +174,7 @@ export class PaginateInscriptionAction {
         code: inscription.schoolYear.code,
       };
     }
-    
+
     // Información del estudiante
     if (studentInfo) {
       responseDto.student = {
@@ -175,40 +191,42 @@ export class PaginateInscriptionAction {
           name: studentInfo.representativeName,
           lastName: studentInfo.representativeLastName,
           dni: studentInfo.representativeDni,
-          fullInfo: `${studentInfo.representativeName} ${studentInfo.representativeLastName} (${studentInfo.representativeDni})`
+          fullInfo: `${studentInfo.representativeName} ${studentInfo.representativeLastName} (${studentInfo.representativeDni})`,
         };
       }
     }
-    
+
     // Mapear inscripciones de cursos
     if (inscription.courseInscriptions) {
       responseDto.courseInscriptions = [];
-      
-      inscription.courseInscriptions.forEach(ci => {
+
+      inscription.courseInscriptions.forEach((ci) => {
         const courseInscriptionDto = new CourseInscriptionResponseDto();
-        
+
         courseInscriptionDto.id = ci.id;
         courseInscriptionDto.courseSchoolYearId = ci.courseSchoolYearId;
         courseInscriptionDto.inscriptionId = ci.inscriptionId;
-        
+
         if (ci.courseSchoolYear) {
           courseInscriptionDto.courseSchoolYear = {
             id: ci.courseSchoolYear.id,
-            grade: String(ci.courseSchoolYear.grade),
+            grade: ci.courseSchoolYear.grade,
             courseId: ci.courseSchoolYear.courseId,
-            course: ci.courseSchoolYear.course ? {
-              id: ci.courseSchoolYear.course.id,
-              name: ci.courseSchoolYear.course.name,
-            } : undefined,
+            course: ci.courseSchoolYear.course
+              ? {
+                  id: ci.courseSchoolYear.course.id,
+                  name: ci.courseSchoolYear.course.name,
+                }
+              : undefined,
           };
         }
-        
+
         // Ya no creamos la información de inscription para evitar la referencia circular
-        
+
         responseDto.courseInscriptions.push(courseInscriptionDto);
       });
     }
-    
+
     return responseDto;
   }
-} 
+}

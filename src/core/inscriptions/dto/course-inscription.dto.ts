@@ -23,7 +23,7 @@ export class CourseInscriptionResponseDto {
   // Relaciones expandidas
   courseSchoolYear: {
     id: number;
-    grade: string;
+    grade: number;
     courseId: number;
     course: {
       id: number;

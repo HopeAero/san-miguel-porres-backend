@@ -25,7 +25,7 @@ export class InscriptionsService {
     private readonly updateInscriptionAction: UpdateInscriptionAction,
     private readonly findInscriptionAction: FindInscriptionAction,
     private readonly removeInscriptionAction: RemoveInscriptionAction,
-    private readonly paginateInscriptionAction: PaginateInscriptionAction
+    private readonly paginateInscriptionAction: PaginateInscriptionAction,
   ) {}
 
   // Obtener lista paginada de inscripciones

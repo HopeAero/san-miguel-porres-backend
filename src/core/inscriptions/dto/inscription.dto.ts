@@ -15,14 +15,14 @@ export class InscriptionDto {
   schoolYearId: number;
 
   @IsNotEmpty()
-  grade: string;
+  grade: number;
 }
 
 export class InscriptionResponseDto {
   id: number;
   studentId: number;
   schoolYearId: number;
-  grade: string;
+  grade: number;
 
   // Relaciones expandidas
   schoolYear: {

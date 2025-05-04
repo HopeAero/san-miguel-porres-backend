@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsNumber, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsArray, IsNumber, IsOptional, ValidateNested } from 'class-validator';
 
 export class UpdateCourseInscriptionDto {
   @IsOptional()
@@ -20,12 +20,12 @@ export class UpdateInscriptionDto {
   schoolYearId?: number;
 
   @IsOptional()
-  @IsString()
-  grade?: string;
+  @IsNumber()
+  grade?: number;
 
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => UpdateCourseInscriptionDto)
   courseInscriptions?: UpdateCourseInscriptionDto[];
-} 
+}
