@@ -43,7 +43,7 @@ export class CreateInscriptionAction {
     try {
       await queryRunner.connect();
       const studentExists = await queryRunner.manager.query(
-        'SELECT id FROM students WHERE id = $1 AND deleted_at IS NULL',
+        'SELECT id FROM students WHERE id = $1 AND "deletedAt" IS NULL',
         [studentId],
       );
 
