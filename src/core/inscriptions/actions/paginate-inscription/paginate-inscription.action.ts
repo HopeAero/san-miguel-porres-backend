@@ -206,6 +206,9 @@ export class PaginateInscriptionAction {
         courseInscriptionDto.id = ci.id;
         courseInscriptionDto.courseSchoolYearId = ci.courseSchoolYearId;
         courseInscriptionDto.inscriptionId = ci.inscriptionId;
+        courseInscriptionDto.endQualification = ci.endQualification;
+        courseInscriptionDto.attemptNumber = ci.attemptNumber;
+        courseInscriptionDto.attemptType = ci.attemptType;
 
         if (ci.courseSchoolYear) {
           courseInscriptionDto.courseSchoolYear = {

@@ -29,15 +29,16 @@ export class FindInscriptionAction {
       throw new NotFoundException(`Inscripción con ID ${id} no encontrada`);
     }
 
-    // Obtener información del estudiante (necesitamos usar un query raw para evitar dependencias circulares)
+    // Obtener información del estudiante y representante (necesitamos usar query raw para evitar dependencias circulares)
     const queryRunner =
       this.inscriptionRepository.manager.connection.createQueryRunner();
     try {
       await queryRunner.connect();
 
+      // Obtener estudiante con información completa
       const students = await queryRunner.manager.query(
         `
-        SELECT s.id, p.name, p."lastName", p.dni
+        SELECT s.id, p.name, p."lastName", p.dni, s."representativeId"
         FROM students s
         JOIN people p ON s."id" = p.id
         WHERE s.id = $1 AND s."deletedAt" IS NULL
@@ -45,10 +46,29 @@ export class FindInscriptionAction {
         [inscription.studentId],
       );
 
+      // Si el estudiante tiene representante, obtener su información
+      let representative = null;
+      if (students?.length > 0 && students[0].representativeId) {
+        const representatives = await queryRunner.manager.query(
+          `
+          SELECT r.id, p.name, p."lastName", p.dni
+          FROM representatives r
+          JOIN people p ON r."id" = p.id
+          WHERE r.id = $1 AND r."deletedAt" IS NULL
+        `,
+          [students[0].representativeId],
+        );
+        
+        if (representatives?.length > 0) {
+          representative = representatives[0];
+        }
+      }
+
       // Mapear la entidad a un DTO de respuesta
       const response = this.mapToResponseDto(
         inscription,
         students && students.length > 0 ? students[0] : null,
+        representative
       );
 
       return response;
@@ -60,6 +80,13 @@ export class FindInscriptionAction {
   private mapToResponseDto(
     inscription: Inscription,
     student: {
+      id: number;
+      name: string;
+      lastName: string;
+      dni: string;
+      representativeId?: number;
+    } | null,
+    representative: {
       id: number;
       name: string;
       lastName: string;
@@ -86,6 +113,19 @@ export class FindInscriptionAction {
       responseDto.student = {
         id: student.id,
         name: student.name,
+        lastName: student.lastName,
+        dni: student.dni
+      };
+    }
+
+    // Información del representante
+    if (representative) {
+      responseDto.representative = {
+        id: representative.id,
+        name: representative.name,
+        lastName: representative.lastName,
+        dni: representative.dni,
+        fullInfo: `${representative.name} ${representative.lastName} (${representative.dni})`
       };
     }
 
@@ -101,6 +141,9 @@ export class FindInscriptionAction {
           courseInscriptionDto.id = ci.id;
           courseInscriptionDto.courseSchoolYearId = ci.courseSchoolYearId;
           courseInscriptionDto.inscriptionId = ci.inscriptionId;
+          courseInscriptionDto.endQualification = ci.endQualification;
+          courseInscriptionDto.attemptNumber = ci.attemptNumber;
+          courseInscriptionDto.attemptType = ci.attemptType;
 
           // Información de la asignatura en el año escolar
           if (ci.courseSchoolYear) {
