@@ -13,7 +13,10 @@ export class UpdateCourseSchoolYearDto {
   @Type(() => Number)
   readonly grade?: number;
 
-  @ApiProperty({ description: 'Horas semanales de la asignatura', required: false })
+  @ApiProperty({
+    description: 'Horas semanales de la asignatura',
+    required: false,
+  })
   @IsOptional()
   @IsInt()
   @Min(0)
@@ -40,4 +43,4 @@ export class UpdateCourseSchoolYearDto {
   @Min(1)
   @Type(() => Number)
   readonly professorId?: number;
-} 
+}

@@ -8,7 +8,10 @@ import { PageOptionsDto } from '@/common/dto/page.option.dto';
  * DTO para la paginación de CourseSchoolYear
  */
 export class PaginateCourseSchoolYearDto extends PageOptionsDto {
-  @ApiProperty({ description: 'ID del año escolar para filtrar', required: false })
+  @ApiProperty({
+    description: 'ID del año escolar para filtrar',
+    required: false,
+  })
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
@@ -26,12 +29,20 @@ export class PaginateCourseSchoolYearDto extends PageOptionsDto {
   @Type(() => Number)
   readonly professorId?: number;
 
-  @ApiProperty({ description: 'Campo por el que se ordenarán los resultados', required: false, enum: ['courseName', 'grade', 'professorName', 'weeklyHours'] })
+  @ApiProperty({
+    description: 'Campo por el que se ordenarán los resultados',
+    required: false,
+    enum: ['courseName', 'grade', 'professorName', 'weeklyHours'],
+  })
   @IsOptional()
   @IsString()
   readonly orderBy?: string = 'grade';
 
-  @ApiProperty({ description: 'Dirección del ordenamiento', required: false, enum: Order })
+  @ApiProperty({
+    description: 'Dirección del ordenamiento',
+    required: false,
+    enum: Order,
+  })
   @IsOptional()
   @IsEnum(Order)
   readonly order?: Order = Order.ASC;
@@ -67,4 +78,4 @@ export class CourseSchoolYearPaginateResponseDto {
     id: number;
     name: string;
   };
-} 
+}

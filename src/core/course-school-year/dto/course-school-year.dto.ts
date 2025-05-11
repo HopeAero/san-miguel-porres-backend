@@ -10,7 +10,10 @@ export class CourseSchoolYearDto {
   @ApiProperty({ description: 'Grado académico' })
   grade: number;
 
-  @ApiProperty({ description: 'Horas semanales de la asignatura', required: false })
+  @ApiProperty({
+    description: 'Horas semanales de la asignatura',
+    required: false,
+  })
   weeklyHours?: number;
 
   @ApiProperty({ description: 'ID del profesor asignado', required: false })
@@ -30,4 +33,4 @@ export class CourseSchoolYearDto {
 
   @ApiProperty({ description: 'Código del año escolar', required: false })
   schoolYearCode?: string;
-} 
+}

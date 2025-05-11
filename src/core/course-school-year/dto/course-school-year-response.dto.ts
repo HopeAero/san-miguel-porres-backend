@@ -20,11 +20,14 @@ export class CourseSchoolYearResponseDto extends CourseSchoolYearDto {
     endDate: string;
   };
 
-  @ApiProperty({ description: 'Información detallada del profesor', required: false })
+  @ApiProperty({
+    description: 'Información detallada del profesor',
+    required: false,
+  })
   professor?: {
     id: number;
     name: string;
     lastName?: string;
     email?: string;
   };
-} 
+}

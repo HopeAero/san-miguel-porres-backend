@@ -13,10 +13,15 @@ export class CreateCourseSchoolYearDto {
   @Type(() => Number)
   readonly grade: number;
 
-  @ApiProperty({ description: 'Horas semanales de la asignatura', required: false })
+  @ApiProperty({
+    description: 'Horas semanales de la asignatura',
+    required: false,
+  })
   @IsOptional()
   @IsInt({ message: 'Las horas semanales deben ser un número entero' })
-  @Min(0, { message: 'Las horas semanales deben ser un número positivo o cero' })
+  @Min(0, {
+    message: 'Las horas semanales deben ser un número positivo o cero',
+  })
   @Type(() => Number)
   readonly weeklyHours?: number;
 
@@ -40,4 +45,4 @@ export class CreateCourseSchoolYearDto {
   @Min(1, { message: 'El ID del profesor debe ser un número positivo' })
   @Type(() => Number)
   readonly professorId?: number;
-} 
+}

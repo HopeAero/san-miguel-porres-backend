@@ -6,6 +6,7 @@ import { runStudentSeed } from './student.seed';
 import { runSchoolYear2024Seed } from './school-year-2024.seed';
 import { runCoursesSeed } from './courses.seed';
 import { runInscriptionsSeed } from './inscriptions.seed';
+import { runEvaluationsSeed } from './evaluations.seed';
 
 export const runSeeds = async (dataSource: DataSource): Promise<void> => {
   try {
@@ -25,6 +26,9 @@ export const runSeeds = async (dataSource: DataSource): Promise<void> => {
     
     // Seed de inscripciones (debe ir después de estudiantes y año escolar)
     await runInscriptionsSeed(dataSource);
+    
+    // Seed de evaluaciones (debe ir después de year escolar y cursos)
+    await runEvaluationsSeed(dataSource);
 
     console.log('Seeds ejecutados exitosamente');
   } catch (error) {
