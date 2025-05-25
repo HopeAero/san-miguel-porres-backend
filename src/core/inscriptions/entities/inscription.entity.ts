@@ -23,7 +23,7 @@ export class Inscription {
   schoolYearId: number;
 
   @Column()
-  grade: string;
+  grade: number;
 
   @ManyToOne(() => SchoolYear)
   @JoinColumn({ name: 'schoolYearId' })

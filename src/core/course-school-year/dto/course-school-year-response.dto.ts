@@ -38,12 +38,6 @@ export class CourseSchoolYearResponseDto extends CourseSchoolYearDto {
   @ApiProperty({
     description: 'Información detallada del profesor',
     required: false,
-    type: () => ({
-      id: Number,
-      name: String,
-      lastName: String,
-      email: String,
-    }),
   })
   professor?: {
     id: number;
