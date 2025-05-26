@@ -13,14 +13,17 @@ export const runInscriptionsSeed = async (
   const schoolYearRepository = dataSource.getRepository(SchoolYear);
   const courseSchoolYearRepository = dataSource.getRepository(CourseSchoolYear);
   const inscriptionRepository = dataSource.getRepository(Inscription);
-  const courseInscriptionRepository = dataSource.getRepository(CourseInscription);
+  const courseInscriptionRepository =
+    dataSource.getRepository(CourseInscription);
 
   console.log('Iniciando seed de inscripciones...');
 
   // Verificar si ya existen inscripciones
   const existingInscriptions = await inscriptionRepository.count();
   if (existingInscriptions > 0) {
-    console.log(`Ya existen ${existingInscriptions} inscripciones en la base de datos.`);
+    console.log(
+      `Ya existen ${existingInscriptions} inscripciones en la base de datos.`,
+    );
     return;
   }
 
@@ -30,7 +33,9 @@ export const runInscriptionsSeed = async (
   });
 
   if (!schoolYear) {
-    console.log('No se encontró el año escolar 2024. Por favor, ejecute primero el seed de school-year-2024.');
+    console.log(
+      'No se encontró el año escolar 2024. Por favor, ejecute primero el seed de school-year-2024.',
+    );
     return;
   }
 
@@ -40,7 +45,9 @@ export const runInscriptionsSeed = async (
   });
 
   if (students.length === 0) {
-    console.log('No se encontraron estudiantes. Por favor, ejecute primero el seed de estudiantes.');
+    console.log(
+      'No se encontraron estudiantes. Por favor, ejecute primero el seed de estudiantes.',
+    );
     return;
   }
 
@@ -57,17 +64,22 @@ export const runInscriptionsSeed = async (
     return;
   }
 
-  console.log(`Se encontraron ${courseSchoolYears.length} asignaturas para el año escolar 2024.`);
+  console.log(
+    `Se encontraron ${courseSchoolYears.length} asignaturas para el año escolar 2024.`,
+  );
 
   // Agrupar asignaturas por grado
-  const coursesByGrade = courseSchoolYears.reduce((acc, courseSchoolYear) => {
-    const grade = courseSchoolYear.grade;
-    if (!acc[grade]) {
-      acc[grade] = [];
-    }
-    acc[grade].push(courseSchoolYear);
-    return acc;
-  }, {} as Record<number, CourseSchoolYear[]>);
+  const coursesByGrade = courseSchoolYears.reduce(
+    (acc, courseSchoolYear) => {
+      const grade = courseSchoolYear.grade;
+      if (!acc[grade]) {
+        acc[grade] = [];
+      }
+      acc[grade].push(courseSchoolYear);
+      return acc;
+    },
+    {} as Record<number, CourseSchoolYear[]>,
+  );
 
   // Crear al menos 15 inscripciones
   const numberOfInscriptions = 15;
@@ -75,12 +87,17 @@ export const runInscriptionsSeed = async (
 
   // Seleccionar estudiantes aleatorios para inscripciones (al menos 15)
   const selectedStudentIds = new Set<number>();
-  while (selectedStudentIds.size < numberOfInscriptions && selectedStudentIds.size < students.length) {
+  while (
+    selectedStudentIds.size < numberOfInscriptions &&
+    selectedStudentIds.size < students.length
+  ) {
     const randomIndex = Math.floor(Math.random() * students.length);
     selectedStudentIds.add(students[randomIndex].id);
   }
 
-  console.log(`Seleccionados ${selectedStudentIds.size} estudiantes para inscripciones.`);
+  console.log(
+    `Seleccionados ${selectedStudentIds.size} estudiantes para inscripciones.`,
+  );
 
   // Para cada estudiante seleccionado, crear una inscripción
   for (const studentId of selectedStudentIds) {
@@ -93,32 +110,44 @@ export const runInscriptionsSeed = async (
     const inscription = inscriptionRepository.create({
       studentId: studentId,
       schoolYearId: schoolYear.id,
-      grade: String(selectedGrade), // Convertir a string ya que en la entidad se espera un string
+      grade: Number(selectedGrade), // Convertir a number ya que en la entidad se espera un number
     });
 
     try {
       const savedInscription = await inscriptionRepository.save(inscription);
-      console.log(`Inscripción creada para el estudiante ${studentId} en el grado ${selectedGrade}.`);
-      
-      createdInscriptions.push(savedInscription);
+      console.log(
+        `Inscripción creada para el estudiante ${studentId} en el grado ${selectedGrade}.`,
+      );
+
+      // Asegurar que savedInscription es tratado como un objeto Inscription
+      if (savedInscription) {
+        createdInscriptions.push(savedInscription);
+      }
 
       // Obtener los cursos disponibles para el grado seleccionado
       const coursesForGrade = coursesByGrade[selectedGrade];
-      
+
       // Crear inscripciones para todas las asignaturas del grado
       for (const courseSchoolYear of coursesForGrade) {
         const courseInscription = courseInscriptionRepository.create({
           inscriptionId: savedInscription.id,
-          courseSchoolYearId: courseSchoolYear.id
+          courseSchoolYearId: courseSchoolYear.id,
         });
-        
+
         await courseInscriptionRepository.save(courseInscription);
-        console.log(`  - Inscripción en asignatura ${courseSchoolYear.course?.name || 'Desconocida'}.`);
+        console.log(
+          `  - Inscripción en asignatura ${courseSchoolYear.course?.name || 'Desconocida'}.`,
+        );
       }
     } catch (error) {
-      console.error(`Error al crear inscripción para el estudiante ${studentId}:`, error);
+      console.error(
+        `Error al crear inscripción para el estudiante ${studentId}:`,
+        error,
+      );
     }
   }
 
-  console.log(`Seed de inscripciones completado. Se crearon ${createdInscriptions.length} inscripciones.`);
-}; 
+  console.log(
+    `Seed de inscripciones completado. Se crearon ${createdInscriptions.length} inscripciones.`,
+  );
+};

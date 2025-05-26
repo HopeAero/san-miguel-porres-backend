@@ -16,6 +16,7 @@ import { SchoolYearModule } from './core/school-year/school-year.module';
 import { InscriptionsModule } from './core/inscriptions/inscriptions.module';
 import { ContractsModule } from './core/contracts/contracts.module';
 import { CourseSchoolYearModule } from './core/course-school-year/course-school-year.module';
+import { EvaluationsModule } from './core/evaluations/evaluations.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { CourseSchoolYearModule } from './core/course-school-year/course-school-
     InscriptionsModule,
     CourseSchoolYearModule,
     ContractsModule,
+    EvaluationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

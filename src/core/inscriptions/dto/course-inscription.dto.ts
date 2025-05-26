@@ -1,4 +1,5 @@
 import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { AttemptType } from '../entities/course-inscription.entity';
 
 export class CourseInscriptionDto {
   @IsOptional()
@@ -12,6 +13,13 @@ export class CourseInscriptionDto {
   @IsNumber()
   @IsNotEmpty()
   inscriptionId: number;
+
+  @IsOptional()
+  @IsNumber()
+  endQualification?: number | null;
+
+  // No se incluyen attemptNumber y attemptType en el DTO para create/update
+  // ya que se indicó que no deben usarse en esas operaciones
 }
 
 export class CourseInscriptionResponseDto {
@@ -19,11 +27,14 @@ export class CourseInscriptionResponseDto {
   courseSchoolYearId: number;
   inscriptionId: number;
   studentId?: number;
+  endQualification?: number | null;
+  attemptNumber?: number;
+  attemptType?: AttemptType;
 
   // Relaciones expandidas
   courseSchoolYear: {
     id: number;
-    grade: string;
+    grade: number;
     courseId: number;
     course: {
       id: number;
