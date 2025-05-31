@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PaginateCourseSchoolYearAction } from './actions/paginate-course-school-year/paginate-course-school-year.action';
 import { FindCourseSchoolYearAction } from './actions/find-course-school-year/find-course-school-year.action';
 import { CreateCourseSchoolYearAction } from './actions/create-course-school-year/create-course-school-year.action';
@@ -15,6 +15,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CourseSchoolYear } from '@/core/school-year/entities/course-school-year.entity';
+import { CourseInscription } from '@/core/inscriptions/entities/course-inscription.entity';
+import { StudentOfCourseDto } from './dto/student-of-course.dto';
 
 @Injectable()
 export class CourseSchoolYearService {
@@ -26,6 +28,8 @@ export class CourseSchoolYearService {
     private readonly removeCourseSchoolYearAction: RemoveCourseSchoolYearAction,
     @InjectRepository(CourseSchoolYear)
     private readonly courseSchoolYearRepository: Repository<CourseSchoolYear>,
+    @InjectRepository(CourseInscription)
+    private readonly courseInscriptionRepository: Repository<CourseInscription>,
   ) {}
 
   /**
@@ -69,7 +73,16 @@ export class CourseSchoolYearService {
       dto.schoolYearId = entity.schoolYearId;
       dto.professorId = entity.professorId;
       dto.course = entity.course;
-      dto.schoolYear = entity.schoolYear;
+
+      if (entity.schoolYear) {
+        dto.schoolYear = {
+          id: entity.schoolYear.id,
+          code: entity.schoolYear.code,
+          startDate: entity.schoolYear.startDate,
+          endDate: entity.schoolYear.endDate,
+        };
+      }
+
       dto.professor = entity.professor
         ? {
             id: entity.professor.id,
@@ -81,6 +94,62 @@ export class CourseSchoolYearService {
         : null;
       return dto;
     });
+  }
+
+  /**
+   * Obtiene todos los estudiantes inscritos en un curso-año escolar específico
+   * @param courseSchoolYearId ID del curso-año escolar
+   * @returns Lista de estudiantes con su calificación final
+   */
+  async findStudentsByCourseSchoolYear(
+    courseSchoolYearId: number,
+  ): Promise<StudentOfCourseDto[]> {
+    // Verificar que el curso-año escolar existe
+    const courseSchoolYear = await this.courseSchoolYearRepository.findOne({
+      where: { id: courseSchoolYearId, deletedAt: null },
+    });
+
+    if (!courseSchoolYear) {
+      throw new NotFoundException(
+        `Curso-año escolar con ID ${courseSchoolYearId} no encontrado`,
+      );
+    }
+
+    // Construir una consulta para obtener los estudiantes inscritos
+    const query = `
+      SELECT 
+        s.id AS studentId,
+        p.name AS name,
+        p."lastName" AS lastName,
+        p.dni AS dni,
+        ci."endQualification" AS endQualification
+      FROM 
+        course_inscriptions ci
+      INNER JOIN 
+        inscriptions i ON ci."inscriptionId" = i.id
+      INNER JOIN 
+        students s ON i."studentId" = s.id
+      INNER JOIN 
+        people p ON s.id = p.id
+      WHERE 
+        ci."courseSchoolYearId" = $1
+        AND ci."deletedAt" IS NULL
+        AND i."deletedAt" IS NULL
+    `;
+
+    // Ejecutar la consulta directamente
+    const students = await this.courseInscriptionRepository.query(query, [
+      courseSchoolYearId,
+    ]);
+
+    // Transformar los resultados al formato esperado
+    return students.map((student) => ({
+      id: student.studentid,
+      name: student.name,
+      lastName: student.lastname,
+      dni: student.dni,
+      endQualification: student.endqualification,
+    }));
   }
 
   /**

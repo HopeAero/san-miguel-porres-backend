@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, FindManyOptions, ILike } from 'typeorm';
 import { Evaluation } from '../entities/evaluation.entity';
@@ -51,7 +55,8 @@ export class EvaluationsService {
       }
     }
 
-    const [items, totalItems] = await this.evaluationRepository.findAndCount(options);
+    const [items, totalItems] =
+      await this.evaluationRepository.findAndCount(options);
 
     return {
       items,
@@ -99,7 +104,10 @@ export class EvaluationsService {
     const evaluations = await this.evaluationRepository.find({
       where: { courseSchoolYearId },
       relations: ['schoolCourt'],
-      order: { schoolCourt: { schoolLapse: { lapseNumber: 'ASC' } }, correlative: 'ASC' },
+      order: {
+        schoolCourt: { schoolLapse: { lapseNumber: 'ASC' } },
+        correlative: 'ASC',
+      },
     });
 
     return evaluations;
@@ -134,9 +142,7 @@ export class EvaluationsService {
 
     // Validar que el porcentaje sea válido
     if (evaluationDto.percentage < 0 || evaluationDto.percentage > 100) {
-      throw new BadRequestException(
-        'El porcentaje debe estar entre 0 y 100',
-      );
+      throw new BadRequestException('El porcentaje debe estar entre 0 y 100');
     }
 
     // Crear la evaluación
@@ -178,16 +184,16 @@ export class EvaluationsService {
     }
 
     // Validar que el porcentaje sea válido (si se proporciona)
-    if (evaluationDto.percentage !== undefined &&
-        (evaluationDto.percentage < 0 || evaluationDto.percentage > 100)) {
-      throw new BadRequestException(
-        'El porcentaje debe estar entre 0 y 100',
-      );
+    if (
+      evaluationDto.percentage !== undefined &&
+      (evaluationDto.percentage < 0 || evaluationDto.percentage > 100)
+    ) {
+      throw new BadRequestException('El porcentaje debe estar entre 0 y 100');
     }
 
     // Actualizar la evaluación
     await this.evaluationRepository.update(id, evaluationDto);
-    
+
     // Devolver la evaluación actualizada
     return this.findOne(id);
   }
@@ -198,10 +204,10 @@ export class EvaluationsService {
   async remove(id: number) {
     // Verificar que la evaluación existe
     const evaluation = await this.findOne(id);
-    
+
     // Soft delete (marcado como eliminado)
     await this.evaluationRepository.softDelete(id);
-    
+
     return { message: `Evaluación ${evaluation.name} eliminada correctamente` };
   }
-} 
+}
