@@ -11,10 +11,17 @@ import { UpdateCourseSchoolYearAction } from './actions/update-course-school-yea
 import { RemoveCourseSchoolYearAction } from './actions/remove-course-school-year/remove-course-school-year.action';
 import { CourseSchoolYearService } from './course-school-year.service';
 import { CourseSchoolYearController } from './course-school-year.controller';
+import { CourseInscription } from '../inscriptions/entities/course-inscription.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([CourseSchoolYear, Course, SchoolYear, Employee]),
+    TypeOrmModule.forFeature([
+      CourseSchoolYear, 
+      Course, 
+      SchoolYear, 
+      Employee,
+      CourseInscription,
+    ]),
   ],
   controllers: [CourseSchoolYearController],
   providers: [

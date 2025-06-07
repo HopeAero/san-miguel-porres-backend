@@ -22,6 +22,7 @@ import { UpdateCourseSchoolYearDto } from './dto/update-course-school-year.dto';
 import { CourseSchoolYearResponseDto } from './dto/course-school-year-response.dto';
 import { PaginateCourseSchoolYearDto } from './dto/paginate-course-school-year.dto';
 import { PageDto } from '@/common/dto/page.dto';
+import { StudentOfCourseDto } from './dto/student-of-course.dto';
 
 @ApiTags('course-school-year')
 @Controller('course-school-year')
@@ -58,6 +59,25 @@ export class CourseSchoolYearController {
       schoolYearId,
       grade,
     );
+  }
+
+  @ApiOperation({ summary: 'Obtener estudiantes inscritos en un curso-año escolar' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de estudiantes inscritos en el curso',
+    type: [StudentOfCourseDto],
+  })
+  @ApiResponse({ status: 404, description: 'Curso-año escolar no encontrado' })
+  @ApiParam({ 
+    name: 'courseSchoolYearId', 
+    description: 'ID del curso-año escolar',
+    type: 'number'
+  })
+  @Get(':courseSchoolYearId/students')
+  async findStudentsByCourseSchoolYear(
+    @Param('courseSchoolYearId', ParseIntPipe) courseSchoolYearId: number,
+  ) {
+    return this.courseSchoolYearService.findStudentsByCourseSchoolYear(courseSchoolYearId);
   }
 
   @ApiOperation({
