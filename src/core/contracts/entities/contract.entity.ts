@@ -14,10 +14,10 @@ import {
 import Decimal from 'decimal.js';
 import { Employee } from '@/core/people/employee/entities/employee.entity';
 
-@Entity({ name: 'contracts' })
+@Entity({ name: 'contracts-professors' })
 export class Contract {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  uuid: string;
 
   @OneToOne(() => Employee, (employee) => employee.contract, {
     onDelete: 'CASCADE',

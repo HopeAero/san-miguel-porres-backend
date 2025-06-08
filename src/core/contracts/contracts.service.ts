@@ -29,9 +29,9 @@ export class ContractsService {
     });
   }
 
-  async findOne(id: string) {
+  async findOne(uuid: string) {
     const contract = await this.contractRepository.findOne({
-      where: { id: Equal(id) },
+      where: { uuid: Equal(uuid) },
       relations: {
         employee: true,
       },
@@ -43,11 +43,14 @@ export class ContractsService {
     return contract;
   }
 
-  async update(id: number, updateContractDto: UpdateContractDto) {
-    return `This action updates a #${id} contract`;
+  async update(uuid: string, updateContractDto: UpdateContractDto) {
+    const contract = await this.findOne(uuid);
+    this.contractRepository.merge(contract, updateContractDto);
+    return await this.contractRepository.save(contract);
   }
 
-  async remove(id: number) {
-    return `This action removes a #${id} contract`;
+  async remove(uuid: string) {
+    const contract = await this.findOne(uuid);
+    return await this.contractRepository.softDelete(contract.uuid);
   }
 }
