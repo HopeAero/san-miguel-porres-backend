@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Contract } from './entities/contract.entity';
+import { Contract } from './entities/contract-profesor.entity';
 import { Equal, Repository } from 'typeorm';
 
 @Injectable()

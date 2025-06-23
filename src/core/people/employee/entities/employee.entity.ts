@@ -1,4 +1,4 @@
-import { Contract } from '@/core/contracts/entities/contract.entity';
+import { ContractProfessor } from '@/core/contracts/entities/contract-profesor.entity';
 import { Person } from '@/core/people/people/entities/person.entity';
 import { CourseSchoolYear } from '@/core/school-year/entities/course-school-year.entity';
 import {
@@ -32,8 +32,10 @@ export class Employee {
   @JoinColumn({ name: 'id', referencedColumnName: 'id' })
   person: Relation<Person>;
 
-  @OneToOne(() => Contract, (contract) => contract.employee, { cascade: true })
-  contract: Relation<Contract>;
+  @OneToOne(() => ContractProfessor, (contract) => contract.employee, {
+    cascade: true,
+  })
+  contract: Relation<ContractProfessor>;
 
   @OneToMany(
     () => CourseSchoolYear,

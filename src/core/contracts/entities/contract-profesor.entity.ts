@@ -15,7 +15,7 @@ import Decimal from 'decimal.js';
 import { Employee } from '@/core/people/employee/entities/employee.entity';
 
 @Entity({ name: 'contracts-professors' })
-export class Contract {
+export class ContractProfessor {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
@@ -95,6 +95,7 @@ export class Contract {
 
   @Column({
     type: 'boolean',
+    default: false,
   })
   transport: boolean;
 
