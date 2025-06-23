@@ -19,7 +19,7 @@ export class ContractWorker {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
-  @OneToOne(() => Employee, (employee) => employee.contract, {
+  @OneToOne(() => Employee, (employee) => employee.contractWorker, {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
