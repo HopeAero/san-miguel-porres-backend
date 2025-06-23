@@ -13,6 +13,7 @@ import { EmployeeService } from '../people/employee/employee.service';
 import { WrapperType } from '@/wrapper.type';
 import { TypeEmployee } from '../people/employee/entities/employee.entity';
 import { CreateContractWorkerDto } from './dto/create-contract-worker.dto';
+import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class ContractsService {
@@ -28,6 +29,8 @@ export class ContractsService {
    * @param createContractDto - Datos del contrato a crear
    * @returns El contrato creado
    */
+
+  @Transactional()
   async create(createContractDto: CreateContractDto) {
     const { dni, ...data } = createContractDto;
 
@@ -47,6 +50,7 @@ export class ContractsService {
     return await this.contractProfessorRepository.save(contract);
   }
 
+  @Transactional()
   async createWorker(createContractDto: CreateContractWorkerDto) {
     const { dni, ...data } = createContractDto;
 
