@@ -4,9 +4,13 @@ import { ContractsController } from './contracts.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ContractProfessor } from './entities/contract-profesor.entity';
 import { ContractWorker } from './entities/contract-workers.entity';
+import { EmployeeModule } from '../people/employee/employee.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ContractProfessor, ContractWorker])],
+  imports: [
+    TypeOrmModule.forFeature([ContractProfessor, ContractWorker]),
+    EmployeeModule,
+  ],
   controllers: [ContractsController],
   providers: [ContractsService],
   exports: [ContractsService],

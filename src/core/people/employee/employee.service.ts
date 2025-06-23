@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Equal, Repository } from 'typeorm';
 import { Employee } from './entities/employee.entity';
 import { CreateEmployeeDTO } from './dto/create-employee.dto';
 import { WrapperType } from '@/wrapper.type';
@@ -92,6 +92,20 @@ export class EmployeeService {
     if (!employee) {
       throw new NotFoundException(`Empleado with ID ${id} not found`);
     }
+    return formatEmployee(employee);
+  }
+
+  async findOneByDni(dni: string): Promise<EmployeeDto> {
+    const employee = await this.employeeRepository.findOne({
+      where: {
+        person: {
+          dni: Equal(dni),
+        },
+      },
+      relations: {
+        person: true,
+      },
+    });
     return formatEmployee(employee);
   }
 

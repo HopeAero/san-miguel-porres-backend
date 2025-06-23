@@ -12,11 +12,7 @@ import { FindAllEmployeeAction, PaginateEmployeeAction } from './actions';
     forwardRef(() => PeopleModule),
   ],
   controllers: [EmployeeController], // Register the controller
-  providers: [
-    EmployeeService,
-    FindAllEmployeeAction,
-    PaginateEmployeeAction
-  ], // Register the service and actions
+  providers: [EmployeeService, FindAllEmployeeAction, PaginateEmployeeAction], // Register the service and actions
   exports: [EmployeeService],
 })
 export class EmployeeModule {}
