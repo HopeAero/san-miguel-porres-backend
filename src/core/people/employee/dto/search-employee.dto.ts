@@ -15,7 +15,6 @@ export class SearchEmployeeDto {
   @ApiProperty({
     description: 'Filtrar por tipo de empleado',
     required: false,
-    enum: TypeEmployee,
   })
   @IsOptional()
   @IsEnum(TypeEmployee)

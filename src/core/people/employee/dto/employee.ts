@@ -4,7 +4,6 @@ import { TypeEmployee } from '@/common/enum/employee-type.enum';
 
 export class EmployeeDto extends PersonDto {
   @ApiProperty({
-    enum: TypeEmployee,
     description: 'Tipo de empleado',
   })
   employeeType: TypeEmployee;

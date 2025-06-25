@@ -26,7 +26,9 @@ export class CreateCourseSchoolYearAction {
    * @param dto Datos para crear la asignatura por año escolar
    * @returns Datos de la asignatura por año escolar creada
    */
-  async execute(dto: CreateCourseSchoolYearDto): Promise<CourseSchoolYearResponseDto> {
+  async execute(
+    dto: CreateCourseSchoolYearDto,
+  ): Promise<CourseSchoolYearResponseDto> {
     // Validar datos antes de crear
     await this.validate(dto);
 
@@ -67,7 +69,9 @@ export class CreateCourseSchoolYearAction {
       where: { id: dto.courseId },
     });
     if (!course) {
-      throw new BadRequestException(`El curso con ID ${dto.courseId} no existe`);
+      throw new BadRequestException(
+        `El curso con ID ${dto.courseId} no existe`,
+      );
     }
 
     // Verificar que el año escolar existe
@@ -75,7 +79,9 @@ export class CreateCourseSchoolYearAction {
       where: { id: dto.schoolYearId },
     });
     if (!schoolYear) {
-      throw new BadRequestException(`El año escolar con ID ${dto.schoolYearId} no existe`);
+      throw new BadRequestException(
+        `El año escolar con ID ${dto.schoolYearId} no existe`,
+      );
     }
 
     // Verificar que el profesor existe (si se proporciona)
@@ -84,7 +90,9 @@ export class CreateCourseSchoolYearAction {
         where: { id: dto.professorId },
       });
       if (!professor) {
-        throw new BadRequestException(`El profesor con ID ${dto.professorId} no existe`);
+        throw new BadRequestException(
+          `El profesor con ID ${dto.professorId} no existe`,
+        );
       }
     }
 
@@ -118,22 +126,29 @@ export class CreateCourseSchoolYearAction {
       courseId: entity.courseId,
       schoolYearId: entity.schoolYearId,
       professorId: entity.professorId,
-      course: entity.course ? {
-        id: entity.course.id,
-        name: entity.course.name,
-      } : null,
-      schoolYear: entity.schoolYear ? {
-        id: entity.schoolYear.id,
-        code: entity.schoolYear.code,
-        startDate: entity.schoolYear.startDate,
-        endDate: entity.schoolYear.endDate,
-      } : null,
-      professor: entity.professor && entity.professor.person ? {
-        id: entity.professor.id,
-        firstName: entity.professor.person.name,
-        lastName: entity.professor.person.lastName,
-        name: `${entity.professor.person.name} ${entity.professor.person.lastName}`,
-      } : null,
+      course: entity.course
+        ? {
+            id: entity.course.id,
+            name: entity.course.name,
+          }
+        : null,
+      schoolYear: entity.schoolYear
+        ? {
+            id: entity.schoolYear.id,
+            code: entity.schoolYear.code,
+            startDate: entity.schoolYear.startDate,
+            endDate: entity.schoolYear.endDate,
+          }
+        : null,
+      professor:
+        entity.professor && entity.professor.person
+          ? {
+              id: entity.professor.id,
+              firstName: entity.professor.person.name,
+              lastName: entity.professor.person.lastName,
+              name: `${entity.professor.person.name} ${entity.professor.person.lastName}`,
+            }
+          : null,
     } as CourseSchoolYearResponseDto;
   }
-} 
+}

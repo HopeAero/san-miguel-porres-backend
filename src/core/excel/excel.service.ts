@@ -36,36 +36,36 @@ export class ExcelService {
     return { message: 'Plantilla subida exitosamente' };
   }
 
-  async generateFromTemplate(
-    templateName: string,
-    data: any[],
-    outputFileName: string,
-  ): Promise<string> {
-    const templatePath = path.join(this.templatesPath, templateName);
+  // async generateFromTemplate(
+  //   templateName: string,
+  //   data: any[],
+  //   outputFileName: string,
+  // ): Promise<string> {
+  //   const templatePath = path.join(this.templatesPath, templateName);
 
-    if (!fs.existsSync(templatePath)) {
-      throw new Error('La plantilla no existe');
-    }
+  //   if (!fs.existsSync(templatePath)) {
+  //     throw new Error('La plantilla no existe');
+  //   }
 
-    // Cargar la plantilla
-    const workbook = new ExcelJS.Workbook();
-    await workbook.xlsx.readFile(templatePath);
-    const worksheet = workbook.getWorksheet(1);
+  //   // Cargar la plantilla
+  //   const workbook = new ExcelJS.Workbook();
+  //   await workbook.xlsx.readFile(templatePath);
+  //   const worksheet = workbook.getWorksheet(1);
 
-    // Aplicar los datos a la plantilla
-    data.forEach((row, rowIndex) => {
-      const excelRow = worksheet.getRow(rowIndex + 2); // Empezar después del encabezado
-      Object.keys(row).forEach((key, colIndex) => {
-        excelRow.getCell(colIndex + 1).value = row[key];
-      });
-    });
+  //   // Aplicar los datos a la plantilla
+  //   data.forEach((row, rowIndex) => {
+  //     const excelRow = worksheet.getRow(rowIndex + 2); // Empezar después del encabezado
+  //     Object.keys(row).forEach((key, colIndex) => {
+  //       excelRow.getCell(colIndex + 1).value = row[key];
+  //     });
+  //   });
 
-    // Guardar el archivo generado
-    const outputPath = path.join(this.generatedPath, outputFileName);
-    await workbook.xlsx.writeFile(outputPath);
+  //   // Guardar el archivo generado
+  //   const outputPath = path.join(this.generatedPath, outputFileName);
+  //   await workbook.xlsx.writeFile(outputPath);
 
-    return outputPath;
-  }
+  //   return outputPath;
+  // }
 
   async deleteTemplate(fileName: string): Promise<{ message: string }> {
     const filePath = path.join(this.templatesPath, fileName);
