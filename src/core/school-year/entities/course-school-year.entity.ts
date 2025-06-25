@@ -33,7 +33,7 @@ export class CourseSchoolYear {
 
   @ManyToOne(() => Course)
   @JoinColumn({ name: 'courseId' })
-  course: Course;
+  course: Relation<Course>;
 
   @ManyToOne(() => SchoolYear, (schoolYear) => schoolYear.courseSchoolYears, {
     onDelete: 'RESTRICT',

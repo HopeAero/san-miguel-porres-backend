@@ -16,9 +16,9 @@ import { CourseInscription } from '../inscriptions/entities/course-inscription.e
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      CourseSchoolYear, 
-      Course, 
-      SchoolYear, 
+      CourseSchoolYear,
+      Course,
+      SchoolYear,
       Employee,
       CourseInscription,
     ]),

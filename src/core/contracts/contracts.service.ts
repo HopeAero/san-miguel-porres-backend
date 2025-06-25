@@ -2,6 +2,8 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  forwardRef,
+  Inject,
 } from '@nestjs/common';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
@@ -10,10 +12,10 @@ import { ContractProfessor } from './entities/contract-profesor.entity';
 import { Equal, Repository } from 'typeorm';
 import { ContractWorker } from './entities/contract-workers.entity';
 import { EmployeeService } from '../people/employee/employee.service';
-import { WrapperType } from '@/wrapper.type';
 import { TypeEmployee } from '../people/employee/entities/employee.entity';
 import { CreateContractWorkerDto } from './dto/create-contract-worker.dto';
 import { Transactional } from 'typeorm-transactional';
+import { WrapperType } from '@/wrapper.type';
 
 @Injectable()
 export class ContractsService {
@@ -22,6 +24,7 @@ export class ContractsService {
     private readonly contractProfessorRepository: Repository<ContractProfessor>,
     @InjectRepository(ContractWorker)
     private readonly contractWorkerRepository: Repository<ContractWorker>,
+    @Inject(forwardRef(() => EmployeeService))
     private readonly employeeService: WrapperType<EmployeeService>,
   ) {}
   /**
