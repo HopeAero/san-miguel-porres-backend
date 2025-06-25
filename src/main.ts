@@ -51,8 +51,18 @@ async function bootstrap() {
     .addTag('Employee')
     .build();
 
-  const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, documentFactory);
+  try {
+    console.log('Creando documento de Swagger...');
+    const documentFactory = () => SwaggerModule.createDocument(app, config);
+    console.log('Documento de Swagger creado exitosamente');
+
+    console.log('Configurando Swagger UI...');
+    SwaggerModule.setup('docs', app, documentFactory);
+    console.log('Swagger UI configurado exitosamente');
+  } catch (error) {
+    console.error('Error al configurar Swagger:', error);
+    console.error('Stack trace:', error.stack);
+  }
 
   await app.listen(PORT);
 

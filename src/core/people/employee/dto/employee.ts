@@ -1,6 +1,6 @@
 import { PersonDto } from '@/core/people/people/dto/person.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { TypeEmployee } from '../entities/employee.entity';
+import { TypeEmployee } from '@/common/enum/employee-type.enum';
 
 export class EmployeeDto extends PersonDto {
   @ApiProperty({

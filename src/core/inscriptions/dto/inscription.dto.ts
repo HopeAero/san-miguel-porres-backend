@@ -1,36 +1,48 @@
 import { IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 import { CourseInscriptionResponseDto } from './course-inscription.dto';
 
 export class InscriptionDto {
+  @ApiProperty({ description: 'ID de la inscripción', required: false })
   @IsOptional()
   @IsNumber()
   id?: number;
 
+  @ApiProperty({ description: 'ID del estudiante' })
   @IsNumber()
   @IsNotEmpty()
   studentId: number;
 
+  @ApiProperty({ description: 'ID del año escolar' })
   @IsNumber()
   @IsNotEmpty()
   schoolYearId: number;
 
+  @ApiProperty({ description: 'Grado del estudiante' })
   @IsNotEmpty()
   grade: number;
 }
 
 export class InscriptionResponseDto {
+  @ApiProperty({ description: 'ID de la inscripción' })
   id: number;
+
+  @ApiProperty({ description: 'ID del estudiante' })
   studentId: number;
+
+  @ApiProperty({ description: 'ID del año escolar' })
   schoolYearId: number;
+
+  @ApiProperty({ description: 'Grado del estudiante' })
   grade: number;
 
-  // Relaciones expandidas
+  @ApiProperty({ description: 'Información del año escolar' })
   schoolYear: {
     id: number;
     code: string;
   };
 
-  // Información del estudiante (será proporcionada por el servicio)
+  @ApiProperty({ description: 'Información del estudiante', required: false })
   student?: {
     id: number;
     name: string;
@@ -38,7 +50,10 @@ export class InscriptionResponseDto {
     dni?: string;
   };
 
-  // Información del representante (será proporcionada por el servicio)
+  @ApiProperty({
+    description: 'Información del representante',
+    required: false,
+  })
   representative?: {
     id: number;
     name: string;
@@ -47,6 +62,10 @@ export class InscriptionResponseDto {
     fullInfo?: string;
   };
 
-  // Cursos inscritos - Ahora usando el DTO CourseInscriptionResponseDto
+  @ApiProperty({
+    description: 'Cursos inscritos',
+    type: [CourseInscriptionResponseDto],
+    required: false,
+  })
   courseInscriptions?: CourseInscriptionResponseDto[];
 }

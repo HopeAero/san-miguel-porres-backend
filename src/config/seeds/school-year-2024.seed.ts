@@ -5,7 +5,7 @@ import { SchoolCourt } from '@/core/school-year/entities/school-court.entity';
 import { Course } from '@/core/courses/entities/course.entity';
 import { CourseSchoolYear } from '@/core/school-year/entities/course-school-year.entity';
 import { Employee } from '@/core/people/employee/entities/employee.entity';
-import { TypeEmployee } from '@/core/people/employee/entities/employee.entity';
+import { TypeEmployee } from '@/common/enum/employee-type.enum';
 
 export const runSchoolYear2024Seed = async (
   dataSource: DataSource,

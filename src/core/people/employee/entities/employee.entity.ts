@@ -2,6 +2,7 @@ import { ContractProfessor } from '@/core/contracts/entities/contract-profesor.e
 import { ContractWorker } from '@/core/contracts/entities/contract-workers.entity';
 import { Person } from '@/core/people/people/entities/person.entity';
 import { CourseSchoolYear } from '@/core/school-year/entities/course-school-year.entity';
+import { TypeEmployee } from '@/common/enum/employee-type.enum';
 import {
   Entity,
   Column,
@@ -12,12 +13,6 @@ import {
   PrimaryColumn,
   Relation,
 } from 'typeorm';
-
-export enum TypeEmployee {
-  Professor = 'professor',
-  Substitute = 'substitute',
-  Worker = 'worker',
-}
 
 @Entity({ name: 'employees' })
 export class Employee {

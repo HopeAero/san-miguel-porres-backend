@@ -12,7 +12,11 @@ import { InscriptionsService } from './inscriptions.service';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { CreateInscriptionDto } from './dto/create-inscription.dto';
 import { UpdateInscriptionDto } from './dto/update-inscription.dto';
-import { PaginateInscriptionDto } from './dto/paginate-inscription.dto';
+import {
+  PaginateInscriptionDto,
+  PaginateInscriptionResponseDto,
+} from './dto/paginate-inscription.dto';
+import { InscriptionResponseDto } from './dto/inscription.dto';
 
 @ApiTags('Inscriptions')
 @Controller('inscriptions')
@@ -24,6 +28,7 @@ export class InscriptionsController {
   @ApiResponse({
     status: 200,
     description: 'Lista de inscripciones obtenida correctamente',
+    type: PaginateInscriptionResponseDto,
   })
   findAll(@Query() paginateDto: PaginateInscriptionDto) {
     return this.inscriptionsService.findAll(paginateDto);
@@ -34,6 +39,7 @@ export class InscriptionsController {
   @ApiResponse({
     status: 200,
     description: 'Inscripción obtenida correctamente',
+    type: InscriptionResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Inscripción no encontrada' })
   findOne(@Param('id') id: string) {
@@ -42,7 +48,11 @@ export class InscriptionsController {
 
   @Post()
   @ApiOperation({ summary: 'Crear una nueva inscripción' })
-  @ApiResponse({ status: 201, description: 'Inscripción creada correctamente' })
+  @ApiResponse({
+    status: 201,
+    description: 'Inscripción creada correctamente',
+    type: InscriptionResponseDto,
+  })
   create(@Body() createInscriptionDto: CreateInscriptionDto) {
     return this.inscriptionsService.create(createInscriptionDto);
   }
@@ -52,6 +62,7 @@ export class InscriptionsController {
   @ApiResponse({
     status: 200,
     description: 'Inscripción actualizada correctamente',
+    type: InscriptionResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Inscripción no encontrada' })
   update(

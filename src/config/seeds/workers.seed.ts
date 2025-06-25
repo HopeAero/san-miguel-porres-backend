@@ -1,9 +1,7 @@
 import { DataSource } from 'typeorm';
 import { Person } from '@/core/people/people/entities/person.entity';
-import {
-  Employee,
-  TypeEmployee,
-} from '@/core/people/employee/entities/employee.entity';
+import { Employee } from '@/core/people/employee/entities/employee.entity';
+import { TypeEmployee } from '@/common/enum/employee-type.enum';
 import { fakerES_MX as faker } from '@faker-js/faker';
 
 export const runWorkersSeed = async (dataSource: DataSource): Promise<void> => {

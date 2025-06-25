@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
-import { TypeEmployee } from '../entities/employee.entity';
+import { TypeEmployee } from '@/common/enum/employee-type.enum';
+import { Transform } from 'class-transformer';
 
 export class SearchEmployeeDto {
   @ApiProperty({
@@ -27,6 +28,7 @@ export class SearchEmployeeDto {
   })
   @IsOptional()
   @IsNumber()
+  @Transform(({ value }) => parseInt(value))
   limit?: number;
 
   @ApiProperty({

@@ -1,8 +1,6 @@
 import { DataSource } from 'typeorm';
-import {
-  Employee,
-  TypeEmployee,
-} from '@/core/people/employee/entities/employee.entity';
+import { Employee } from '@/core/people/employee/entities/employee.entity';
+import { TypeEmployee } from '@/common/enum/employee-type.enum';
 import { ContractWorker } from '@/core/contracts/entities/contract-workers.entity';
 import { ContractProfessor } from '@/core/contracts/entities/contract-profesor.entity';
 import { fakerES_MX as faker } from '@faker-js/faker';

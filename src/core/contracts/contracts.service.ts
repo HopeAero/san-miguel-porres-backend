@@ -12,7 +12,7 @@ import { ContractProfessor } from './entities/contract-profesor.entity';
 import { Equal, Repository } from 'typeorm';
 import { ContractWorker } from './entities/contract-workers.entity';
 import { EmployeeService } from '../people/employee/employee.service';
-import { TypeEmployee } from '../people/employee/entities/employee.entity';
+import { TypeEmployee } from '@/common/enum/employee-type.enum';
 import { CreateContractWorkerDto } from './dto/create-contract-worker.dto';
 import { Transactional } from 'typeorm-transactional';
 import { WrapperType } from '@/wrapper.type';

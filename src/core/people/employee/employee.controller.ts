@@ -27,7 +27,7 @@ import { Roles } from '@/common/decorators/roles.decorator';
 import { JwtGuard } from '@/core/auth/guards/jwt.guard';
 import { Role } from '@/common/enum/role';
 import * as express from 'express';
-import { TypeEmployee } from './entities/employee.entity';
+import { TypeEmployee } from '@/common/enum/employee-type.enum';
 import { EmployeeDto } from './dto/employee';
 
 @ApiTags('Employee')
