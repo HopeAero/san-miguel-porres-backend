@@ -67,6 +67,16 @@ export class ExcelService {
     }
   }
 
+  async getGeneratedFilesList(): Promise<string[]> {
+    try {
+      const files = await fs.promises.readdir(this.generatedPath);
+      return files;
+    } catch (error) {
+      console.error('Error leyendo directorio de archivos generados:', error);
+      return [];
+    }
+  }
+
   async uploadTemplate(
     fileName: string,
     buffer: Buffer,

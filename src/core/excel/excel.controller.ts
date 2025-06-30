@@ -29,6 +29,16 @@ export class ExcelController {
     return await this.excelService.getTemplatesList();
   }
 
+  @Get('generated')
+  @ApiOperation({ summary: 'Obtener lista de archivos generados' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de archivos generados obtenida exitosamente',
+  })
+  async getGeneratedFiles() {
+    return await this.excelService.getGeneratedFilesList();
+  }
+
   @Post('reports/teachers')
   @ApiOperation({ summary: 'Generar reporte de registro de docentes' })
   @ApiResponse({ status: 201, description: 'Reporte generado exitosamente' })
