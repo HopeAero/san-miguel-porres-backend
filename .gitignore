@@ -9,6 +9,7 @@
 /mongo
 metadata
 /src/metadata.ts
+/src/core/excel/generated
 
 # Logs
 logs

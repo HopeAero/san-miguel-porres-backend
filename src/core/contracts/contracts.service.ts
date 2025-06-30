@@ -82,6 +82,25 @@ export class ContractsService {
     });
   }
 
+  /**
+   * Obtiene todos los contratos de profesores con información completa para reportes
+   * @returns Lista de contratos de profesores con datos del empleado y persona
+   */
+  async findAllProfessorsForReport() {
+    return await this.contractProfessorRepository.find({
+      relations: {
+        employee: {
+          person: true,
+        },
+      },
+      where: {
+        employee: {
+          deletedAt: null,
+        },
+      },
+    });
+  }
+
   async findOne(uuid: string) {
     const contract = await this.contractProfessorRepository.findOne({
       where: { uuid: Equal(uuid) },
