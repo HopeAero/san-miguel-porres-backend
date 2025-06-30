@@ -203,37 +203,34 @@ export class ExcelService {
     );
 
     // Llenar los datos a partir de la fila 3 (asumiendo que las primeras 2 filas son encabezados)
-    let currentRow = 3;
+    let currentRow = 2;
 
     for (const contract of professorsContracts) {
       if (contract.employee?.person) {
         const row = worksheet.getRow(currentRow);
 
         // Mapear los datos a las columnas del Excel
-        // Ajusta estos índices según la estructura real del template
-        row.getCell(1).value = currentRow - 2; // Número secuencial
-        row.getCell(2).value = contract.employee.person.dni || '';
-        row.getCell(3).value =
+        // MES | FEBRERO | AÑO | 202X | CÉDULA | CARGO | NIVEL | HORAS | HORAS | CATEGO | AÑOS SERVICIO | COSTO HORA | SALARIO MES | JERARQUÍA | ANTIGÜEDAD | TRANSPORTE | EJERCICIO DOCENTE | POSTGRADO | total mes
+        row.getCell(1).value = currentRow - 1; // Número secuencial
+        row.getCell(2).value =
           `${contract.employee.person.name || ''} ${contract.employee.person.lastName || ''}`.trim();
-        row.getCell(4).value = contract.position || '';
-        row.getCell(5).value = contract.category || '';
-        row.getCell(6).value = contract.level || '';
-        row.getCell(7).value = contract.workingHours?.toString() || '0';
-        row.getCell(8).value = contract.hoursWorked?.toString() || '0';
-        row.getCell(9).value = contract.hourlyCost?.toString() || '0';
-        row.getCell(10).value = contract.yearsOfService || 0;
-        row.getCell(11).value = contract.monthlySalary?.toString() || '0';
-        row.getCell(12).value = contract.hierarchy?.toString() || '0';
-        row.getCell(13).value = contract.transport ? 'Sí' : 'No';
-        row.getCell(14).value = contract.antique?.toString() || '0';
-        row.getCell(15).value = contract.teachingExercise?.toString() || '0';
-        row.getCell(16).value = contract.nroOfChildren || 0;
-        row.getCell(17).value = contract.postgraduate?.toString() || '0';
-        row.getCell(18).value = contract.bonusForChildren?.toString() || '0';
-        row.getCell(19).value = contract.geography?.toString() || '0';
-        row.getCell(20).value = contract.homeCareAssistance?.toString() || '0';
-        row.getCell(21).value = contract.bonusDisability?.toString() || '0';
-        row.getCell(22).value = contract.totalSalary?.toString() || '0';
+        row.getCell(3).value = contract.employee.person.dni || '';
+        row.getCell(4).value = contract.position || ''; // CARGO
+        row.getCell(5).value = contract.level || ''; // NIVEL
+        row.getCell(6).value = contract.workingHours?.toString() || '0'; // HORAS
+        row.getCell(7).value = contract.hoursWorked?.toString() || '0'; // HORAS TRABAJADAS
+        row.getCell(8).value = contract.category || ''; // CATEGORÍA
+        row.getCell(9).value = contract.yearsOfService || 0; // AÑOS SERVICIO
+        row.getCell(11).value = contract.hourlyCost?.toString() || '0'; // COSTO HORA
+        row.getCell(13).value = contract.monthlySalary?.toString() || '0'; // SALARIO MES
+        row.getCell(14).value = contract.hierarchy?.toString() || '0'; // JERARQUÍA
+        row.getCell(15).value = contract.antique?.toString() || '0'; // ANTIGÜEDAD
+        row.getCell(16).value = contract.transport ? 'Sí' : 'No'; // TRANSPORTE
+        row.getCell(17).value = contract.teachingExercise?.toString() || '0'; // EJERCICIO DOCENTE
+        row.getCell(21).value = contract.postgraduate?.toString() || '0'; // POSTGRADO
+        row.getCell(22).value = contract.totalSalary?.toString() || '0'; // TOTAL MES
+        row.getCell(24).value = contract.nroOfChildren || 0; // N° HIJOS
+        row.getCell(25).value = contract.totalSalary?.toString() || '0'; // TOTAL MES
 
         currentRow++;
       }
