@@ -9,35 +9,47 @@ import Decimal from 'decimal.js';
 export const runContractsSeed = async (
   dataSource: DataSource,
 ): Promise<void> => {
+  console.log('🏗️  Iniciando seed de contratos...');
+
   // Obtener los repositorios necesarios
   const employeeRepository = dataSource.getRepository(Employee);
   const contractWorkerRepository = dataSource.getRepository(ContractWorker);
   const contractProfessorRepository =
     dataSource.getRepository(ContractProfessor);
 
-  // Obtener todos los empleados que no tienen contratos
-  const workersWithoutContract = await employeeRepository.find({
-    where: {
-      employeeType: TypeEmployee.Worker,
-      contractWorker: null,
-    },
-    relations: ['person', 'contractWorker'],
-  });
+  // Obtener todos los empleados que no tienen contratos con validación
+  const workersWithoutContract = await employeeRepository
+    .createQueryBuilder('employee')
+    .leftJoinAndSelect('employee.person', 'person')
+    .leftJoinAndSelect('employee.contractWorker', 'contractWorker')
+    .where('employee.employeeType = :type', { type: TypeEmployee.Worker })
+    .andWhere('contractWorker.uuid IS NULL')
+    .andWhere('person.dni IS NOT NULL')
+    .getMany();
 
-  const professorsWithoutContract = await employeeRepository.find({
-    where: {
-      employeeType: TypeEmployee.Professor,
-      contractProfessor: null,
-    },
-    relations: ['person', 'contractProfessor'],
-  });
+  const professorsWithoutContract = await employeeRepository
+    .createQueryBuilder('employee')
+    .leftJoinAndSelect('employee.person', 'person')
+    .leftJoinAndSelect('employee.contractProfessor', 'contractProfessor')
+    .where('employee.employeeType = :type', { type: TypeEmployee.Professor })
+    .andWhere('contractProfessor.uuid IS NULL')
+    .andWhere('person.dni IS NOT NULL')
+    .getMany();
 
   let createdWorkerContracts = 0;
   let createdProfessorContracts = 0;
 
+  console.log(
+    `📋 Encontrados ${workersWithoutContract.length} trabajadores sin contrato`,
+  );
+  console.log(
+    `👨‍🏫 Encontrados ${professorsWithoutContract.length} profesores sin contrato`,
+  );
+
   // Crear contratos para trabajadores
   for (const worker of workersWithoutContract) {
-    if (!worker.contractWorker) {
+    // Validación adicional
+    if (!worker.contractWorker && worker.person && worker.person.dni) {
       const position = faker.helpers.arrayElement([
         'Conserje',
         'Vigilante',
@@ -85,6 +97,7 @@ export const runContractsSeed = async (
         'Nivel 5',
       ]);
 
+      // Crear Decimales de forma segura
       const workingHours = new Decimal(
         faker.helpers.arrayElement([40, 35, 30, 25, 20]),
       );
@@ -129,20 +142,32 @@ export const runContractsSeed = async (
         ),
       };
 
-      const contractWorker =
-        contractWorkerRepository.create(contractWorkerData);
-      await contractWorkerRepository.save(contractWorker);
-      createdWorkerContracts++;
+      try {
+        const contractWorker =
+          contractWorkerRepository.create(contractWorkerData);
+        await contractWorkerRepository.save(contractWorker);
+        createdWorkerContracts++;
 
-      console.log(
-        `Contrato de trabajador creado para ${worker.person.name} ${worker.person.lastName} - ${position}`,
-      );
+        console.log(
+          `✅ Contrato de trabajador creado para ${worker.person.name} ${worker.person.lastName} - ${position}`,
+        );
+      } catch (error) {
+        console.error(
+          `❌ Error creando contrato para trabajador ${worker.person.name} ${worker.person.lastName}:`,
+          error.message,
+        );
+      }
     }
   }
 
   // Crear contratos para profesores
   for (const professor of professorsWithoutContract) {
-    if (!professor.contractProfessor) {
+    // Validación adicional
+    if (
+      !professor.contractProfessor &&
+      professor.person &&
+      professor.person.dni
+    ) {
       const position = faker.helpers.arrayElement([
         'Profesor de Aula',
         'Coordinador Académico',
@@ -171,6 +196,7 @@ export const runContractsSeed = async (
         'Nivel D',
       ]);
 
+      // Crear Decimales de forma segura
       const workingHours = new Decimal(
         faker.helpers.arrayElement([36, 30, 24, 18, 12]),
       );
@@ -212,19 +238,26 @@ export const runContractsSeed = async (
         ),
       };
 
-      const contractProfessor = contractProfessorRepository.create(
-        contractProfessorData,
-      );
-      await contractProfessorRepository.save(contractProfessor);
-      createdProfessorContracts++;
+      try {
+        const contractProfessor = contractProfessorRepository.create(
+          contractProfessorData,
+        );
+        await contractProfessorRepository.save(contractProfessor);
+        createdProfessorContracts++;
 
-      console.log(
-        `Contrato de profesor creado para ${professor.person.name} ${professor.person.lastName} - ${position}`,
-      );
+        console.log(
+          `✅ Contrato de profesor creado para ${professor.person.name} ${professor.person.lastName} - ${position}`,
+        );
+      } catch (error) {
+        console.error(
+          `❌ Error creando contrato para profesor ${professor.person.name} ${professor.person.lastName}:`,
+          error.message,
+        );
+      }
     }
   }
 
   console.log(
-    `Seed de contratos completado. Se crearon ${createdWorkerContracts} contratos de trabajadores y ${createdProfessorContracts} contratos de profesores.`,
+    `🎉 Seed de contratos completado. Se crearon ${createdWorkerContracts} contratos de trabajadores y ${createdProfessorContracts} contratos de profesores.`,
   );
 };

@@ -17,6 +17,7 @@ import { InscriptionsModule } from './core/inscriptions/inscriptions.module';
 import { ContractsModule } from './core/contracts/contracts.module';
 import { CourseSchoolYearModule } from './core/course-school-year/course-school-year.module';
 import { EvaluationsModule } from './core/evaluations/evaluations.module';
+import { ExcelModule } from './core/excel/excel.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { EvaluationsModule } from './core/evaluations/evaluations.module';
     CourseSchoolYearModule,
     ContractsModule,
     EvaluationsModule,
+    ExcelModule,
   ],
   controllers: [AppController],
   providers: [AppService],
