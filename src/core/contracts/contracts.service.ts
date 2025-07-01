@@ -101,6 +101,21 @@ export class ContractsService {
     });
   }
 
+  async findAllWorkersForReport() {
+    return await this.contractWorkerRepository.find({
+      relations: {
+        employee: {
+          person: true,
+        },
+      },
+      where: {
+        employee: {
+          deletedAt: null,
+        },
+      },
+    });
+  }
+
   async findOne(uuid: string) {
     const contract = await this.contractProfessorRepository.findOne({
       where: { uuid: Equal(uuid) },

@@ -59,6 +59,16 @@ export class ExcelController {
     }
   }
 
+  @Post('reports/workers')
+  @ApiOperation({
+    summary: 'Generar reporte de registro de obreros y administrativos',
+  })
+  @ApiResponse({ status: 201, description: 'Reporte generado exitosamente' })
+  @ApiResponse({ status: 400, description: 'Error al generar el reporte' })
+  async generateWorkersReport() {
+    return await this.excelService.generateWorkersReport();
+  }
+
   @Get('download/:fileName')
   @ApiOperation({ summary: 'Descargar archivo Excel generado' })
   @ApiResponse({ status: 200, description: 'Archivo descargado exitosamente' })
