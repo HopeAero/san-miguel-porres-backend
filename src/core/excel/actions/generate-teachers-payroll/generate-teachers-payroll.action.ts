@@ -138,8 +138,9 @@ export class GenerateTeachersPayrollAction {
         for (const contract of groupContracts) {
           if (contract.employee?.person) {
             const row = worksheet.getRow(currentRow);
-
-            row.getCell(1).value = 1;
+            // Calcular el número secuencial considerando el grupo actual
+            const sequentialNumber = group * maxRows + (currentRow - 10);
+            row.getCell(1).value = sequentialNumber;
             row.getCell(2).value =
               `${contract.employee.person.name || ''} ${contract.employee.person.lastName || ''}`.trim();
             row.getCell(3).value = contract.employee.person.dni || '';
