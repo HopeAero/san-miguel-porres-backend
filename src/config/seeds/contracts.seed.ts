@@ -104,7 +104,7 @@ export const runContractsSeed = async (
       const hoursWorked = new Decimal(faker.number.int({ min: 160, max: 200 }));
       const hourlyCost = new Decimal(faker.number.int({ min: 15, max: 50 }));
       const monthlySalary = new Decimal(
-        faker.number.int({ min: 400000, max: 1200000 }),
+        faker.number.float({ min: 800.0, max: 5500.0, fractionDigits: 2 }),
       );
 
       const contractWorkerData = {
@@ -121,24 +121,34 @@ export const runContractsSeed = async (
         yearsOfServiceExternal: faker.number.int({ min: 0, max: 10 }),
         yearsOfServiceOtherAvec: faker.number.int({ min: 0, max: 5 }),
         monthlySalary,
-        nightBonus: new Decimal(faker.number.int({ min: 0, max: 200000 })),
+        nightBonus: new Decimal(
+          faker.number.float({ min: 0, max: 120.5, fractionDigits: 2 }),
+        ),
         transport: faker.datatype.boolean(),
-        antique: new Decimal(faker.number.int({ min: 0, max: 300000 })),
-        bonusAcademic: new Decimal(faker.number.int({ min: 0, max: 150000 })),
+        antique: new Decimal(
+          faker.number.float({ min: 0, max: 180.25, fractionDigits: 2 }),
+        ),
+        bonusAcademic: new Decimal(
+          faker.number.float({ min: 0, max: 95.75, fractionDigits: 2 }),
+        ),
         nroOfChildren: faker.number.int({ min: 0, max: 5 }),
         bonusCompensatory: new Decimal(
-          faker.number.int({ min: 0, max: 100000 }),
+          faker.number.float({ min: 0, max: 65.5, fractionDigits: 2 }),
         ),
         bonusForChildren: new Decimal(
-          faker.number.int({ min: 0, max: 200000 }),
+          faker.number.float({ min: 0, max: 125.75, fractionDigits: 2 }),
         ),
-        geography: new Decimal(faker.number.int({ min: 0, max: 100000 })),
+        geography: new Decimal(
+          faker.number.float({ min: 0, max: 85.25, fractionDigits: 2 }),
+        ),
         homeCareAssistance: new Decimal(
-          faker.number.int({ min: 0, max: 150000 }),
+          faker.number.float({ min: 0, max: 110.0, fractionDigits: 2 }),
         ),
-        bonusDisability: new Decimal(faker.number.int({ min: 0, max: 100000 })),
+        bonusDisability: new Decimal(
+          faker.number.float({ min: 0, max: 75.5, fractionDigits: 2 }),
+        ),
         totalSalary: new Decimal(
-          faker.number.int({ min: 500000, max: 1800000 }),
+          faker.number.float({ min: 1200.0, max: 7500.0, fractionDigits: 2 }),
         ),
       };
 
@@ -203,7 +213,7 @@ export const runContractsSeed = async (
       const hoursWorked = new Decimal(faker.number.int({ min: 120, max: 180 }));
       const hourlyCost = new Decimal(faker.number.int({ min: 20, max: 80 }));
       const monthlySalary = new Decimal(
-        faker.number.int({ min: 600000, max: 2000000 }),
+        faker.number.float({ min: 1200.0, max: 3200.0, fractionDigits: 2 }),
       );
 
       const contractProfessorData = {
@@ -217,24 +227,34 @@ export const runContractsSeed = async (
         hourlyCost,
         yearsOfService: faker.number.int({ min: 0, max: 25 }),
         monthlySalary,
-        hierarchy: new Decimal(faker.number.int({ min: 0, max: 500000 })),
+        hierarchy: new Decimal(
+          faker.number.float({ min: 0, max: 1200.0, fractionDigits: 2 }),
+        ),
         transport: faker.datatype.boolean(),
-        antique: new Decimal(faker.number.int({ min: 0, max: 400000 })),
+        antique: new Decimal(
+          faker.number.float({ min: 0, max: 1800.0, fractionDigits: 2 }),
+        ),
         teachingExercise: new Decimal(
-          faker.number.int({ min: 0, max: 300000 }),
+          faker.number.float({ min: 0, max: 1200.0, fractionDigits: 2 }),
         ),
         nroOfChildren: faker.number.int({ min: 0, max: 4 }),
-        postgraduate: new Decimal(faker.number.int({ min: 0, max: 600000 })),
+        postgraduate: new Decimal(
+          faker.number.float({ min: 0, max: 1200.0, fractionDigits: 2 }),
+        ),
         bonusForChildren: new Decimal(
-          faker.number.int({ min: 0, max: 250000 }),
+          faker.number.float({ min: 0, max: 1200.0, fractionDigits: 2 }),
         ),
-        geography: new Decimal(faker.number.int({ min: 0, max: 150000 })),
+        geography: new Decimal(
+          faker.number.float({ min: 0, max: 1200.0, fractionDigits: 2 }),
+        ),
         homeCareAssistance: new Decimal(
-          faker.number.int({ min: 0, max: 200000 }),
+          faker.number.float({ min: 0, max: 1200.0, fractionDigits: 2 }),
         ),
-        bonusDisability: new Decimal(faker.number.int({ min: 0, max: 150000 })),
+        bonusDisability: new Decimal(
+          faker.number.float({ min: 0, max: 1200.0, fractionDigits: 2 }),
+        ),
         totalSalary: new Decimal(
-          faker.number.int({ min: 800000, max: 3000000 }),
+          faker.number.float({ min: 1200.0, max: 7500.0, fractionDigits: 2 }),
         ),
       };
 
