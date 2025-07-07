@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import envConfig from '@/config/environment';
 import { Environments } from '@/config/config.enums';
 import {
+  GenerateTeachersPayrollAction,
   GenerateTeachersReportAction,
   GenerateWorkersReportAction,
 } from './actions';
@@ -17,6 +18,7 @@ export class ExcelService {
   constructor(
     private readonly generateTeachersReportAction: GenerateTeachersReportAction,
     private readonly generateWorkersReportAction: GenerateWorkersReportAction,
+    private readonly generateTeachersPayrollAction: GenerateTeachersPayrollAction,
   ) {
     // Determinar si estamos en desarrollo o producción
     const isDevelopment = envConfig.ENVIRONMENT !== Environments.PROD;
@@ -170,5 +172,14 @@ export class ExcelService {
     filePath: string;
   }> {
     return this.generateWorkersReportAction.execute();
+  }
+
+  async generateTeachersPayroll(): Promise<
+    Array<{
+      fileName: string;
+      filePath: string;
+    }>
+  > {
+    return this.generateTeachersPayrollAction.execute();
   }
 }

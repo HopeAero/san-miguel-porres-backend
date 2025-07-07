@@ -69,6 +69,16 @@ export class ExcelController {
     return await this.excelService.generateWorkersReport();
   }
 
+  @Post('reports/teachers/payroll')
+  @ApiOperation({
+    summary: 'Generar reporte de nomina de pago personal directivo docente',
+  })
+  @ApiResponse({ status: 201, description: 'Reporte generado exitosamente' })
+  @ApiResponse({ status: 400, description: 'Error al generar el reporte' })
+  async generateTeachersPayroll() {
+    return await this.excelService.generateTeachersPayroll();
+  }
+
   @Get('download/:fileName')
   @ApiOperation({ summary: 'Descargar archivo Excel generado' })
   @ApiResponse({ status: 200, description: 'Archivo descargado exitosamente' })
