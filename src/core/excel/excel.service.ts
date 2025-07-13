@@ -9,6 +9,7 @@ import {
   GenerateTeachersReportAction,
   GenerateWorkersReportAction,
 } from './actions';
+import { DateOrganizedPathHelper } from './helpers/date-organized-path.helper';
 
 @Injectable()
 export class ExcelService {
@@ -75,10 +76,58 @@ export class ExcelService {
     }
   }
 
-  async getGeneratedFilesList(): Promise<string[]> {
+  async getGeneratedFilesList(): Promise<
+    {
+      fileName: string;
+      filePath: string;
+      date: string;
+    }[]
+  > {
     try {
-      const files = await fs.promises.readdir(this.generatedPath);
-      return files;
+      const result: { fileName: string; filePath: string; date: string }[] = [];
+
+      // Función recursiva para buscar archivos en subcarpetas
+      const searchFiles = async (
+        currentPath: string,
+        basePath: string = '',
+      ) => {
+        const items = await fs.promises.readdir(currentPath, {
+          withFileTypes: true,
+        });
+
+        for (const item of items) {
+          const fullPath = path.join(currentPath, item.name);
+          const relativePath = path.join(basePath, item.name);
+
+          if (item.isDirectory()) {
+            // Buscar recursivamente en subdirectorios
+            await searchFiles(fullPath, relativePath);
+          } else if (item.isFile() && item.name.endsWith('.xlsx')) {
+            // Extraer fecha del path (formato: YYYY-MM/DD)
+            const pathParts = relativePath.split(path.sep);
+            let dateInfo = 'Sin fecha';
+
+            if (pathParts.length >= 2) {
+              const yearMonth = pathParts[0]; // "2025-01"
+              const day = pathParts[1]; // "01"
+              dateInfo = `${yearMonth}-${day}`; // "2025-01-01"
+            }
+
+            result.push({
+              fileName: item.name,
+              filePath: fullPath,
+              date: dateInfo,
+            });
+          }
+        }
+      };
+
+      await searchFiles(this.generatedPath);
+
+      // Ordenar por fecha (más recientes primero)
+      result.sort((a, b) => b.date.localeCompare(a.date));
+
+      return result;
     } catch (error) {
       console.error('Error leyendo directorio de archivos generados:', error);
       return [];
@@ -118,11 +167,16 @@ export class ExcelService {
       });
     });
 
-    // Guardar el archivo generado
-    const outputPath = path.join(this.generatedPath, outputFileName);
-    await workbook.xlsx.writeFile(outputPath);
+    // Usar el helper para generar la ruta organizada por fecha
+    const { fullFilePath } = DateOrganizedPathHelper.generateCompleteFilePath(
+      this.generatedPath,
+      outputFileName,
+    );
 
-    return outputPath;
+    // Guardar el archivo generado en la ruta organizada
+    await workbook.xlsx.writeFile(fullFilePath);
+
+    return fullFilePath;
   }
 
   async deleteTemplate(fileName: string): Promise<{ message: string }> {
@@ -135,25 +189,69 @@ export class ExcelService {
   }
 
   async cleanGeneratedFiles(): Promise<{ message: string }> {
-    const files = await fs.promises.readdir(this.generatedPath);
-    await Promise.all(
-      files.map((file) =>
-        fs.promises.unlink(path.join(this.generatedPath, file)),
-      ),
-    );
+    // Función recursiva para eliminar archivos y carpetas
+    const cleanDirectory = async (dirPath: string): Promise<void> => {
+      try {
+        const items = await fs.promises.readdir(dirPath, {
+          withFileTypes: true,
+        });
+
+        for (const item of items) {
+          const fullPath = path.join(dirPath, item.name);
+
+          if (item.isDirectory()) {
+            // Limpiar recursivamente y luego eliminar la carpeta vacía
+            await cleanDirectory(fullPath);
+            await fs.promises.rmdir(fullPath);
+          } else {
+            // Eliminar archivo
+            await fs.promises.unlink(fullPath);
+          }
+        }
+      } catch (error) {
+        console.warn(`Error limpiando directorio ${dirPath}:`, error.message);
+      }
+    };
+
+    await cleanDirectory(this.generatedPath);
     return { message: 'Archivos generados limpiados exitosamente' };
   }
 
   /**
-   * Obtiene la ruta completa de un archivo generado
+   * Obtiene la ruta completa de un archivo generado buscando en la estructura organizada
    * @param fileName Nombre del archivo
    * @returns Ruta completa del archivo
    * @throws Error si el archivo no existe
    */
   async getGeneratedFilePath(fileName: string): Promise<string> {
-    const filePath = path.join(this.generatedPath, fileName);
+    // Función recursiva para buscar el archivo en subcarpetas
+    const searchFile = async (currentPath: string): Promise<string | null> => {
+      try {
+        const items = await fs.promises.readdir(currentPath, {
+          withFileTypes: true,
+        });
 
-    if (!fs.existsSync(filePath)) {
+        for (const item of items) {
+          const fullPath = path.join(currentPath, item.name);
+
+          if (item.isDirectory()) {
+            // Buscar recursivamente en subdirectorios
+            const result = await searchFile(fullPath);
+            if (result) return result;
+          } else if (item.isFile() && item.name === fileName) {
+            // Archivo encontrado
+            return fullPath;
+          }
+        }
+        return null;
+      } catch {
+        return null;
+      }
+    };
+
+    const filePath = await searchFile(this.generatedPath);
+
+    if (!filePath) {
       throw new Error(`Archivo ${fileName} no encontrado`);
     }
 

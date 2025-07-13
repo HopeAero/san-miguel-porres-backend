@@ -5,6 +5,7 @@ import * as fs from 'fs';
 import envConfig from '@/config/environment';
 import { Environments } from '@/config/config.enums';
 import { ContractsService } from '../../../contracts/contracts.service';
+import { DateOrganizedPathHelper } from '../../helpers/date-organized-path.helper';
 
 @Injectable()
 export class GenerateTeachersReportAction {
@@ -137,12 +138,19 @@ export class GenerateTeachersReportAction {
     // Generar nombre único para el archivo
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const outputFileName = `registro_docentes_${timestamp}.xlsx`;
-    const outputPath = path.join(this.generatedPath, outputFileName);
+
+    // Usar el helper para generar la ruta organizada por fecha
+    const { organizedPath, fullFilePath } =
+      DateOrganizedPathHelper.generateCompleteFilePath(
+        this.generatedPath,
+        outputFileName,
+      );
 
     try {
-      // Guardar el archivo generado
-      await workbook.xlsx.writeFile(outputPath);
-      console.log('💾 Archivo guardado exitosamente:', outputPath);
+      // Guardar el archivo generado en la ruta organizada
+      await workbook.xlsx.writeFile(fullFilePath);
+      console.log('💾 Archivo guardado exitosamente:', fullFilePath);
+      console.log('📁 Organizado en:', organizedPath);
     } catch (error) {
       console.error('❌ Error al guardar el archivo:', error.message);
       throw new Error(`No se pudo guardar el archivo: ${error.message}`);
@@ -150,7 +158,7 @@ export class GenerateTeachersReportAction {
 
     return {
       fileName: outputFileName,
-      filePath: outputPath,
+      filePath: fullFilePath,
     };
   }
 }

@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common';
 import * as ExcelJS from 'exceljs';
 import * as path from 'path';
 import * as fs from 'fs';
+import { DateOrganizedPathHelper } from '../../helpers/date-organized-path.helper';
 
 @Injectable()
 export class GenerateTeachersPayrollAction {
@@ -170,12 +171,19 @@ export class GenerateTeachersPayrollAction {
         // Generar nombre único para el archivo
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const outputFileName = `nomina_pago_docentes_grupo${group + 1}_${timestamp}.xlsx`;
-        const outputPath = path.join(this.generatedPath, outputFileName);
+
+        // Usar el helper para generar la ruta organizada por fecha
+        const { organizedPath, fullFilePath } =
+          DateOrganizedPathHelper.generateCompleteFilePath(
+            this.generatedPath,
+            outputFileName,
+          );
 
         try {
-          // Guardar el archivo generado
-          await workbook.xlsx.writeFile(outputPath);
-          console.log('💾 Archivo guardado exitosamente:', outputPath);
+          // Guardar el archivo generado en la ruta organizada
+          await workbook.xlsx.writeFile(fullFilePath);
+          console.log('💾 Archivo guardado exitosamente:', fullFilePath);
+          console.log('📁 Organizado en:', organizedPath);
         } catch (error) {
           console.error('❌ Error al guardar el archivo:', error.message);
           throw new Error(`No se pudo guardar el archivo: ${error.message}`);
@@ -183,7 +191,7 @@ export class GenerateTeachersPayrollAction {
 
         results.push({
           fileName: outputFileName,
-          filePath: outputPath,
+          filePath: fullFilePath,
         });
       } catch (error) {
         console.error('❌ Error al cargar el workbook:', error.message);
