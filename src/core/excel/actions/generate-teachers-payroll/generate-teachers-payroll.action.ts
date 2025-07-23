@@ -6,6 +6,7 @@ import * as ExcelJS from 'exceljs';
 import * as path from 'path';
 import * as fs from 'fs';
 import { DateOrganizedPathHelper } from '../../helpers/date-organized-path.helper';
+import { ContractProfessor } from '@/core/contracts/entities/contract-profesor.entity';
 
 @Injectable()
 export class GenerateTeachersPayrollAction {
@@ -168,7 +169,7 @@ export class GenerateTeachersPayrollAction {
         }
 
         // Agregar hoja del anexo
-        await this.addAnnexSheet(workbook, group, maxRows);
+        await this.addAnnexSheet(workbook, groupContracts, group, maxRows);
 
         // Generar nombre único para el archivo
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -211,6 +212,7 @@ export class GenerateTeachersPayrollAction {
    */
   private async addAnnexSheet(
     workbook: ExcelJS.Workbook,
+    groupContracts: ContractProfessor[],
     group: number,
     maxRows: number,
   ): Promise<void> {
@@ -276,16 +278,9 @@ export class GenerateTeachersPayrollAction {
         }
       });
 
-      // Obtener datos de contratos de trabajadores administrativos
-      const workersContracts =
-        await this.contractsService.findAllWorkersForReport();
-      console.log(
-        `📋 ${workersContracts.length} contratos administrativos encontrados para el anexo`,
-      );
-
       // Llenar datos desde la fila 11 (ajustar según tu plantilla)
       let currentRow = 11;
-      for (const contract of workersContracts) {
+      for (const contract of groupContracts) {
         if (contract.employee?.person) {
           const row = newWorksheet.getRow(currentRow);
 
