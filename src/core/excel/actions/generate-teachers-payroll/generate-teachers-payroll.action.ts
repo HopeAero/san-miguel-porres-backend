@@ -74,7 +74,6 @@ export class GenerateTeachersPayrollAction {
 
         // Asegurarnos de trabajar solo con la primera hoja
         while (workbook.worksheets.length > 1) {
-          // Eliminar todas las hojas excepto la primera
           workbook.removeWorksheet(workbook.worksheets[1].id);
         }
 
@@ -168,6 +167,9 @@ export class GenerateTeachersPayrollAction {
           }
         }
 
+        // Agregar hoja del anexo
+        await this.addAnnexSheet(workbook, group, maxRows);
+
         // Generar nombre único para el archivo
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const outputFileName = `nomina_pago_docentes_grupo${group + 1}_${timestamp}.xlsx`;
@@ -202,5 +204,111 @@ export class GenerateTeachersPayrollAction {
     }
 
     return results;
+  }
+
+  /**
+   * Agrega una hoja del anexo al workbook existente
+   */
+  private async addAnnexSheet(
+    workbook: ExcelJS.Workbook,
+    group: number,
+    maxRows: number,
+  ): Promise<void> {
+    const annexTemplateName =
+      'ANEXO NOMINA DE PAGO PERSONAL ADMINISTRATIVO.xlsx';
+    const annexTemplatePath = path.join(this.templatesPath, annexTemplateName);
+
+    if (!fs.existsSync(annexTemplatePath)) {
+      console.warn(`⚠️ Plantilla de anexo no encontrada: ${annexTemplateName}`);
+      return;
+    }
+
+    console.log('📄 Cargando plantilla de anexo:', annexTemplateName);
+
+    try {
+      // Cargar la plantilla del anexo
+      const annexWorkbook = new ExcelJS.Workbook();
+      await annexWorkbook.xlsx.readFile(annexTemplatePath);
+
+      const annexWorksheet = annexWorkbook.getWorksheet(1);
+      if (!annexWorksheet) {
+        console.error(
+          '❌ No se pudo acceder a la hoja de la plantilla del anexo',
+        );
+        return;
+      }
+
+      // Crear nueva hoja en el workbook principal
+      const newWorksheet = workbook.addWorksheet('Anexo Administrativo');
+
+      // Copiar estructura y formato de la plantilla del anexo
+      annexWorksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
+        const newRow = newWorksheet.getRow(rowNumber);
+
+        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+          const newCell = newRow.getCell(colNumber);
+
+          // Copiar valor
+          newCell.value = cell.value;
+
+          // Copiar estilo básico
+          if (cell.style) {
+            newCell.style = {
+              font: cell.font,
+              fill: cell.fill,
+              border: cell.border,
+              alignment: cell.alignment,
+              numFmt: cell.numFmt,
+            };
+          }
+        });
+
+        // Copiar altura de fila
+        if (row.height) {
+          newRow.height = row.height;
+        }
+      });
+
+      // Copiar anchos de columna
+      annexWorksheet.columns.forEach((column, index) => {
+        if (column.width) {
+          newWorksheet.getColumn(index + 1).width = column.width;
+        }
+      });
+
+      // Obtener datos de contratos de trabajadores administrativos
+      const workersContracts =
+        await this.contractsService.findAllWorkersForReport();
+      console.log(
+        `📋 ${workersContracts.length} contratos administrativos encontrados para el anexo`,
+      );
+
+      // Llenar datos desde la fila 11 (ajustar según tu plantilla)
+      let currentRow = 11;
+      for (const contract of workersContracts) {
+        if (contract.employee?.person) {
+          const row = newWorksheet.getRow(currentRow);
+
+          // Calcular el número secuencial igual que en la hoja principal
+          const sequentialNumber = group * maxRows + (currentRow - 10);
+
+          // Ajustar estos campos según la estructura de tu plantilla de anexo
+          row.getCell(1).value = sequentialNumber; // N° secuencial
+          row.getCell(2).value =
+            `${contract.employee.person.name || ''} ${contract.employee.person.lastName || ''}`.trim();
+          row.getCell(3).value = contract.employee.person.dni || '';
+          row.getCell(4).value = contract.position || '';
+          row.getCell(5).value = contract.monthlySalary?.toNumber() || 0;
+          row.getCell(6).value = contract.totalSalary?.toNumber() || 0;
+
+          // Agregar más campos según necesites...
+          currentRow++;
+        }
+      }
+
+      console.log('✅ Hoja de anexo agregada exitosamente');
+    } catch (error) {
+      console.error('❌ Error al agregar hoja de anexo:', error.message);
+    }
   }
 }
