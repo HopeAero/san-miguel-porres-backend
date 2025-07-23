@@ -232,13 +232,25 @@ export class GenerateTeachersPayrollAction {
       const annexWorkbook = new ExcelJS.Workbook();
       await annexWorkbook.xlsx.readFile(annexTemplatePath);
 
-      const annexWorksheet = annexWorkbook.getWorksheet(1);
+      console.log(
+        '🔍 Nombres de hojas:',
+        annexWorkbook.worksheets.map((ws) => ws.name),
+      );
+      let annexWorksheet = annexWorkbook.getWorksheet(1);
+
+      // Si falla, usa la primera hoja del array
+      if (!annexWorksheet && annexWorkbook.worksheets.length > 0) {
+        annexWorksheet = annexWorkbook.worksheets[0];
+      }
+
       if (!annexWorksheet) {
         console.error(
           '❌ No se pudo acceder a la hoja de la plantilla del anexo',
         );
         return;
       }
+
+      console.log('✅ Hoja del anexo cargada:', annexWorksheet.name);
 
       // Crear nueva hoja en el workbook principal
       const newWorksheet = workbook.addWorksheet('Anexo Administrativo');
@@ -253,15 +265,39 @@ export class GenerateTeachersPayrollAction {
           // Copiar valor
           newCell.value = cell.value;
 
-          // Copiar estilo básico
+          // Copiar estilo de forma más segura
           if (cell.style) {
-            newCell.style = {
-              font: cell.font,
-              fill: cell.fill,
-              border: cell.border,
-              alignment: cell.alignment,
-              numFmt: cell.numFmt,
-            };
+            // Copiar fuente
+            if (cell.font) {
+              newCell.font = { ...cell.font };
+            }
+
+            // Copiar relleno
+            if (cell.fill) {
+              newCell.fill = { ...cell.fill };
+            }
+
+            // Copiar bordes de forma más cuidadosa
+            if (cell.border) {
+              newCell.border = {
+                top: cell.border.top ? { ...cell.border.top } : undefined,
+                left: cell.border.left ? { ...cell.border.left } : undefined,
+                bottom: cell.border.bottom
+                  ? { ...cell.border.bottom }
+                  : undefined,
+                right: cell.border.right ? { ...cell.border.right } : undefined,
+              };
+            }
+
+            // Copiar alineación
+            if (cell.alignment) {
+              newCell.alignment = { ...cell.alignment };
+            }
+
+            // Copiar formato numérico
+            if (cell.numFmt) {
+              newCell.numFmt = cell.numFmt;
+            }
           }
         });
 
