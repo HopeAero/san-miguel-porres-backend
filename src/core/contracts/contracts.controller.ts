@@ -11,14 +11,20 @@ import {
 import { ContractsService } from './contracts.service';
 import { CreateContractDto } from './dto/create-contract.dto';
 import { UpdateContractDto } from './dto/update-contract.dto';
+import { CreateContractWorkerDto } from './dto/create-contract-worker.dto';
 
 @Controller('contracts')
 export class ContractsController {
   constructor(private readonly contractsService: ContractsService) {}
 
-  @Post()
-  create(@Body() createContractDto: CreateContractDto) {
+  @Post('profesor')
+  createProfesor(@Body() createContractDto: CreateContractDto) {
     return this.contractsService.create(createContractDto);
+  }
+
+  @Post('worker')
+  createWorker(@Body() createContractDto: CreateContractWorkerDto) {
+    return this.contractsService.createWorker(createContractDto);
   }
 
   @Get()
