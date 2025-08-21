@@ -106,6 +106,11 @@ export class EmployeeService {
         person: true,
       },
     });
+
+    if (!employee) {
+      return null;
+    }
+
     return formatEmployee(employee);
   }
 

@@ -46,9 +46,11 @@ export class ContractsService {
     if (employee.employeeType !== TypeEmployee.Professor) {
       throw new BadRequestException('El empleado no es un profesor');
     }
+
     const contract = this.contractProfessorRepository.create({
       ...data,
       employee: employee,
+      dni: employee.dni,
     });
     return await this.contractProfessorRepository.save(contract);
   }
@@ -70,6 +72,7 @@ export class ContractsService {
     const contract = this.contractWorkerRepository.create({
       ...data,
       employee: employee,
+      dni: employee.dni,
     });
     return await this.contractWorkerRepository.save(contract);
   }
