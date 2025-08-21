@@ -119,9 +119,9 @@ export class ContractsService {
     });
   }
 
-  async findOne(uuid: string) {
+  async findOne(dni: string) {
     const contract = await this.contractProfessorRepository.findOne({
-      where: { uuid: Equal(uuid) },
+      where: { dni: Equal(dni) },
       relations: {
         employee: true,
       },

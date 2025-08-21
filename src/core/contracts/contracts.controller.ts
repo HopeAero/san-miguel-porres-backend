@@ -32,9 +32,9 @@ export class ContractsController {
     return this.contractsService.findAll();
   }
 
-  @Get(':uuid')
-  findOne(@Param('uuid', ParseUUIDPipe) uuid: string) {
-    return this.contractsService.findOne(uuid);
+  @Get(':dni')
+  findOne(@Param('dni') dni: string) {
+    return this.contractsService.findOne(dni);
   }
 
   @Patch(':uuid')
