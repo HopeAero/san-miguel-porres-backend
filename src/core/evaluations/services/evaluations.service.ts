@@ -9,6 +9,10 @@ import { Evaluation } from '../entities/evaluation.entity';
 import { EvaluationDto } from '../dto/evaluation.dto';
 import { SchoolCourt } from '../../school-year/entities/school-court.entity';
 import { CourseSchoolYear } from '../../school-year/entities/course-school-year.entity';
+import { EvaluationWithStudentsResponseDto } from '../dto/student-evaluation-qualification.dto';
+import { BulkUpdateQualificationsDto, UpdateQualificationDto } from '../dto/update-qualification.dto';
+import { FindStudentsByEvaluationAction } from './actions/find-students-by-evaluation.action';
+import { UpdateStudentsQualificationsAction } from './actions/update-students-qualifications.action';
 
 @Injectable()
 export class EvaluationsService {
@@ -19,6 +23,8 @@ export class EvaluationsService {
     private readonly schoolCourtRepository: Repository<SchoolCourt>,
     @InjectRepository(CourseSchoolYear)
     private readonly courseSchoolYearRepository: Repository<CourseSchoolYear>,
+    private readonly findStudentsByEvaluationAction: FindStudentsByEvaluationAction,
+    private readonly updateStudentsQualificationsAction: UpdateStudentsQualificationsAction,
   ) {}
 
   /**
@@ -75,7 +81,7 @@ export class EvaluationsService {
   async findOne(id: number) {
     const evaluation = await this.evaluationRepository.findOne({
       where: { id },
-      relations: ['courseSchoolYear', 'schoolCourt'],
+      relations: ['courseSchoolYear', 'schoolCourt', 'schoolCourt.schoolLapse'],
     });
 
     if (!evaluation) {
@@ -111,6 +117,17 @@ export class EvaluationsService {
     });
 
     return evaluations;
+  }
+
+  /**
+   * Obtiene los estudiantes de un curso con sus calificaciones para una evaluación específica
+   * @param evaluationId ID de la evaluación
+   * @returns Lista de estudiantes con sus calificaciones
+   */
+  async findStudentsByEvaluation(
+    evaluationId: number,
+  ): Promise<EvaluationWithStudentsResponseDto> {
+    return this.findStudentsByEvaluationAction.execute(evaluationId);
   }
 
   /**
@@ -209,5 +226,31 @@ export class EvaluationsService {
     await this.evaluationRepository.softDelete(id);
 
     return { message: `Evaluación ${evaluation.name} eliminada correctamente` };
+  }
+
+  /**
+   * Actualiza las calificaciones de múltiples estudiantes para una evaluación específica
+   * @param evaluationId ID de la evaluación
+   * @param bulkUpdateDto DTO con las calificaciones a actualizar
+   * @returns Información sobre las calificaciones actualizadas
+   */
+  async updateStudentsQualifications(
+    evaluationId: number,
+    bulkUpdateDto: BulkUpdateQualificationsDto,
+  ) {
+    return this.updateStudentsQualificationsAction.execute(evaluationId, bulkUpdateDto);
+  }
+
+  /**
+   * Actualiza la calificación de un estudiante en una evaluación
+   * @param evaluationId ID de la evaluación
+   * @param updateDto Datos de la calificación a actualizar
+   * @returns Información sobre la calificación actualizada
+   */
+  async updateStudentQualification(
+    evaluationId: number,
+    updateDto: UpdateQualificationDto,
+  ) {
+    return this.updateStudentsQualificationsAction.executeForSingleStudent(evaluationId, updateDto);
   }
 }
