@@ -65,4 +65,4 @@ export class EvaluationCourseInscription {
 
   @DeleteDateColumn()
   deletedAt: Date;
-} 
+}

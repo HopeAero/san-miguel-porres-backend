@@ -12,6 +12,8 @@ import { RemoveCourseSchoolYearAction } from './actions/remove-course-school-yea
 import { CourseSchoolYearService } from './course-school-year.service';
 import { CourseSchoolYearController } from './course-school-year.controller';
 import { CourseInscription } from '../inscriptions/entities/course-inscription.entity';
+import { Evaluation } from '../evaluations/entities/evaluation.entity';
+import { EvaluationCourseInscription } from '../evaluations/entities/evaluation-course-inscription.entity';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { CourseInscription } from '../inscriptions/entities/course-inscription.e
       SchoolYear, 
       Employee,
       CourseInscription,
+      Evaluation,
+      EvaluationCourseInscription,
     ]),
   ],
   controllers: [CourseSchoolYearController],
