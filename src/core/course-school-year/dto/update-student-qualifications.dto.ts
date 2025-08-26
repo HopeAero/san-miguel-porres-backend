@@ -5,7 +5,7 @@ import { Type } from 'class-transformer';
 /**
  * DTO para actualizar la calificación de una evaluación específica del estudiante
  */
-export class UpdateStudentEvaluationGradeDto {
+export class UpdateStudentEvaluationQualificationDto {
   @ApiProperty({
     description: 'ID de la evaluación',
     example: 1,
@@ -51,13 +51,13 @@ export class UpdateStudentEvaluationGradeDto {
 /**
  * DTO para actualizar todas las calificaciones de un estudiante en un curso
  */
-export class UpdateStudentGradesDto {
+export class UpdateStudentQualificationsDto {
   @ApiProperty({
     description: 'Lista de calificaciones a actualizar por evaluación',
-    type: [UpdateStudentEvaluationGradeDto],
+    type: [UpdateStudentEvaluationQualificationDto],
   })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => UpdateStudentEvaluationGradeDto)
-  evaluations: UpdateStudentEvaluationGradeDto[];
+  @Type(() => UpdateStudentEvaluationQualificationDto)
+  evaluations: UpdateStudentEvaluationQualificationDto[];
 }

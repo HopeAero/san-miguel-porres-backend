@@ -93,12 +93,26 @@ export class RepresentativeController {
     return await this.representanteService.findAll(searchDto);
   }
 
+  // Rutas específicas primero (más específicas)
   @Roles(Role.MODERATOR, Role.ADMIN)
   @Get('paginate')
   async paginate(
     @Query() paginationDto: PageOptionsDto,
   ): Promise<PageDto<RepresentativeDto>> {
     return await this.representanteService.paginate(paginationDto);
+  }
+
+  @Roles(Role.MODERATOR, Role.ADMIN)
+  @Get('search')
+  async searchRepresentatives(@Query('term') term: string) {
+    return await this.representanteService.searchRepresentatives(term);
+  }
+
+  // Rutas genéricas después (menos específicas)
+  @Roles(Role.MODERATOR, Role.ADMIN)
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return await this.representanteService.findOne(id);
   }
 
   @Roles(Role.MODERATOR, Role.ADMIN)
@@ -111,18 +125,6 @@ export class RepresentativeController {
   @Get(':dni')
   async findByDocument(@Param('dni') dni: string) {
     return await this.representanteService.findByDocument(dni);
-  }
-
-  @Roles(Role.MODERATOR, Role.ADMIN)
-  @Get('search')
-  async searchRepresentatives(@Query('term') term: string) {
-    return await this.representanteService.searchRepresentatives(term);
-  }
-
-  @Roles(Role.MODERATOR, Role.ADMIN)
-  @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return await this.representanteService.findOne(id);
   }
 
   @Roles(Role.MODERATOR, Role.ADMIN)

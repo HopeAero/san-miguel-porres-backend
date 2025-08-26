@@ -24,7 +24,8 @@ import { PaginateCourseSchoolYearDto } from './dto/paginate-course-school-year.d
 import { PageDto } from '@/common/dto/page.dto';
 import { StudentOfCourseDto } from './dto/student-of-course.dto';
 import { StudentGradesDetailResponseDto } from './dto/student-grades-detail.dto';
-import { UpdateStudentGradesDto } from './dto/update-student-grades.dto';
+import { UpdateStudentQualificationsDto } from './dto/update-student-qualifications.dto';
+import { UpdateFinalQualificationDto } from './dto/update-final-qualification.dto';
 
 @ApiTags('course-school-year')
 @Controller('course-school-year')
@@ -64,74 +65,124 @@ export class CourseSchoolYearController {
     );
   }
 
-  @ApiOperation({ summary: 'Obtener estudiantes inscritos en un curso-año escolar' })
+  @ApiOperation({
+    summary: 'Obtener estudiantes inscritos en un curso-año escolar',
+  })
   @ApiResponse({
     status: 200,
     description: 'Lista de estudiantes inscritos en el curso',
     type: [StudentOfCourseDto],
   })
   @ApiResponse({ status: 404, description: 'Curso-año escolar no encontrado' })
-  @ApiParam({ 
-    name: 'courseSchoolYearId', 
+  @ApiParam({
+    name: 'courseSchoolYearId',
     description: 'ID del curso-año escolar',
-    type: 'number'
+    type: 'number',
   })
   @Get(':courseSchoolYearId/students')
   async findStudentsByCourseSchoolYear(
     @Param('courseSchoolYearId', ParseIntPipe) courseSchoolYearId: number,
   ) {
-    return this.courseSchoolYearService.findStudentsByCourseSchoolYear(courseSchoolYearId);
+    return this.courseSchoolYearService.findStudentsByCourseSchoolYear(
+      courseSchoolYearId,
+    );
   }
 
-  @ApiOperation({ summary: 'Obtener detalles de notas de un estudiante específico en un curso' })
+  @ApiOperation({
+    summary:
+      'Obtener detalles de notas de un estudiante específico en un curso',
+  })
   @ApiResponse({
     status: 200,
     description: 'Detalles de las notas del estudiante en el curso',
     type: StudentGradesDetailResponseDto,
   })
-  @ApiResponse({ status: 404, description: 'Curso-año escolar o estudiante no encontrado' })
-  @ApiParam({ 
-    name: 'courseSchoolYearId', 
+  @ApiResponse({
+    status: 404,
+    description: 'Curso-año escolar o estudiante no encontrado',
+  })
+  @ApiParam({
+    name: 'courseSchoolYearId',
     description: 'ID del curso-año escolar',
-    type: 'number'
+    type: 'number',
   })
-  @ApiParam({ 
-    name: 'studentId', 
+  @ApiParam({
+    name: 'studentId',
     description: 'ID del estudiante',
-    type: 'number'
+    type: 'number',
   })
-  @Get(':courseSchoolYearId/student/:studentId/grades')
-  async getStudentGradesDetail(
+  @Get(':courseSchoolYearId/student/:studentId/qualifications')
+  async getStudentQualificationsDetail(
     @Param('courseSchoolYearId', ParseIntPipe) courseSchoolYearId: number,
     @Param('studentId', ParseIntPipe) studentId: number,
   ) {
-    return this.courseSchoolYearService.getStudentGradesDetail(courseSchoolYearId, studentId);
+    return this.courseSchoolYearService.getStudentQualificationsDetail(
+      courseSchoolYearId,
+      studentId,
+    );
   }
 
-  @ApiOperation({ summary: 'Actualizar todas las notas de un estudiante en un curso' })
+  @ApiOperation({
+    summary: 'Actualizar todas las notas de un estudiante en un curso',
+  })
   @ApiResponse({
     status: 200,
     description: 'Notas del estudiante actualizadas correctamente',
   })
-  @ApiResponse({ status: 404, description: 'Curso-año escolar o estudiante no encontrado' })
+  @ApiResponse({
+    status: 404,
+    description: 'Curso-año escolar o estudiante no encontrado',
+  })
   @ApiResponse({ status: 400, description: 'Datos inválidos' })
-  @ApiParam({ 
-    name: 'courseSchoolYearId', 
+  @ApiParam({
+    name: 'courseSchoolYearId',
     description: 'ID del curso-año escolar',
-    type: 'number'
+    type: 'number',
   })
-  @ApiParam({ 
-    name: 'studentId', 
+  @ApiParam({
+    name: 'studentId',
     description: 'ID del estudiante',
-    type: 'number'
+    type: 'number',
   })
-  @Put(':courseSchoolYearId/student/:studentId/grades')
-  async updateStudentGrades(
+  @Put(':courseSchoolYearId/student/:studentId/qualifications')
+  async updateStudentQualifications(
     @Param('courseSchoolYearId', ParseIntPipe) courseSchoolYearId: number,
     @Param('studentId', ParseIntPipe) studentId: number,
-    @Body() updateDto: UpdateStudentGradesDto,
+    @Body() updateDto: UpdateStudentQualificationsDto,
   ) {
-    return this.courseSchoolYearService.updateStudentGrades(courseSchoolYearId, studentId, updateDto);
+    return this.courseSchoolYearService.updateStudentQualifications(
+      courseSchoolYearId,
+      studentId,
+      updateDto,
+    );
+  }
+
+  @ApiOperation({
+    summary: 'Actualizar calificación final de un estudiante en una materia',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Calificación final actualizada exitosamente',
+  })
+  @ApiParam({
+    name: 'courseSchoolYearId',
+    description: 'ID del curso-año escolar',
+  })
+  @ApiParam({
+    name: 'studentId',
+    description: 'ID del estudiante',
+  })
+  @Put(':courseSchoolYearId/student/:studentId/final-qualification')
+  async updateStudentFinalQualification(
+    @Param('courseSchoolYearId', ParseIntPipe) courseSchoolYearId: number,
+    @Param('studentId', ParseIntPipe) studentId: number,
+    @Body() updateDto: UpdateFinalQualificationDto,
+  ) {
+    return this.courseSchoolYearService.updateStudentFinalQualification(
+      courseSchoolYearId,
+      studentId,
+      updateDto,
+    );
   }
 
   // Rutas genéricas después (menos específicas)

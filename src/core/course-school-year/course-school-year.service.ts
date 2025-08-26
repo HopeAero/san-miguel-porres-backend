@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { PaginateCourseSchoolYearAction } from './actions/paginate-course-school-year/paginate-course-school-year.action';
 import { FindCourseSchoolYearAction } from './actions/find-course-school-year/find-course-school-year.action';
 import { CreateCourseSchoolYearAction } from './actions/create-course-school-year/create-course-school-year.action';
@@ -18,9 +22,17 @@ import { CourseSchoolYear } from '@/core/school-year/entities/course-school-year
 import { CourseInscription } from '@/core/inscriptions/entities/course-inscription.entity';
 import { StudentOfCourseDto } from './dto/student-of-course.dto';
 import { StudentGradesDetailResponseDto } from './dto/student-grades-detail.dto';
-import { UpdateStudentGradesDto } from './dto/update-student-grades.dto';
+import { UpdateStudentQualificationsDto } from './dto/update-student-qualifications.dto';
+import { UpdateFinalQualificationDto } from './dto/update-final-qualification.dto';
 import { Evaluation } from '@/core/evaluations/entities/evaluation.entity';
 import { EvaluationCourseInscription } from '@/core/evaluations/entities/evaluation-course-inscription.entity';
+import {
+  calculateFinalGrade,
+  EvaluationForCalculation,
+  CourtForCalculation,
+  LapseForCalculation,
+  StudentQualificationsForCalculation,
+} from '@/core/evaluations';
 
 @Injectable()
 export class CourseSchoolYearService {
@@ -126,11 +138,11 @@ export class CourseSchoolYearService {
     // Construir una consulta para obtener los estudiantes inscritos
     const query = `
       SELECT 
-        s.id AS studentId,
-        p.name AS name,
-        p."lastName" AS lastName,
-        p.dni AS dni,
-        ci."endQualification" AS endQualification
+        s.id AS "studentId",
+        p.name AS "name",
+        p."lastName" AS "lastName",
+        p.dni AS "dni",
+        ci."endQualification" AS "endQualification"
       FROM 
         course_inscriptions ci
       INNER JOIN 
@@ -152,21 +164,21 @@ export class CourseSchoolYearService {
 
     // Transformar los resultados al formato esperado
     return students.map((student) => ({
-      id: student.studentid,
+      id: student.studentId,
       name: student.name,
-      lastName: student.lastname,
+      lastName: student.lastName,
       dni: student.dni,
-      endQualification: student.endqualification,
+      endQualification: student.endQualification,
     }));
   }
 
   /**
-   * Obtiene los detalles de las notas de un estudiante específico en un curso-año escolar
+   * Obtiene los detalles de las calificaciones de un estudiante específico en un curso-año escolar
    * @param courseSchoolYearId ID del curso-año escolar
    * @param studentId ID del estudiante
-   * @returns Detalles completos de las notas del estudiante
+   * @returns Detalles completos de las calificaciones del estudiante
    */
-  async getStudentGradesDetail(
+  async getStudentQualificationsDetail(
     courseSchoolYearId: number,
     studentId: number,
   ): Promise<StudentGradesDetailResponseDto> {
@@ -185,12 +197,12 @@ export class CourseSchoolYearService {
     // Buscar la inscripción del estudiante en este curso
     const query = `
       SELECT 
-        s.id AS studentId,
-        p.name AS name,
-        p."lastName" AS lastName,
-        p.dni AS dni,
-        ci."endQualification" AS endQualification,
-        ci.id AS courseInscriptionId
+        s.id AS "studentId",
+        p.name AS "name",
+        p."lastName" AS "lastName", 
+        p.dni AS "dni",
+        ci."endQualification" AS "endQualification",
+        ci.id AS "courseInscriptionId"
       FROM 
         course_inscriptions ci
       INNER JOIN 
@@ -218,7 +230,7 @@ export class CourseSchoolYearService {
     }
 
     const student = studentResult[0];
-    const courseInscriptionId = student.courseinscriptionid;
+    const courseInscriptionId = student.courseInscriptionId;
 
     // Obtener todas las evaluaciones del curso con sus notas del estudiante
     const evaluations = await this.evaluationRepository.find({
@@ -233,13 +245,14 @@ export class CourseSchoolYearService {
     // Para cada evaluación, buscar la nota del estudiante
     const evaluationsWithGrades = await Promise.all(
       evaluations.map(async (evaluation) => {
-        const evaluationGrade = await this.evaluationCourseInscriptionRepository.findOne({
-          where: {
-            evaluationId: evaluation.id,
-            courseInscriptionId: courseInscriptionId,
-            deletedAt: null,
-          },
-        });
+        const evaluationGrade =
+          await this.evaluationCourseInscriptionRepository.findOne({
+            where: {
+              evaluationId: evaluation.id,
+              courseInscriptionId: courseInscriptionId,
+              deletedAt: null,
+            },
+          });
 
         return {
           evaluationId: evaluation.id,
@@ -257,16 +270,16 @@ export class CourseSchoolYearService {
             lapseName: `Lapso ${evaluation.schoolCourt.schoolLapse.lapseNumber}`,
           },
         };
-      })
+      }),
     );
 
     // Construir la respuesta completa
     const response: StudentGradesDetailResponseDto = {
-      studentId: student.studentid,
+      studentId: student.studentId,
       studentName: student.name,
-      studentLastName: student.lastname,
+      studentLastName: student.lastName,
       studentDni: student.dni,
-      finalGrade: student.endqualification,
+      finalGrade: student.endQualification,
       course: {
         id: courseSchoolYear.course.id,
         name: courseSchoolYear.course.name,
@@ -289,10 +302,10 @@ export class CourseSchoolYearService {
    * @param updateDto DTO con las notas a actualizar
    * @returns Resultado de la actualización
    */
-  async updateStudentGrades(
+  async updateStudentQualifications(
     courseSchoolYearId: number,
     studentId: number,
-    updateDto: UpdateStudentGradesDto,
+    updateDto: UpdateStudentQualificationsDto,
   ) {
     // Verificar que el curso-año escolar existe
     const courseSchoolYear = await this.courseSchoolYearRepository.findOne({
@@ -308,7 +321,7 @@ export class CourseSchoolYearService {
     // Buscar la inscripción del estudiante en este curso
     const query = `
       SELECT 
-        ci.id AS courseInscriptionId
+        ci.id AS "courseInscriptionId"
       FROM 
         course_inscriptions ci
       INNER JOIN 
@@ -333,15 +346,15 @@ export class CourseSchoolYearService {
       );
     }
 
-    const courseInscriptionId = studentResult[0].courseinscriptionid;
+    const courseInscriptionId = studentResult[0].courseInscriptionId;
 
     // Verificar que todas las evaluaciones pertenecen al curso
-    const evaluationIds = updateDto.evaluations.map(e => e.evaluationId);
+    const evaluationIds = updateDto.evaluations.map((e) => e.evaluationId);
     const evaluations = await this.evaluationRepository.find({
-      where: { 
+      where: {
         id: In(evaluationIds),
         courseSchoolYearId,
-        deletedAt: null 
+        deletedAt: null,
       },
     });
 
@@ -352,13 +365,14 @@ export class CourseSchoolYearService {
     }
 
     // Obtener las calificaciones existentes para este estudiante
-    const existingGrades = await this.evaluationCourseInscriptionRepository.find({
-      where: {
-        courseInscriptionId: courseInscriptionId,
-        evaluationId: In(evaluationIds),
-        deletedAt: null,
-      },
-    });
+    const existingGrades =
+      await this.evaluationCourseInscriptionRepository.find({
+        where: {
+          courseInscriptionId: courseInscriptionId,
+          evaluationId: In(evaluationIds),
+          deletedAt: null,
+        },
+      });
 
     // Crear un mapa para acceso rápido a las calificaciones existentes
     const gradesMap = new Map<number, EvaluationCourseInscription>();
@@ -381,9 +395,11 @@ export class CourseSchoolYearService {
           // Actualizar calificación existente
           existingGrade.qualification = evaluationUpdate.qualification ?? null;
           existingGrade.didNotPresent = evaluationUpdate.didNotPresent ?? false;
-          existingGrade.qualificationDate = evaluationUpdate.qualification !== null && evaluationUpdate.qualification !== undefined
-            ? new Date() 
-            : null;
+          existingGrade.qualificationDate =
+            evaluationUpdate.qualification !== null &&
+            evaluationUpdate.qualification !== undefined
+              ? new Date()
+              : null;
 
           await this.evaluationCourseInscriptionRepository.save(existingGrade);
           results.updated++;
@@ -394,9 +410,11 @@ export class CourseSchoolYearService {
             courseInscriptionId: courseInscriptionId,
             qualification: evaluationUpdate.qualification ?? null,
             didNotPresent: evaluationUpdate.didNotPresent ?? false,
-            qualificationDate: evaluationUpdate.qualification !== null && evaluationUpdate.qualification !== undefined
-              ? new Date()
-              : null,
+            qualificationDate:
+              evaluationUpdate.qualification !== null &&
+              evaluationUpdate.qualification !== undefined
+                ? new Date()
+                : null,
           });
 
           await this.evaluationCourseInscriptionRepository.save(newGrade);
@@ -410,10 +428,181 @@ export class CourseSchoolYearService {
       }
     }
 
+    // Calcular y actualizar la nota final del estudiante
+    await this.updateStudentFinalGrade(courseInscriptionId, courseSchoolYearId);
+
     return {
       message: 'Calificaciones procesadas correctamente',
       results,
     };
+  }
+
+  /**
+   * Actualiza únicamente la calificación final de un estudiante en una materia
+   * @param courseSchoolYearId ID del curso-año escolar
+   * @param studentId ID del estudiante
+   * @param updateDto DTO con la nueva calificación final
+   * @returns Confirmación de la operación
+   */
+  async updateStudentFinalQualification(
+    courseSchoolYearId: number,
+    studentId: number,
+    updateDto: UpdateFinalQualificationDto,
+  ): Promise<{ message: string }> {
+    // Verificar que el curso-año escolar existe
+    const courseSchoolYear = await this.courseSchoolYearRepository.findOne({
+      where: { id: courseSchoolYearId, deletedAt: null },
+    });
+
+    if (!courseSchoolYear) {
+      throw new NotFoundException(
+        `Curso-año escolar con ID ${courseSchoolYearId} no encontrado`,
+      );
+    }
+
+    // Buscar la inscripción del estudiante en este curso
+    const query = `
+      SELECT 
+        ci.id AS "courseInscriptionId"
+      FROM 
+        course_inscriptions ci
+      INNER JOIN 
+        inscriptions i ON ci."inscriptionId" = i.id
+      INNER JOIN 
+        students s ON i."studentId" = s.id
+      WHERE 
+        ci."courseSchoolYearId" = $1
+        AND s.id = $2
+        AND ci."deletedAt" IS NULL
+        AND i."deletedAt" IS NULL
+    `;
+
+    const studentResult = await this.courseInscriptionRepository.query(query, [
+      courseSchoolYearId,
+      studentId,
+    ]);
+
+    if (!studentResult || studentResult.length === 0) {
+      throw new NotFoundException(
+        `Estudiante con ID ${studentId} no está inscrito en el curso-año escolar con ID ${courseSchoolYearId}`,
+      );
+    }
+
+    const courseInscriptionId = studentResult[0].courseInscriptionId;
+
+    // Actualizar la calificación final directamente
+    await this.courseInscriptionRepository.update(courseInscriptionId, {
+      endQualification: updateDto.finalQualification,
+    });
+
+    return {
+      message: 'Calificación final actualizada correctamente',
+    };
+  }
+
+  /**
+   * Calcula y actualiza la nota final de un estudiante basado en todas sus evaluaciones
+   * @param courseInscriptionId ID de la inscripción del curso
+   * @param courseSchoolYearId ID del curso-año escolar
+   */
+  private async updateStudentFinalGrade(
+    courseInscriptionId: number,
+    courseSchoolYearId: number,
+  ): Promise<void> {
+    // Obtener todas las evaluaciones del curso con sus calificaciones para el estudiante
+    const evaluationsQuery = `
+      SELECT 
+        e.id as "evaluationId",
+        e.percentage,
+        e.correlative,
+        sc.id as "courtId",
+        sl."lapseNumber" as "lapseNumber",
+        eci.qualification,
+        eci."didNotPresent"
+      FROM 
+        evaluations e
+      INNER JOIN 
+        school_courts sc ON e."schoolCourtId" = sc.id
+      INNER JOIN 
+        school_lapses sl ON sc."schoolLapseId" = sl.id
+      LEFT JOIN 
+        evaluations_course_inscriptions eci ON eci."evaluationId" = e.id AND eci."courseInscriptionId" = $1
+      WHERE 
+        e."courseSchoolYearId" = $2
+        AND e."deletedAt" IS NULL
+      ORDER BY 
+        sl."lapseNumber" ASC, 
+        sc.id ASC, 
+        e.correlative ASC
+    `;
+
+    const evaluationsData = await this.evaluationRepository.query(
+      evaluationsQuery,
+      [courseInscriptionId, courseSchoolYearId],
+    );
+
+    if (!evaluationsData || evaluationsData.length === 0) {
+      // No hay evaluaciones, no calculamos nota final
+      return;
+    }
+
+    // Organizar evaluaciones por lapsos y cortes
+    const lapseMap = new Map<number, Map<number, EvaluationForCalculation[]>>();
+
+    evaluationsData.forEach((evalData: any) => {
+      const lapseNumber = evalData.lapseNumber;
+      const courtId = evalData.courtId;
+
+      const evaluation: EvaluationForCalculation = {
+        evaluationId: evalData.evaluationId,
+        percentage: parseFloat(evalData.percentage),
+        qualification: evalData.qualification
+          ? parseFloat(evalData.qualification)
+          : null,
+        didNotPresent: evalData.didNotPresent || false,
+      };
+
+      if (!lapseMap.has(lapseNumber)) {
+        lapseMap.set(lapseNumber, new Map());
+      }
+
+      if (!lapseMap.get(lapseNumber).has(courtId)) {
+        lapseMap.get(lapseNumber).set(courtId, []);
+      }
+
+      lapseMap.get(lapseNumber).get(courtId).push(evaluation);
+    });
+
+    // Convertir a la estructura del algoritmo
+    const lapses: LapseForCalculation[] = Array.from(lapseMap.entries()).map(
+      ([lapseNumber, courtMap]) => {
+        const courts: CourtForCalculation[] = Array.from(
+          courtMap.entries(),
+        ).map(([courtId, evaluations]) => ({
+          courtId,
+          evaluations,
+        }));
+
+        return {
+          lapseNumber,
+          courts,
+        };
+      },
+    );
+
+    const studentData: StudentQualificationsForCalculation = {
+      lapses,
+    };
+
+    // Calcular la nota final
+    const finalGradeResult = calculateFinalGrade(studentData);
+
+    // Actualizar la nota final en course_inscriptions
+    if (finalGradeResult.finalGrade !== null) {
+      await this.courseInscriptionRepository.update(courseInscriptionId, {
+        endQualification: finalGradeResult.finalGrade,
+      });
+    }
   }
 
   /**
