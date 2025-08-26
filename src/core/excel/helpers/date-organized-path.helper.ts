@@ -11,7 +11,13 @@ export class DateOrganizedPathHelper {
    * @param basePath Ruta base (ej: generated)
    * @returns Ruta completa organizada por fecha
    */
-  static generateOrganizedPath(basePath: string): string {
+  static generateOrganizedPath(
+    basePath: string,
+    options?: {
+      category?: string; // Ejemplo: 'nomina', 'anexos', etc.
+      subcategory?: string; // Ejemplo: 'profesores', 'administrativos', etc.
+    },
+  ): string {
     const now = new Date();
 
     // Formatear año-mes (YYYY-MM)
@@ -20,8 +26,17 @@ export class DateOrganizedPathHelper {
     // Formatear día (DD)
     const day = now.getDate().toString().padStart(2, '0'); // "01", "02", etc.
 
-    // Construir la ruta completa
-    const organizedPath = path.join(basePath, yearMonth, day);
+    // Construir la ruta base con fecha
+    let organizedPath = path.join(basePath, yearMonth, day);
+
+    // Agregar categorías si se proporcionan
+    if (options?.category) {
+      organizedPath = path.join(organizedPath, options.category);
+
+      if (options?.subcategory) {
+        organizedPath = path.join(organizedPath, options.subcategory);
+      }
+    }
 
     return organizedPath;
   }
@@ -46,11 +61,15 @@ export class DateOrganizedPathHelper {
   static generateCompleteFilePath(
     basePath: string,
     fileName: string,
+    options?: {
+      category?: string;
+      subcategory?: string;
+    },
   ): {
     organizedPath: string;
     fullFilePath: string;
   } {
-    const organizedPath = this.generateOrganizedPath(basePath);
+    const organizedPath = this.generateOrganizedPath(basePath, options);
     this.ensureDirectoryExists(organizedPath);
 
     const fullFilePath = path.join(organizedPath, fileName);

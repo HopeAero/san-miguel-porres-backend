@@ -6,7 +6,6 @@ import * as ExcelJS from 'exceljs';
 import * as path from 'path';
 import * as fs from 'fs';
 import { DateOrganizedPathHelper } from '../../helpers/date-organized-path.helper';
-import { ContractProfessor } from '@/core/contracts/entities/contract-profesor.entity';
 
 @Injectable()
 export class GenerateTeachersPayrollAction {
@@ -168,9 +167,6 @@ export class GenerateTeachersPayrollAction {
           }
         }
 
-        // Agregar hoja del anexo
-        await this.addAnnexSheet(workbook, groupContracts, group, maxRows);
-
         // Generar nombre único para el archivo
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const outputFileName = `nomina_pago_docentes_grupo${group + 1}_${timestamp}.xlsx`;
@@ -180,6 +176,10 @@ export class GenerateTeachersPayrollAction {
           DateOrganizedPathHelper.generateCompleteFilePath(
             this.generatedPath,
             outputFileName,
+            {
+              category: 'nomina',
+              subcategory: 'profesores',
+            },
           );
 
         try {
@@ -204,20 +204,16 @@ export class GenerateTeachersPayrollAction {
       }
     }
 
+    await this.generateAnnexSheet();
+
     return results;
   }
 
   /**
    * Agrega una hoja del anexo al workbook existente
    */
-  private async addAnnexSheet(
-    workbook: ExcelJS.Workbook,
-    groupContracts: ContractProfessor[],
-    group: number,
-    maxRows: number,
-  ): Promise<void> {
-    const annexTemplateName =
-      'ANEXO NOMINA DE PAGO PERSONAL ADMINISTRATIVO.xlsx';
+  private async generateAnnexSheet(): Promise<void> {
+    const annexTemplateName = 'ANEXO NOMINA DE PAGO PERSONAL DIRECTIVO.xlsx';
     const annexTemplatePath = path.join(this.templatesPath, annexTemplateName);
 
     if (!fs.existsSync(annexTemplatePath)) {
@@ -225,121 +221,135 @@ export class GenerateTeachersPayrollAction {
       return;
     }
 
-    console.log('📄 Cargando plantilla de anexo:', annexTemplateName);
-
     try {
-      // Cargar la plantilla del anexo
-      const annexWorkbook = new ExcelJS.Workbook();
-      await annexWorkbook.xlsx.readFile(annexTemplatePath);
+      // Obtener todos los contratos de profesores
+      const professorsContracts =
+        await this.contractsService.findAllProfessorsForReport();
+
+      // Constantes para el manejo de grupos
+      const ROWS_PER_GROUP = 60; // Dejamos espacio para encabezados y totales
+      const totalProfessors = professorsContracts.length;
+      const totalGroups = Math.ceil(totalProfessors / ROWS_PER_GROUP);
 
       console.log(
-        '🔍 Nombres de hojas:',
-        annexWorkbook.worksheets.map((ws) => ws.name),
+        `📊 Total de profesores: ${totalProfessors}, Grupos necesarios: ${totalGroups}`,
       );
-      let annexWorksheet = annexWorkbook.getWorksheet(1);
 
-      // Si falla, usa la primera hoja del array
-      if (!annexWorksheet && annexWorkbook.worksheets.length > 0) {
-        annexWorksheet = annexWorkbook.worksheets[0];
-      }
-
-      if (!annexWorksheet) {
-        console.error(
-          '❌ No se pudo acceder a la hoja de la plantilla del anexo',
+      // Procesar cada grupo
+      for (let groupIndex = 0; groupIndex < totalGroups; groupIndex++) {
+        console.log(
+          `\n📑 Procesando grupo ${groupIndex + 1} de ${totalGroups}`,
         );
-        return;
-      }
 
-      console.log('✅ Hoja del anexo cargada:', annexWorksheet.name);
+        // Cargar plantilla fresca para cada grupo
+        const annexWorkbook = new ExcelJS.Workbook();
+        await annexWorkbook.xlsx.readFile(annexTemplatePath);
 
-      // Crear nueva hoja en el workbook principal
-      const newWorksheet = workbook.addWorksheet('Anexo Administrativo');
+        // Asegurarnos de trabajar solo con la primera hoja
+        while (annexWorkbook.worksheets.length > 1) {
+          annexWorkbook.removeWorksheet(annexWorkbook.worksheets[1].id);
+        }
 
-      // Copiar estructura y formato de la plantilla del anexo
-      annexWorksheet.eachRow({ includeEmpty: true }, (row, rowNumber) => {
-        const newRow = newWorksheet.getRow(rowNumber);
+        let annexWorksheet = annexWorkbook.getWorksheet(1);
 
-        row.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-          const newCell = newRow.getCell(colNumber);
+        if (!annexWorksheet && annexWorkbook.worksheets.length > 0) {
+          annexWorksheet = annexWorkbook.worksheets[0];
+        }
 
-          // Copiar valor
-          newCell.value = cell.value;
+        if (!annexWorksheet) {
+          console.error(
+            '❌ No se pudo acceder a la hoja de la plantilla del anexo',
+          );
+          continue;
+        }
 
-          // Copiar estilo de forma más segura
-          if (cell.style) {
-            // Copiar fuente
-            if (cell.font) {
-              newCell.font = { ...cell.font };
-            }
+        // Calcular el rango de profesores para este grupo
+        const startIndex = groupIndex * ROWS_PER_GROUP;
+        const endIndex = Math.min(startIndex + ROWS_PER_GROUP, totalProfessors);
+        const groupProfessors = professorsContracts.slice(startIndex, endIndex);
 
-            // Copiar relleno
-            if (cell.fill) {
-              newCell.fill = { ...cell.fill };
-            }
+        console.log(
+          `📝 Procesando profesores ${startIndex + 1} al ${endIndex}`,
+        );
 
-            // Copiar bordes de forma más cuidadosa
-            if (cell.border) {
-              newCell.border = {
-                top: cell.border.top ? { ...cell.border.top } : undefined,
-                left: cell.border.left ? { ...cell.border.left } : undefined,
-                bottom: cell.border.bottom
-                  ? { ...cell.border.bottom }
-                  : undefined,
-                right: cell.border.right ? { ...cell.border.right } : undefined,
-              };
-            }
+        // Llenar datos desde la fila 10
+        let currentRow = 10;
 
-            // Copiar alineación
-            if (cell.alignment) {
-              newCell.alignment = { ...cell.alignment };
-            }
+        for (const contract of groupProfessors) {
+          if (contract.employee?.person) {
+            const row = annexWorksheet.getRow(currentRow);
+            const sequentialNumber = startIndex + (currentRow - 9); // Numeración global
 
-            // Copiar formato numérico
-            if (cell.numFmt) {
-              newCell.numFmt = cell.numFmt;
-            }
+            console.log(
+              `  👤 Profesor ${sequentialNumber}: ${contract.employee.person.name}`,
+            );
+
+            // Datos básicos
+            row.getCell('A').value = sequentialNumber;
+            row.getCell('B').value =
+              `${contract.employee.person.name || ''} ${contract.employee.person.lastName || ''}`.trim();
+            row.getCell('C').value = contract.employee.person.dni || '';
+            row.getCell('D').value = contract.position || '';
+
+            // Formación (horas)
+            row.getCell('F').value = 0; // Técnica Prof.
+            row.getCell('G').value = 0; // Crecimiento Personal
+
+            // Experiencia laboral
+            row.getCell('H').value = 0; // Externa
+            row.getCell('I').value = 0; // AVEC
+
+            // Bonos y primas (columnas 4A-4H)
+            row.getCell('Q').value = contract.monthlySalary?.toNumber() || 0; // 4A - Bono nocturno
+            row.getCell('R').value = 0; // 4B - Prima antigüedad
+            row.getCell('S').value = 0; // 4C - Prima geográfica
+            row.getCell('T').value = 0; // 4D - Prima comp. académica
+            row.getCell('U').value = 0; // 4E - Prima compensatoria
+            row.getCell('V').value = 0; // 4F - Prima ayuda asistencial
+            row.getCell('W').value = 0; // 4G - Prima por hijo
+            row.getCell('X').value = 0; // 4H - Prima por discapacidad
+            row.getCell('Y').value = contract.totalSalary?.toNumber() || 0; // Total
+
+            // Asegurar formato numérico para montos
+            ['Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y'].forEach((col) => {
+              const cell = row.getCell(col);
+              cell.numFmt = '#,##0.00';
+            });
+
+            currentRow++;
           }
-        });
-
-        // Copiar altura de fila
-        if (row.height) {
-          newRow.height = row.height;
         }
-      });
 
-      // Copiar anchos de columna
-      annexWorksheet.columns.forEach((column, index) => {
-        if (column.width) {
-          newWorksheet.getColumn(index + 1).width = column.width;
-        }
-      });
+        // Generar nombre único para este grupo
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const fileName = `anexo_personal_directivo_grupo_${groupIndex + 1}_de_${totalGroups}_${timestamp}.xlsx`;
 
-      // Llenar datos desde la fila 11 (ajustar según tu plantilla)
-      let currentRow = 11;
-      for (const contract of groupContracts) {
-        if (contract.employee?.person) {
-          const row = newWorksheet.getRow(currentRow);
+        // Usar el helper para generar la ruta organizada por fecha y categoría
+        const { fullFilePath } =
+          DateOrganizedPathHelper.generateCompleteFilePath(
+            this.generatedPath,
+            fileName,
+            {
+              category: 'nomina',
+              subcategory: 'anexos-directivo',
+            },
+          );
 
-          // Calcular el número secuencial igual que en la hoja principal
-          const sequentialNumber = group * maxRows + (currentRow - 10);
+        // Guardar archivo de este grupo
+        await annexWorkbook.xlsx.writeFile(fullFilePath);
 
-          // Ajustar estos campos según la estructura de tu plantilla de anexo
-          row.getCell(1).value = sequentialNumber; // N° secuencial
-          row.getCell(2).value =
-            `${contract.employee.person.name || ''} ${contract.employee.person.lastName || ''}`.trim();
-          row.getCell(3).value = contract.employee.person.dni || '';
-          row.getCell(4).value = contract.position || '';
-          row.getCell(5).value = contract.monthlySalary?.toNumber() || 0;
-          row.getCell(6).value = contract.totalSalary?.toNumber() || 0;
-
-          // Agregar más campos según necesites...
-          currentRow++;
-        }
+        console.log(
+          `✅ Archivo del grupo ${groupIndex + 1} generado:`,
+          fileName,
+        );
+        console.log('📁 Guardado en:', fullFilePath);
       }
 
-      console.log('✅ Hoja de anexo agregada exitosamente');
+      console.log(
+        `\n✅ Proceso completado. ${totalGroups} archivos generados.`,
+      );
     } catch (error) {
-      console.error('❌ Error al agregar hoja de anexo:', error.message);
+      console.error('❌ Error al generar archivos de anexo:', error.message);
     }
   }
 }
