@@ -288,34 +288,46 @@ export class GenerateTeachersPayrollAction {
             row.getCell('A').value = sequentialNumber;
             row.getCell('B').value =
               `${contract.employee.person.name || ''} ${contract.employee.person.lastName || ''}`.trim();
-            row.getCell('C').value = contract.employee.person.dni || '';
-            row.getCell('D').value = contract.position || '';
+            row.getCell('C').value = contract.position || '';
+            row.getCell('D').value = 'X'; //Titulo docente pregrado
+            row.getCell('E').value = 'X'; //Titulo docente posgrado
 
             // Formación (horas)
-            row.getCell('F').value = 0; // Técnica Prof.
-            row.getCell('G').value = 0; // Crecimiento Personal
+            row.getCell('F').value = 0; // Diploma educativo
+            row.getCell('G').value = 0; // Puntaje
 
             // Experiencia laboral
-            row.getCell('H').value = 0; // Externa
-            row.getCell('I').value = 0; // AVEC
+            row.getCell('H').value = contract.workingHours?.toNumber() || 0; // Numero de horas semanales
+            row.getCell('I').value = contract.hoursWorked?.toNumber() || 0; // Numero de horas semanales
 
             // Bonos y primas (columnas 4A-4H)
-            row.getCell('Q').value = contract.monthlySalary?.toNumber() || 0; // 4A - Bono nocturno
-            row.getCell('R').value = 0; // 4B - Prima antigüedad
-            row.getCell('S').value = 0; // 4C - Prima geográfica
-            row.getCell('T').value = 0; // 4D - Prima comp. académica
-            row.getCell('U').value = 0; // 4E - Prima compensatoria
-            row.getCell('V').value = 0; // 4F - Prima ayuda asistencial
-            row.getCell('W').value = 0; // 4G - Prima por hijo
-            row.getCell('X').value = 0; // 4H - Prima por discapacidad
-            row.getCell('Y').value = contract.totalSalary?.toNumber() || 0; // Total
+            row.getCell('J').value =
+              Math.round(contract.hoursWorked?.toNumber()) || 0; // Total de horas trabajadas
+            row.getCell('K').value = contract.category?.toString() || ''; // Categoria docente
+            row.getCell('L').value = contract.yearsOfService || 0; // Tiempo de servicio en planteles privados (años)
+            row.getCell('M').value = 0; // Tiempo de servicio en planteles privados (meses)
+            row.getCell('N').value = contract.hourlyCost?.toNumber() || 0; // Costo hora
+            row.getCell('O').value = contract.antique?.toNumber() || 0; // Prima por antiguedad
+            row.getCell('P').value = contract.teachingExercise?.toNumber() || 0; // Ejercicio docente
+            row.getCell('Q').value = contract.geography?.toNumber() || 0; // Primar geográfica
+            row.getCell('R').value = contract.postgraduate?.toNumber() || 0; // Postgrado
+            row.getCell('S').value =
+              contract.homeCareAssistance?.toNumber() || 0; // Prima ayuda asistencial
+            row.getCell('T').value = contract.bonusForChildren?.toNumber() || 0; // N° Hijos
+            row.getCell('U').value = contract.bonusDisability?.toNumber() || 0; // Prima por discapacidad
+            row.getCell('V').value = {
+              formula: `=SUM(O${currentRow}+P${currentRow}+Q${currentRow}+R${currentRow}+S${currentRow}+T${currentRow}+U${currentRow})`,
+            };
+            row.getCell('W').value = 0;
+            row.getCell('X').value = {
+              formula: `=SUM(V${currentRow})`,
+            };
 
             // Asegurar formato numérico para montos
             ['Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y'].forEach((col) => {
               const cell = row.getCell(col);
               cell.numFmt = '#,##0.00';
             });
-
             currentRow++;
           }
         }
