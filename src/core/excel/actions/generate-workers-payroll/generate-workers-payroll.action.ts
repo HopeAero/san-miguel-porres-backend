@@ -192,6 +192,160 @@ export class GenerateWorkersPayrollAction {
       }
     }
 
+    const annexResults = await this.generateAnnexSheet();
+
+    return [...results, ...annexResults];
+  }
+
+  async generateAnnexSheet() {
+    const templateName = 'ANEXO NOMINA DE PAGO PERSONAL ADMINISTRATIVO.xlsx';
+    const templatePath = path.join(this.templatesPath, templateName);
+
+    if (!fs.existsSync(templatePath)) {
+      throw new Error(
+        'Template de anexo de nomina de pago personal administrativo no encontrado',
+      );
+    }
+
+    console.log('📄 Template de anexo encontrado:', templatePath);
+
+    const workersContracts =
+      await this.contractsService.findAllWorkersForReport();
+
+    let currentRow = 11;
+    const maxRows = 16; // Solo 5 empleados por página (filas 11-27 )
+    const results: Array<{ fileName: string; filePath: string }> = [];
+    const totalGroups = Math.ceil(workersContracts.length / maxRows);
+
+    for (let group = 0; group < totalGroups; group++) {
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.readFile(templatePath);
+      console.log(`📊 Workbook ${group + 1} cargado exitosamente`);
+
+      let worksheet = workbook.getWorksheet(1);
+
+      if (!worksheet && workbook.worksheets.length > 0) {
+        worksheet = workbook.worksheets[0];
+      }
+
+      if (!worksheet) {
+        throw new Error('No se encontraron hojas de trabajo en el template');
+      }
+
+      const columns = ['Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y'];
+
+      for (const col of columns) {
+        const masterCell = worksheet.getCell(`${col}30`);
+        masterCell.value = {
+          formula: `=SUM(${col}11:${col}27)`,
+        };
+      }
+
+      currentRow = 11; // Reiniciar la fila para cada grupo
+      const startIdx = group * maxRows;
+      const endIdx = Math.min((group + 1) * maxRows, workersContracts.length);
+      const groupContracts = workersContracts.slice(startIdx, endIdx);
+
+      for (const contract of groupContracts) {
+        if (contract.employee?.person) {
+          const row = worksheet.getRow(currentRow);
+
+          // Calcular el número secuencial considerando el grupo actual
+          const sequentialNumber = group * maxRows + (currentRow - 10);
+
+          // Datos básicos
+          row.getCell('A').value = sequentialNumber;
+          row.getCell('B').value =
+            `${contract.employee.person.name || ''} ${contract.employee.person.lastName || ''}`.trim();
+          row.getCell('C').value = contract.employee.person.dni || '';
+          row.getCell('D').value = contract.position || '';
+          row.getCell('E').value = contract.qualification || '';
+          row.getCell('F').value = '';
+          row.getCell('G').value = '';
+          row.getCell('H').value = contract.yearsOfServiceExternal || 0;
+          row.getCell('I').value = contract.yearsOfServiceAvec || 0;
+          row.getCell('J').value = contract.yearsOfServiceOtherAvec || 0;
+          row.getCell('K').value = contract.grade || '';
+          switch (contract.level) {
+            case 'Nivel 1':
+              row.getCell('L').value = 'I';
+              row.getCell('M').value = '';
+              row.getCell('N').value = '';
+              row.getCell('O').value = '';
+              break;
+            case 'Nivel 2':
+              row.getCell('L').value = '';
+              row.getCell('M').value = 'II';
+              row.getCell('N').value = '';
+              row.getCell('O').value = '';
+              break;
+            case 'Nivel 3':
+              row.getCell('L').value = '';
+              row.getCell('M').value = '';
+              row.getCell('N').value = 'III';
+              row.getCell('O').value = '';
+              break;
+            case 'Nivel 4':
+              row.getCell('L').value = '';
+              row.getCell('M').value = '';
+              row.getCell('N').value = '';
+              row.getCell('O').value = 'IV';
+              break;
+            case 'Nivel 5':
+              row.getCell('L').value = '';
+              row.getCell('M').value = '';
+              row.getCell('N').value = '';
+              row.getCell('O').value = 'V';
+              break;
+          }
+          row.getCell('P').value = contract.workingHours?.toNumber() || 0;
+          row.getCell('Q').value = contract.nightBonus?.toNumber() || 0;
+          row.getCell('R').value = contract.antique?.toNumber() || 0;
+          row.getCell('S').value = contract.geography?.toNumber() || 0;
+          row.getCell('T').value = contract.bonusAcademic?.toNumber() || 0;
+          row.getCell('U').value = 22.5;
+          row.getCell('V').value = 0; // PRIMA AYUDA ASISTENCIAL DEL HOGAR EL 10% SOBRE EL SALARIO MINIMO LEGAL ESTABLECIDO (SALARIO MINIMO + CESTATICKTS). CARÁCTER SALARIAL.
+          row.getCell('W').value = contract.bonusForChildren?.toNumber() || 0; // PRIMA POR HIJO
+          row.getCell('X').value = contract.bonusDisability?.toNumber() || 0; // PRIMA POR DISCAPACIDAD
+          row.getCell('Y').value = {
+            formula: `=SUM(Q${currentRow} + R${currentRow} + S${currentRow} + T${currentRow} + U${currentRow} + V${currentRow} + W${currentRow} + X${currentRow})`,
+          };
+
+          currentRow++;
+        }
+      }
+
+      // Generar nombre único para el archivo
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const outputFileName = `anexo_nomina_pago_administrativo_grupo${group + 1}_${timestamp}.xlsx`;
+
+      // Usar el helper para generar la ruta organizada por fecha
+      const { organizedPath, fullFilePath } =
+        DateOrganizedPathHelper.generateCompleteFilePath(
+          this.generatedPath,
+          outputFileName,
+          {
+            category: 'nomina',
+            subcategory: 'administrativo',
+          },
+        );
+
+      try {
+        // Guardar el archivo generado en la ruta organizada
+        await workbook.xlsx.writeFile(fullFilePath);
+        console.log('💾 Archivo guardado exitosamente:', fullFilePath);
+        console.log('📁 Organizado en:', organizedPath);
+      } catch (error) {
+        console.error('❌ Error al guardar el archivo:', error.message);
+        throw new Error(`No se pudo guardar el archivo: ${error.message}`);
+      }
+
+      results.push({
+        fileName: outputFileName,
+        filePath: fullFilePath,
+      });
+    }
+
     return results;
   }
 }
