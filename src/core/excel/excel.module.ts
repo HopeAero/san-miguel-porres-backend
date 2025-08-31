@@ -6,6 +6,7 @@ import {
   GenerateTeachersPayrollAction,
   GenerateTeachersReportAction,
   GenerateWorkersReportAction,
+  GenerateWorkersPayrollAction,
 } from './actions';
 
 @Module({
@@ -16,6 +17,7 @@ import {
     GenerateTeachersReportAction,
     GenerateWorkersReportAction,
     GenerateTeachersPayrollAction,
+    GenerateWorkersPayrollAction,
   ],
   exports: [ExcelService],
 })

@@ -10,6 +10,7 @@ import {
   GenerateWorkersReportAction,
 } from './actions';
 import { DateOrganizedPathHelper } from './helpers/date-organized-path.helper';
+import { GenerateWorkersPayrollAction } from './actions/generate-workers-payroll/generate-workers-payroll.action';
 
 @Injectable()
 export class ExcelService {
@@ -20,6 +21,7 @@ export class ExcelService {
     private readonly generateTeachersReportAction: GenerateTeachersReportAction,
     private readonly generateWorkersReportAction: GenerateWorkersReportAction,
     private readonly generateTeachersPayrollAction: GenerateTeachersPayrollAction,
+    private readonly generateWorkersPayrollAction: GenerateWorkersPayrollAction,
   ) {
     // Determinar si estamos en desarrollo o producción
     const isDevelopment = envConfig.ENVIRONMENT !== Environments.PROD;
@@ -279,5 +281,14 @@ export class ExcelService {
     }>
   > {
     return this.generateTeachersPayrollAction.execute();
+  }
+
+  async generateWorkersPayroll(): Promise<
+    Array<{
+      fileName: string;
+      filePath: string;
+    }>
+  > {
+    return this.generateWorkersPayrollAction.execute();
   }
 }
