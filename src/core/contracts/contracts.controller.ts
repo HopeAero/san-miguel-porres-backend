@@ -37,16 +37,16 @@ export class ContractsController {
     return this.contractsService.findOne(dni);
   }
 
-  @Patch(':uuid')
+  @Patch(':dni')
   update(
-    @Param('uuid', ParseUUIDPipe) uuid: string,
+    @Param('dni') dni: string,
     @Body() updateContractDto: UpdateContractDto,
   ) {
-    return this.contractsService.update(uuid, updateContractDto);
+    return this.contractsService.update(dni, updateContractDto);
   }
 
-  @Delete(':uuid')
-  remove(@Param('uuid', ParseUUIDPipe) uuid: string) {
-    return this.contractsService.remove(uuid);
+  @Delete(':dni')
+  remove(@Param('dni') dni: string) {
+    return this.contractsService.remove(dni);
   }
 }

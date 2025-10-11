@@ -167,14 +167,18 @@ export class ContractsService {
     return contract;
   }
 
-  async update(uuid: string, updateContractDto: UpdateContractDto) {
-    const contract = await this.findOne(uuid);
+  async update(dni: string, updateContractDto: UpdateContractDto) {
+    const contract = await this.findOne(dni);
     this.contractProfessorRepository.merge(contract, updateContractDto);
     return await this.contractProfessorRepository.save(contract);
   }
 
-  async remove(uuid: string) {
-    const contract = await this.findOne(uuid);
-    return await this.contractProfessorRepository.softDelete(contract.uuid);
+  async remove(dni: string) {
+    const contract = await this.findOne(dni);
+    if (!contract) {
+      throw new NotFoundException('No se se encontró el contrato');
+    }
+
+    return await this.contractProfessorRepository.softDelete({ dni });
   }
 }
