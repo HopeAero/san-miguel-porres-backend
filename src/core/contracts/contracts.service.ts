@@ -47,12 +47,29 @@ export class ContractsService {
       throw new BadRequestException('El empleado no es un profesor');
     }
 
-    const contract = this.contractProfessorRepository.create({
-      ...data,
-      employee: employee,
-      dni: employee.dni,
+    // Verificar si ya existe un contrato
+    const existingContract = await this.contractProfessorRepository.findOne({
+      where: {
+        employee: { id: employee.id },
+      },
     });
-    return await this.contractProfessorRepository.save(contract);
+
+    if (existingContract) {
+      // Si existe, actualizamos el contrato existente
+      this.contractProfessorRepository.merge(existingContract, {
+        ...data,
+        dni: employee.dni,
+      });
+      return await this.contractProfessorRepository.save(existingContract);
+    } else {
+      // Si no existe, creamos uno nuevo
+      const contract = this.contractProfessorRepository.create({
+        ...data,
+        employee: employee,
+        dni: employee.dni,
+      });
+      return await this.contractProfessorRepository.save(contract);
+    }
   }
 
   @Transactional()
@@ -69,12 +86,29 @@ export class ContractsService {
       throw new BadRequestException('El empleado no es un obrero');
     }
 
-    const contract = this.contractWorkerRepository.create({
-      ...data,
-      employee: employee,
-      dni: employee.dni,
+    // Verificar si ya existe un contrato
+    const existingContract = await this.contractWorkerRepository.findOne({
+      where: {
+        employee: { id: employee.id },
+      },
     });
-    return await this.contractWorkerRepository.save(contract);
+
+    if (existingContract) {
+      // Si existe, actualizamos el contrato existente
+      this.contractWorkerRepository.merge(existingContract, {
+        ...data,
+        dni: employee.dni,
+      });
+      return await this.contractWorkerRepository.save(existingContract);
+    } else {
+      // Si no existe, creamos uno nuevo
+      const contract = this.contractWorkerRepository.create({
+        ...data,
+        employee: employee,
+        dni: employee.dni,
+      });
+      return await this.contractWorkerRepository.save(contract);
+    }
   }
 
   async findAll() {
