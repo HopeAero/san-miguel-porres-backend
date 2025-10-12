@@ -154,31 +154,64 @@ export class ContractsService {
   }
 
   async findOne(dni: string) {
-    const contract = await this.contractProfessorRepository.findOne({
-      where: { dni: Equal(dni) },
-      relations: {
-        employee: true,
-      },
-    });
-
-    if (!contract) {
-      throw new NotFoundException('No se se encontró el contrato');
+    const employee = await this.employeeService.findOneByDni(dni);
+    if (!employee) {
+      throw new NotFoundException('No se se encontró el empleado');
     }
-    return contract;
+    if (employee.employeeType === TypeEmployee.Professor) {
+      return await this.contractProfessorRepository.findOne({
+        where: { dni: Equal(dni) },
+      });
+    } else if (employee.employeeType === TypeEmployee.Worker) {
+      return await this.contractWorkerRepository.findOne({
+        where: { dni: Equal(dni) },
+      });
+    }
   }
 
   async update(dni: string, updateContractDto: UpdateContractDto) {
-    const contract = await this.findOne(dni);
-    this.contractProfessorRepository.merge(contract, updateContractDto);
-    return await this.contractProfessorRepository.save(contract);
-  }
+    const employee = await this.employeeService.findOneByDni(dni);
+    let contractProfessor: ContractProfessor | null = null;
+    let contractWorker: ContractWorker | null = null;
 
-  async remove(dni: string) {
-    const contract = await this.findOne(dni);
-    if (!contract) {
-      throw new NotFoundException('No se se encontró el contrato');
+    if (employee.employeeType === TypeEmployee.Professor) {
+      contractProfessor = await this.contractProfessorRepository.findOne({
+        where: { dni: Equal(dni) },
+      });
+      if (!contractProfessor) {
+        throw new NotFoundException(
+          'No se se encontró el contrato de profesor',
+        );
+      }
+      this.contractProfessorRepository.merge(
+        contractProfessor,
+        updateContractDto,
+      );
+      return await this.contractProfessorRepository.save(contractProfessor);
+    } else if (employee.employeeType === TypeEmployee.Worker) {
+      contractWorker = await this.contractWorkerRepository.findOne({
+        where: { dni: Equal(dni) },
+      });
+      if (!contractWorker) {
+        throw new NotFoundException(
+          'No se se encontró el contrato de trabajador',
+        );
+      }
+      this.contractWorkerRepository.merge(contractWorker, updateContractDto);
+      return await this.contractWorkerRepository.save(contractWorker);
     }
-
-    return await this.contractProfessorRepository.softDelete({ dni });
+  }
+  async remove(dni: string) {
+    const employee = await this.employeeService.findOneByDni(dni);
+    if (!employee) {
+      throw new NotFoundException('No se encontró el empleado');
+    }
+    if (employee.employeeType === TypeEmployee.Professor) {
+      return await this.contractProfessorRepository.softDelete({ dni });
+    } else if (employee.employeeType === TypeEmployee.Worker) {
+      return await this.contractWorkerRepository.softDelete({ dni });
+    } else {
+      throw new BadRequestException('El empleado no tiene contrato');
+    }
   }
 }
