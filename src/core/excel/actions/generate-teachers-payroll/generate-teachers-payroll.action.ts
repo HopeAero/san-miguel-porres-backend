@@ -204,21 +204,25 @@ export class GenerateTeachersPayrollAction {
       }
     }
 
-    await this.generateAnnexSheet();
+    // Generar los anexos y combinar los resultados
+    const annexResults = await this.generateAnnexSheet();
 
-    return results;
+    return [...results, ...annexResults];
   }
 
   /**
-   * Agrega una hoja del anexo al workbook existente
+   * Genera los archivos de anexo y retorna sus rutas
    */
-  private async generateAnnexSheet(): Promise<void> {
+  private async generateAnnexSheet(): Promise<
+    Array<{ fileName: string; filePath: string }>
+  > {
+    const results: Array<{ fileName: string; filePath: string }> = [];
     const annexTemplateName = 'ANEXO NOMINA DE PAGO PERSONAL DIRECTIVO.xlsx';
     const annexTemplatePath = path.join(this.templatesPath, annexTemplateName);
 
     if (!fs.existsSync(annexTemplatePath)) {
       console.warn(`⚠️ Plantilla de anexo no encontrada: ${annexTemplateName}`);
-      return;
+      return results;
     }
 
     try {
@@ -343,7 +347,7 @@ export class GenerateTeachersPayrollAction {
             fileName,
             {
               category: 'nomina',
-              subcategory: 'anexos-directivo',
+              subcategory: 'profesores',
             },
           );
 
@@ -362,6 +366,9 @@ export class GenerateTeachersPayrollAction {
       );
     } catch (error) {
       console.error('❌ Error al generar archivos de anexo:', error.message);
+      throw new Error(`Error al generar archivos de anexo: ${error.message}`);
     }
+
+    return results;
   }
 }
