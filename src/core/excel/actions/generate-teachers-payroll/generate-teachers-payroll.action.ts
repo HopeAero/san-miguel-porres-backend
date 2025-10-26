@@ -354,6 +354,12 @@ export class GenerateTeachersPayrollAction {
         // Guardar archivo de este grupo
         await annexWorkbook.xlsx.writeFile(fullFilePath);
 
+        // Agregar el archivo al array de resultados
+        results.push({
+          fileName: fileName,
+          filePath: fullFilePath,
+        });
+
         console.log(
           `✅ Archivo del grupo ${groupIndex + 1} generado:`,
           fileName,
