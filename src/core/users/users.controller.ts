@@ -12,6 +12,7 @@ import {
   Query,
   UseGuards,
   Response,
+  DefaultValuePipe,
 } from '@nestjs/common';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { JwtGuard } from '../auth/guards/jwt.guard';
@@ -40,6 +41,36 @@ export class UsersController {
   @Get('all')
   async findAll(): Promise<UserDTO[]> {
     return await this.usersService.findAll();
+  }
+
+  @Get('teachers')
+  async findTeachers(
+    @Query('searchTerm') searchTerm?: string,
+    @Query(
+      'limit',
+      new DefaultValuePipe(undefined),
+      new ParseIntPipe({ optional: true }),
+    )
+    limit?: number | null,
+    @Query('forceItemsIds') forceItemsIds?: string | null,
+  ): Promise<UserDTO[]> {
+    let forceItemsIdsArray: number[] = [];
+
+    if (forceItemsIds) {
+      try {
+        forceItemsIdsArray = forceItemsIds
+          .split(',')
+          .map((id) => parseInt(id.trim()));
+      } catch {
+        forceItemsIdsArray = [];
+      }
+    }
+
+    return await this.usersService.findTeachers(
+      forceItemsIdsArray,
+      searchTerm,
+      limit,
+    );
   }
 
   @Get('paginate')

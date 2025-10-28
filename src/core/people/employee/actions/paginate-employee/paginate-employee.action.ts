@@ -41,6 +41,7 @@ export class PaginateEmployeeAction {
       skip: pageOptionsDto.skip,
       relations: {
         person: true,
+        assignedUser: true,
       },
     });
 
@@ -62,6 +63,7 @@ export class PaginateEmployeeAction {
     const queryBuilder = this.employeeRepository
       .createQueryBuilder('employee')
       .leftJoinAndSelect('employee.person', 'person')
+      .leftJoinAndSelect('employee.assignedUser', 'assignedUser')
       .where('employee.deletedAt IS NULL');
 
     // Aplicar filtro de búsqueda por término si se proporciona
@@ -115,6 +117,16 @@ export class PaginateEmployeeAction {
       id: employeeEntity.id,
       personId: employeeEntity.person?.id || null,
       employeeType: employeeEntity.employeeType,
+      userId: employeeEntity.userId,
+      assignedUser: employeeEntity.assignedUser ? {
+        id: employeeEntity.assignedUser.id,
+        name: employeeEntity.assignedUser.name,
+        email: employeeEntity.assignedUser.email,
+        role: employeeEntity.assignedUser.role,
+        createdAt: employeeEntity.assignedUser.createdAt,
+        updatedAt: employeeEntity.assignedUser.updatedAt,
+        deleteAt: employeeEntity.assignedUser.deleteAt
+      } : undefined,
     });
   }
 }

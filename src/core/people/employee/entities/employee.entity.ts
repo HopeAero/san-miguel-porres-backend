@@ -1,8 +1,10 @@
 import { Person } from '@/core/people/people/entities/person.entity';
+import { User } from '@/core/users/entities/user.entity';
 import {
   Entity,
   Column,
   OneToOne,
+  ManyToOne,
   JoinColumn,
   DeleteDateColumn,
   PrimaryColumn,
@@ -22,6 +24,13 @@ export class Employee {
 
   @Column({ type: 'text' })
   employeeType: TypeEmployee;
+
+  @Column({ nullable: true })
+  userId: number | null;
+
+  @ManyToOne(() => User, { nullable: true, eager: false })
+  @JoinColumn({ name: 'userId' })
+  assignedUser: Relation<User>;
 
   @OneToOne(() => Person, {
     onDelete: 'CASCADE',

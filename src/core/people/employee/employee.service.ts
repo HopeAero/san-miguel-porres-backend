@@ -24,6 +24,16 @@ function formatEmployee(employeeEntity: Employee): EmployeeDto {
     id: employeeEntity.id,
     personId: employeeEntity.person?.id || null,
     employeeType: employeeEntity.employeeType,
+    userId: employeeEntity.userId,
+    assignedUser: employeeEntity.assignedUser ? {
+      id: employeeEntity.assignedUser.id,
+      name: employeeEntity.assignedUser.name,
+      email: employeeEntity.assignedUser.email,
+      role: employeeEntity.assignedUser.role,
+      createdAt: employeeEntity.assignedUser.createdAt,
+      updatedAt: employeeEntity.assignedUser.updatedAt,
+      deleteAt: employeeEntity.assignedUser.deleteAt
+    } : undefined,
   });
 }
 
@@ -44,6 +54,7 @@ export class EmployeeService {
     const employee = this.employeeRepository.create({
       person,
       employeeType: createEmpleadoDto.employeeType,
+      userId: createEmpleadoDto.userId || null,
     });
     const savedEmployee = await this.employeeRepository.save(employee);
     return await this.findOne(savedEmployee.id);
@@ -53,19 +64,29 @@ export class EmployeeService {
     id: number,
     updateEmpleadoDto: CreateEmployeeDTO,
   ): Promise<void> {
-    const { employeeType, ...personDto } = updateEmpleadoDto;
+    const { employeeType, userId, ...personDto } = updateEmpleadoDto;
 
-    if (employeeType) {
-      const updatedEmployee = await this.employeeRepository.update(id, {
-        employeeType,
-      });
+    // Actualizar campos del empleado (employeeType y userId)
+    if (employeeType !== undefined || userId !== undefined) {
+      const employeeUpdate: any = {};
+      
+      if (employeeType !== undefined) {
+        employeeUpdate.employeeType = employeeType;
+      }
+      
+      if (userId !== undefined) {
+        employeeUpdate.userId = userId;
+      }
+
+      const updatedEmployee = await this.employeeRepository.update(id, employeeUpdate);
 
       if (updatedEmployee.affected === 0) {
         throw new NotFoundException(`Empleado no encontrado con el ID ${id}`);
       }
     }
 
-    if (personDto) {
+    // Actualizar campos de la persona
+    if (Object.keys(personDto).length > 0) {
       const employee = await this.peopleService.update(id, personDto);
 
       if (!employee) {
@@ -73,7 +94,8 @@ export class EmployeeService {
       }
     }
 
-    if (!employeeType && !personDto) {
+    // Verificar que se haya enviado algo para actualizar
+    if (employeeType === undefined && userId === undefined && Object.keys(personDto).length === 0) {
       throw new NotFoundException(
         'No se ha enviado información para actualizar',
       );
@@ -87,6 +109,7 @@ export class EmployeeService {
       where: { id },
       relations: {
         person: true,
+        assignedUser: true,
       },
     });
     if (!employee) {

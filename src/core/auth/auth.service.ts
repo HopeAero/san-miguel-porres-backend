@@ -9,11 +9,17 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { InjectEntityManager } from '@nestjs/typeorm';
+import { EntityManager } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { LoginCredentials } from './dto/login.dto';
 import { RegistrationCredentials } from './dto/register.dto';
 import { AuthUser } from './types/AuthUser';
 import { AccessTokenPayload } from './types/AccessTokenPayload';
+import {
+  Employee,
+  TypeEmployee,
+} from '@/core/people/employee/entities/employee.entity';
 
 @Injectable()
 export class AuthService {
@@ -21,6 +27,8 @@ export class AuthService {
     @Inject(forwardRef(() => UsersService))
     private readonly usersService: WrapperType<UsersService>,
     private readonly jwtService: JwtService,
+    @InjectEntityManager()
+    private readonly entityManager: EntityManager,
   ) {}
 
   async validateUser(email: string, password: string): Promise<User> {
@@ -36,16 +44,29 @@ export class AuthService {
   }
 
   async generateToken(user: User): Promise<AuthUser> {
+    const professors = await this.entityManager
+      .createQueryBuilder(Employee, 'employee')
+      .where('employee.userId = :userId', { userId: user.id })
+      .andWhere('employee.employeeType = :type', {
+        type: TypeEmployee.Professor,
+      })
+      .andWhere('employee.deletedAt IS NULL')
+      .getMany();
+
     const payload: AccessTokenPayload = {
       email: user.email,
       userId: user.id,
+      role: user.role,
       id: user.id,
+      professors: professors.map((professor) => professor.id),
     };
 
     return {
       accessToken: this.jwtService.sign(payload),
       name: user.name,
       email: user.email,
+      role: user.role,
+      professors: professors.map((professor) => professor.id),
     };
   }
 
@@ -67,5 +88,29 @@ export class AuthService {
     });
 
     return this.generateToken(newUser);
+  }
+
+  async me(email: string): Promise<AuthUser> {
+    const user = await this.usersService.findOneByEmail(email);
+    if (!user) {
+      throw new BadRequestException('Usuario no encontrado');
+    }
+
+    const professors = await this.entityManager
+      .createQueryBuilder(Employee, 'employee')
+      .where('employee.userId = :userId', { userId: user.id })
+      .andWhere('employee.employeeType = :type', {
+        type: TypeEmployee.Professor,
+      })
+      .andWhere('employee.deletedAt IS NULL')
+      .getMany();
+
+    return {
+      accessToken: '',
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      professors: professors.map((professor) => professor.id),
+    };
   }
 }

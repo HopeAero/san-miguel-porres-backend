@@ -32,6 +32,7 @@ export class FindAllEmployeeAction {
       const employees = await this.employeeRepository.find({
         relations: {
           person: true,
+          assignedUser: true,
         },
       });
       result = employees.map((employeeEntity: Employee) => {
@@ -42,6 +43,7 @@ export class FindAllEmployeeAction {
       const query = this.employeeRepository
         .createQueryBuilder('employee')
         .leftJoinAndSelect('employee.person', 'person')
+        .leftJoinAndSelect('employee.assignedUser', 'assignedUser')
         .where('employee.deletedAt IS NULL');
 
       // Aplicar filtro por tipo de empleado si se proporciona
@@ -153,6 +155,16 @@ export class FindAllEmployeeAction {
       id: employeeEntity.id,
       personId: employeeEntity.person?.id || null,
       employeeType: employeeEntity.employeeType,
+      userId: employeeEntity.userId,
+      assignedUser: employeeEntity.assignedUser ? {
+        id: employeeEntity.assignedUser.id,
+        name: employeeEntity.assignedUser.name,
+        email: employeeEntity.assignedUser.email,
+        role: employeeEntity.assignedUser.role,
+        createdAt: employeeEntity.assignedUser.createdAt,
+        updatedAt: employeeEntity.assignedUser.updatedAt,
+        deleteAt: employeeEntity.assignedUser.deleteAt
+      } : undefined,
     });
   }
 } 

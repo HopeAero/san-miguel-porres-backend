@@ -11,6 +11,7 @@ import { UserDTO } from './dto/user.dto';
 import * as bcrypt from 'bcryptjs';
 import { StatusError } from '@/common';
 import { STATUS } from '@/common/constants';
+import { Role } from '@/common/enum/role';
 
 @Injectable()
 export class UsersService {
@@ -123,5 +124,54 @@ export class UsersService {
     }
 
     return await this.usersRepository.softDelete(id);
+  }
+
+  /**
+   * Busca usuarios con rol de TEACHER con funcionalidad de búsqueda online
+   * @param forceItemsIds IDs específicos a incluir siempre
+   * @param searchTerm Término de búsqueda para filtrar por nombre
+   * @param limit Límite de resultados
+   * @returns Lista de usuarios teachers
+   */
+  async findTeachers(
+    forceItemsIds?: number[],
+    searchTerm?: string | null,
+    limit?: number | null,
+  ): Promise<UserDTO[]> {
+    const queryBuilder = this.usersRepository
+      .createQueryBuilder('user')
+      .where('user.role = :role', { role: Role.TEACHER })
+      .andWhere('user.deleteAt IS NULL');
+
+    // Si hay IDs específicos, los incluimos siempre
+    if (forceItemsIds && forceItemsIds.length > 0) {
+      queryBuilder.orWhere('user.id IN (:...forceItemsIds)', { forceItemsIds });
+    }
+
+    // Si hay término de búsqueda, filtramos por nombre
+    if (searchTerm && searchTerm.trim()) {
+      const searchPattern = `%${searchTerm.trim()}%`;
+      queryBuilder.andWhere('user.name ILIKE :searchTerm', {
+        searchTerm: searchPattern,
+      });
+    }
+
+    // Aplicar límite si se especifica
+    if (limit && limit > 0) {
+      queryBuilder.limit(limit);
+    }
+
+    // Ordenar por nombre
+    queryBuilder.orderBy('user.name', 'ASC');
+
+    const users = await queryBuilder.getMany();
+
+    return users.map((user) => {
+      delete user.password;
+      return plainToClass(UserDTO, {
+        ...user,
+        id: user.id,
+      });
+    });
   }
 }
