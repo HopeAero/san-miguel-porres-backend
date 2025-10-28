@@ -10,10 +10,19 @@ import { AppModule } from './app.module';
 import { CORS } from './common';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import envConfig from './config/environment';
+import { RootUserInitService } from './core/users/root-user-init.service';
 
 async function bootstrap() {
   initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Inicializar usuario root
+  try {
+    const rootUserInitService = app.get(RootUserInitService);
+    await rootUserInitService.initializeRootUser();
+  } catch (error) {
+    console.error('Error al inicializar usuario root:', error);
+  }
 
   const PORT = envConfig.PORT || 8000;
 
