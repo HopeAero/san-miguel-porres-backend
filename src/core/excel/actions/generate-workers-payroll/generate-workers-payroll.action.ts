@@ -130,7 +130,16 @@ export class GenerateWorkersPayrollAction {
             `${contract.employee.person.name || ''} ${contract.employee.person.lastName || ''}`.trim();
           row.getCell('C').value = contract.employee.person.dni || '';
           row.getCell('D').value = contract.monthlySalary?.toNumber() || 0;
-          row.getCell('E').value = 0; // Prima por anexo
+          row.getCell('E').value =
+            contract.workingHours.toNumber() +
+            contract.nightBonus?.toNumber() +
+            contract.antique?.toNumber() +
+            contract.geography?.toNumber() +
+            contract.bonusAcademic?.toNumber() +
+            22.5 +
+            0 +
+            contract.bonusForChildren?.toNumber() +
+            contract.bonusDisability?.toNumber(); // Prima por anexo
           row.getCell('F').value = {
             formula: `=SUM(D${currentRow}:E${currentRow})`,
           }; //Total Asignaciones 3 + 4
