@@ -145,7 +145,14 @@ export class GenerateTeachersPayrollAction {
               `${contract.employee.person.name || ''} ${contract.employee.person.lastName || ''}`.trim();
             row.getCell(3).value = contract.employee.person.dni || '';
             row.getCell(4).value = contract.monthlySalary?.toNumber() || 0;
-            row.getCell(5).value = 0;
+            row.getCell(5).value =
+              (contract.antique?.toNumber() || 0) + // Prima por antigüedad
+              (contract.teachingExercise?.toNumber() || 0) + // Ejercicio docente
+              (contract.geography?.toNumber() || 0) + // Prima geográfica
+              (contract.postgraduate?.toNumber() || 0) + // Postgrado
+              (contract.homeCareAssistance?.toNumber() || 0) + // Prima ayuda asistencial
+              (contract.bonusForChildren?.toNumber() || 0) + // N° Hijos
+              (contract.bonusDisability?.toNumber() || 0); // Prima por discapacidad
             row.getCell(6).value = {
               formula: `=D${currentRow}+E${currentRow}`,
             };
