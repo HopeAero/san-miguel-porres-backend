@@ -31,8 +31,6 @@ export class RoleGuard implements CanActivate {
 
     const { user } = request;
 
-    console.log('user', user);
-
     if (!user) {
       return false;
     }
@@ -41,8 +39,6 @@ export class RoleGuard implements CanActivate {
       .createQueryBuilder(User, 'user')
       .where('user.email = :email', { email: user.email })
       .getOne();
-
-    console.log('toxxken', token);
 
     if (!token) {
       return false;
