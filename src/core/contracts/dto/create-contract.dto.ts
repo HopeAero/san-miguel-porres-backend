@@ -82,8 +82,9 @@ export class CreateContractDto {
   teachingExercise: string;
 
   @ApiProperty()
-  @IsInt()
   @IsNotEmpty()
+  @IsInt()
+  @Transform(({ value }) => Number(value.toString()))
   nroOfChildren: number;
 
   @ApiProperty()
