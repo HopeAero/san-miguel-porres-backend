@@ -16,14 +16,6 @@ async function bootstrap() {
   initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // Inicializar usuario root
-  try {
-    const rootUserInitService = app.get(RootUserInitService);
-    await rootUserInitService.initializeRootUser();
-  } catch (error) {
-    console.error('Error al inicializar usuario root:', error);
-  }
-
   const PORT = envConfig.PORT || 8000;
 
   app.set('trust proxy', true);
@@ -65,6 +57,13 @@ async function bootstrap() {
     console.log('Creando documento de Swagger...');
     const documentFactory = () => SwaggerModule.createDocument(app, config);
     console.log('Documento de Swagger creado exitosamente');
+
+    try {
+      const rootUserInitService = app.get(RootUserInitService);
+      await rootUserInitService.initializeRootUser();
+    } catch (error) {
+      console.error('Error al inicializar usuario root:', error);
+    }
 
     console.log('Configurando Swagger UI...');
     SwaggerModule.setup('docs', app, documentFactory);
